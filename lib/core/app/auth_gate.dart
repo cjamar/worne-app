@@ -4,7 +4,7 @@ import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart'
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_event.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
-import '../../features/user/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
