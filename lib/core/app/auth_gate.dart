@@ -43,22 +43,8 @@ class AuthGate extends StatelessWidget {
           if (state is Unauthenticated) {
             return const LoginPage();
           }
-          if (state is AuthError) {
-            return Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error, size: 40),
-                    Text('Error, ${state.message}'),
-                  ],
-                ),
-              ),
-            );
-          }
-
           return const Scaffold(
-            body: Center(child: Text('Ha ocurrido un error por defecto')),
+            body: Center(child: CircularProgressIndicator()),
           );
         },
       ),

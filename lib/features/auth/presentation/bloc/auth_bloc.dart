@@ -43,9 +43,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(Authenticated(userId));
         } else {
           emit(const AuthError('Error al hacer login'));
+          emit(Unauthenticated());
         }
       } catch (e) {
         emit(AuthError(e.toString()));
+        emit(Unauthenticated());
       }
     });
 
@@ -58,6 +60,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(Unauthenticated());
       } catch (e) {
         emit(AuthError(e.toString()));
+        emit(Unauthenticated());
       }
     });
 
@@ -70,6 +73,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         add(AuthCheckRequested());
       } catch (e) {
         emit(AuthError(e.toString()));
+        emit(Unauthenticated());
       }
     });
 
