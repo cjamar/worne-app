@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/features/item/presentation/pages/home_page.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_event.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -25,20 +26,7 @@ class AuthGate extends StatelessWidget {
             );
           }
           if (state is Authenticated) {
-            // aqui irá la HomePage
-            return const Scaffold(
-              backgroundColor: Color.fromARGB(255, 167, 249, 181),
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('🎉', style: TextStyle(fontSize: 80)),
-                    SizedBox(height: 10),
-                    Text('Usuario autenticado', style: TextStyle(fontSize: 20)),
-                  ],
-                ),
-              ),
-            );
+            return const HomePage();
           }
           if (state is Unauthenticated) {
             return const LoginPage();

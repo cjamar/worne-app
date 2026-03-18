@@ -26,9 +26,9 @@ class EditItem extends ItemEvent {
   List<Object?> get props => [item];
 }
 
-class Delete extends ItemEvent {
+class DeleteEvent extends ItemEvent {
   final String itemId;
-  const Delete(this.itemId);
+  const DeleteEvent(this.itemId);
 
   @override
   List<Object?> get props => [itemId];

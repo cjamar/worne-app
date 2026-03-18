@@ -48,7 +48,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       }
     });
 
-    on<Delete>((event, emit) async {
+    on<DeleteEvent>((event, emit) async {
       emit(ItemLoading());
       try {
         await deleteItem(event.itemId);

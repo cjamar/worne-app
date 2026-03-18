@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/features/item/data/datasources/item_remote_datasource.dart';
+import 'package:prestar_ropa_app/features/item/data/datasources/item_remote_datasource_impl.dart';
+import 'package:prestar_ropa_app/features/item/data/repositories/item_repository_impl.dart';
+import 'package:prestar_ropa_app/features/item/domain/repositories/item_repository.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/create_item.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/delete_item.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/get_items.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/update_item.dart';
+import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/app/auth_gate.dart';
 import 'features/auth/data/datasources/auth_remote_datasource_impl.dart';
@@ -55,10 +64,28 @@ class MyApp extends StatelessWidget {
   late final signOut = SignOut(authRepository);
   late final getCurrentUserId = GetCurrentUserId(authRepository);
 
+  // Item
+  late final itemRemoteDatasource = ItemRemoteDatasourceImpl(supabase);
+  late final itemRepository = ItemRepositoryImpl(itemRemoteDatasource);
+
+  late final getItems = GetItems(itemRepository);
+  late final createItem = CreateItem(itemRepository);
+  late final updateItem = UpdateItem(itemRepository);
+  late final deleteItem = DeleteItem(itemRepository);
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<ItemBloc>(
+          create: (_) => ItemBloc(
+            getItems: getItems,
+            createItem: createItem,
+            updateItem: updateItem,
+            deleteItem: deleteItem,
+          ),
+        ),
+
         BlocProvider<AuthBloc>(
           create: (_) => AuthBloc(
             signIn: signIn,
