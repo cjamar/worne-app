@@ -30,10 +30,14 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
 
   @override
   Future<void> updateItem(ItemModel item) async {
+    if (item.id == null) {
+      throw Exception('No se puede actualizar un item sin id');
+    }
+
     await supabase
         .from('items')
         .update(item.toJson())
-        .eq('id', item.id)
+        .eq('id', item.id!)
         .single();
   }
 

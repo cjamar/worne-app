@@ -4,6 +4,7 @@ import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
+import 'package:prestar_ropa_app/features/item/presentation/pages/item_form_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,7 +27,13 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(body: _homeBody(size), floatingActionButton: _fab());
   }
 
-  _fab() => FloatingActionButton(onPressed: () {}, child: Icon(Icons.add));
+  _fab() => FloatingActionButton(
+    onPressed: () => Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ItemFormPage()),
+    ),
+    child: Icon(Icons.add),
+  );
 
   _homeBody(Size size) => SizedBox(
     width: size.width,
