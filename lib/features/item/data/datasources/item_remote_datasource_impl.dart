@@ -9,7 +9,10 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
 
   @override
   Future<List<ItemModel>> getItems() async {
-    final response = await supabase.from('items').select();
+    final response = await supabase
+        .from('items')
+        .select()
+        .order('created_at', ascending: false);
     return response.map((e) => ItemModel.fromJson(e)).toList();
   }
 
@@ -25,7 +28,7 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
 
   @override
   Future<void> insertItem(ItemModel item) async {
-    await supabase.from('items').insert(item.toJson()).single();
+    await supabase.from('items').insert(item.toJson());
   }
 
   @override
@@ -34,15 +37,11 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
       throw Exception('No se puede actualizar un item sin id');
     }
 
-    await supabase
-        .from('items')
-        .update(item.toJson())
-        .eq('id', item.id!)
-        .single();
+    await supabase.from('items').update(item.toJson()).eq('id', item.id!);
   }
 
   @override
   Future<void> deleteItem(String id) async {
-    await supabase.from('items').delete().eq('id', id).single();
+    await supabase.from('items').delete().eq('id', id);
   }
 }

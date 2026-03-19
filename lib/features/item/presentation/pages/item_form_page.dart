@@ -1,19 +1,3 @@
-// para elegir la categoria
-// DropdownButtonFormField<String>(
-//   value: selectedCategory,
-//   items: ItemCategory.values.map((category) {
-//     return DropdownMenuItem(
-//       value: category,
-//       child: Text(category),
-//     );
-//   }).toList(),
-//   onChanged: (value) {
-//     setState(() {
-//       selectedCategory = value!;
-//     });
-//   },
-// )
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item_category.dart';
@@ -71,7 +55,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
 
     final item = Item(
       // id: isEditing ? widget.item?.id : '',
-      id: _uuid.v4(),
+      id: isEditing ? widget.item!.id : _uuid.v4(),
       ownerId: userId,
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),

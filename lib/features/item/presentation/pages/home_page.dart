@@ -97,9 +97,65 @@ class _HomePageState extends State<HomePage> {
 
   _itemCard(Size size, Item item) => Card(
     child: ListTile(
-      onTap: () {},
+      onTap: () => _goToDetail(item),
+      onLongPress: () async =>
+          await _confirmDeleteDialog(size, item.id.toString()),
       title: Text(item.name),
       subtitle: Text(item.description),
     ),
   );
+
+  _goToDetail(Item item) => Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => ItemFormPage(item: item)),
+  );
+
+  Future<void> _confirmDeleteDialog(Size size, String itemId) async {
+    final confirmed = await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Eliminar item'),
+        content: const Text('¿Deseas eliminar este producto?'),
+        actions: [
+          _textButtonDialog(
+            size,
+            'Cancelar',
+            Colors.grey.shade400,
+            Colors.black,
+            false,
+          ),
+          _textButtonDialog(
+            size,
+            'Eliminar',
+            Colors.redAccent,
+            Colors.white,
+            true,
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) _deleteItem(itemId);
+  }
+
+  _textButtonDialog(
+    Size size,
+    String action,
+    Color backgroundColor,
+    Color foregroundColor,
+    bool confirmButton,
+  ) => TextButton(
+    onPressed: () => Navigator.pop(context, confirmButton),
+    style: TextButton.styleFrom(
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadiusGeometry.circular(size.width * 0.06),
+      ),
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+    ),
+    child: Text(action),
+  );
+
+  _deleteItem(String itemId) =>
+      context.read<ItemBloc>().add(DeleteEvent(itemId));
 }
