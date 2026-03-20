@@ -20,7 +20,9 @@ class ItemModel extends Item {
     imageUrl: json['image_url'],
     category: json['category'],
     status: json['status'],
-    createdAt: json['created_at'],
+    createdAt: json['created_at'] != null
+        ? DateTime.parse(json['created_at'])
+        : null,
   );
 
   Map<String, dynamic> toJson() => {
@@ -31,6 +33,5 @@ class ItemModel extends Item {
     'image_url': imageUrl,
     'category': category,
     'status': status,
-    'created_at': createdAt,
   };
 }
