@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:prestar_ropa_app/features/item/data/datasources/item_remote_datasource_impl.dart';
 import 'package:prestar_ropa_app/features/item/data/models/item_model.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
@@ -53,5 +55,10 @@ class ItemRepositoryImpl implements ItemRepository {
   @override
   Future<void> deleteItem(String id) async {
     await datasource.deleteItem(id);
+  }
+
+  @override
+  Future<String?> uploadImage(File file) async {
+    return await datasource.uploadImage(file);
   }
 }

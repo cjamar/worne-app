@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:equatable/equatable.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/update_item.dart';
 import '../../domain/entities/item.dart';
 
 abstract class ItemEvent extends Equatable {
@@ -32,4 +34,12 @@ class DeleteEvent extends ItemEvent {
 
   @override
   List<Object?> get props => [itemId];
+}
+
+class UploadItemImageEvent extends ItemEvent {
+  final File imageFile;
+  const UploadItemImageEvent(this.imageFile);
+
+  @override
+  List<Object?> get props => [imageFile];
 }

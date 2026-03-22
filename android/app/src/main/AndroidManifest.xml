@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+   <!-- Modificado para Supabase storage. Permiso para acceder a la cámara y subir imágenes -->
+   <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <application
         android:label="prestar_ropa_app"
         android:name="${applicationName}"

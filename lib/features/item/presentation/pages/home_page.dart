@@ -5,6 +5,7 @@ import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart'
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
 import 'package:prestar_ropa_app/features/item/presentation/pages/item_form_page.dart';
+import 'package:prestar_ropa_app/features/item/presentation/widgets/item_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -86,22 +87,20 @@ class _HomePageState extends State<HomePage> {
   );
 
   _itemList(Size size, List<Item> items) => Container(
-    width: size.width * 0.95,
-    height: size.height * 0.8,
+    width: size.width * 0.9,
+    height: size.height * 0.7,
     color: Colors.yellow,
-    child: ListView.builder(
+    child: GridView.builder(
       itemCount: items.length,
-      itemBuilder: (context, index) => _itemCard(size, items[index]),
-    ),
-  );
-
-  _itemCard(Size size, Item item) => Card(
-    child: ListTile(
-      onTap: () => _goToDetail(item),
-      onLongPress: () async =>
-          await _confirmDeleteDialog(size, item.id.toString()),
-      title: Text(item.name),
-      subtitle: Text(item.description),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        childAspectRatio: 0.79,
+        crossAxisCount: 2,
+      ),
+      itemBuilder: (context, index) => ItemCard(
+        item: items[index],
+        onTap: () => _goToDetail(items[index]),
+        onLongPress: () => _confirmDeleteDialog(size, items[index].id!),
+      ),
     ),
   );
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:prestar_ropa_app/features/item/data/datasources/item_remote_datasource.dart';
 import 'package:prestar_ropa_app/features/item/data/models/item_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -43,5 +45,17 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
   @override
   Future<void> deleteItem(String id) async {
     await supabase.from('items').delete().eq('id', id);
+  }
+
+  @override
+  Future<String?> uploadImage(File file) async {
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final path = 'items/$fileName.jpg';
+
+    await supabase.storage.from('items-images').upload(path, file);
+
+    final publicUrl = supabase.storage.from('items-images').getPublicUrl(path);
+
+    return publicUrl;
   }
 }

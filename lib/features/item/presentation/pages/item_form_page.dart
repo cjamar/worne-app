@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item_category.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
@@ -28,6 +30,9 @@ class _ItemFormPageState extends State<ItemFormPage> {
   final List<String> categories = ItemCategory.values;
   bool get isEditing => widget.item != null;
   final _uuid = Uuid();
+  File? _selectedImage;
+  final _picker = ImagePicker();
+  String? _uploadedImageUrl;
 
   @override
   void initState() {
@@ -48,20 +53,19 @@ class _ItemFormPageState extends State<ItemFormPage> {
     super.dispose();
   }
 
-  void _submit() {
+  void _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     final userId = Supabase.instance.client.auth.currentUser!.id;
 
     final item = Item(
-      // id: isEditing ? widget.item?.id : '',
       id: isEditing ? widget.item!.id : _uuid.v4(),
       ownerId: userId,
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
-      imageUrl: widget.item?.imageUrl ?? '',
+      imageUrl: _uploadedImageUrl ?? '',
       category: _selectedCategory!,
-      status: ItemStatus.available.toString(),
+      status: 'available',
     );
 
     if (isEditing) {
@@ -83,6 +87,14 @@ class _ItemFormPageState extends State<ItemFormPage> {
       backgroundColor: Colors.white,
       body: BlocListener<ItemBloc, ItemState>(
         listener: (context, state) {
+          if (state is ImageUploaded) {
+            setState(() {
+              _uploadedImageUrl = state.imageUrl;
+            });
+          }
+          if (state is ImageUploadError) {
+            _snackbar(context, state.message);
+          }
           if (state is ItemLoaded) {
             Navigator.pop(context);
           }
@@ -105,7 +117,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
         children: [
           Container(
             width: size.width,
-            height: size.height * 0.25,
+            height: size.height * 0.4,
             margin: EdgeInsets.only(top: size.height * 0.05),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -113,6 +125,8 @@ class _ItemFormPageState extends State<ItemFormPage> {
                 _nameTextfield(size),
                 _descriptionTextfield(size),
                 _categoryDropdown(size),
+                SizedBox(height: size.height * 0.04),
+                _imagePickerButton(size),
               ],
             ),
           ),
@@ -182,6 +196,34 @@ class _ItemFormPageState extends State<ItemFormPage> {
     ),
   );
 
+  _imagePickerButton(Size size) => SizedBox(
+    width: size.width * 0.8,
+    height: size.height * 0.06,
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        foregroundColor: Colors.black,
+        backgroundColor: Colors.grey.shade300,
+      ),
+      onPressed: _pickImage,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.image, size: size.width * 0.07, color: Colors.grey),
+          SizedBox(width: size.width * 0.02),
+          Expanded(
+            child: Text(
+              _selectedImage != null ? _selectedImage!.path : 'Subir imagen',
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
   _submitButton(Size size) => BlocBuilder<ItemBloc, ItemState>(
     builder: (context, state) {
       if (state is ItemLoading) {
@@ -206,6 +248,19 @@ class _ItemFormPageState extends State<ItemFormPage> {
     },
   );
 
+  Future<void> _pickImage() async {
+    final picked = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (picked != null) {
+      final file = File(picked.path);
+      setState(() {
+        _selectedImage = file;
+      });
+
+      _uploadImage(file);
+    }
+  }
+
   _snackbar(BuildContext context, String message) => ScaffoldMessenger.of(
     context,
   ).showSnackBar(SnackBar(content: Text(message)));
@@ -216,4 +271,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
     borderRadius: BorderRadius.circular(size.width * 0.02),
     borderSide: BorderSide(color: color),
   );
+
+  void _uploadImage(File file) =>
+      context.read<ItemBloc>().add(UploadItemImageEvent(file));
 }

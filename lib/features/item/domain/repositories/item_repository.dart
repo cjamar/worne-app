@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../entities/item.dart';
 
 abstract class ItemRepository {
@@ -6,4 +7,5 @@ abstract class ItemRepository {
   Future<void> createItem(Item item);
   Future<void> updateItem(Item item);
   Future<void> deleteItem(String id);
+  Future<String?> uploadImage(File file);
 }

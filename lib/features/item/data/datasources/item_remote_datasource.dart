@@ -1,4 +1,5 @@
-import 'package:prestar_ropa_app/features/item/data/models/item_model.dart';
+import 'dart:io';
+import '../models/item_model.dart';
 
 abstract class ItemRemoteDatasource {
   Future<List<ItemModel>> getItems();
@@ -6,4 +7,5 @@ abstract class ItemRemoteDatasource {
   Future<void> insertItem(ItemModel item);
   Future<void> updateItem(ItemModel item);
   Future<void> deleteItem(String id);
+  Future<String?> uploadImage(File file);
 }

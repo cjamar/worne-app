@@ -28,3 +28,15 @@ class ItemError extends ItemState {
   @override
   List<Object?> get props => [message];
 }
+
+class ImageUploading extends ItemState {}
+
+class ImageUploaded extends ItemState {
+  final String imageUrl;
+  const ImageUploaded(this.imageUrl);
+}
+
+class ImageUploadError extends ItemState {
+  final String message;
+  const ImageUploadError(this.message);
+}

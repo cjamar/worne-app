@@ -8,6 +8,7 @@ import 'package:prestar_ropa_app/features/item/domain/usecases/create_item.dart'
 import 'package:prestar_ropa_app/features/item/domain/usecases/delete_item.dart';
 import 'package:prestar_ropa_app/features/item/domain/usecases/get_items.dart';
 import 'package:prestar_ropa_app/features/item/domain/usecases/update_item.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/upload_item_image.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/app/auth_gate.dart';
@@ -72,6 +73,7 @@ class MyApp extends StatelessWidget {
   late final createItem = CreateItem(itemRepository);
   late final updateItem = UpdateItem(itemRepository);
   late final deleteItem = DeleteItem(itemRepository);
+  late final uploadItemImage = UploadItemImage(itemRepository);
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +85,7 @@ class MyApp extends StatelessWidget {
             createItem: createItem,
             updateItem: updateItem,
             deleteItem: deleteItem,
+            uploadItemImage: uploadItemImage,
           ),
         ),
 
