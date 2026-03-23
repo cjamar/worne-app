@@ -1,4 +1,5 @@
 import '../../domain/entities/item.dart';
+import '../../domain/entities/item_status.dart';
 
 class ItemModel extends Item {
   const ItemModel({
@@ -19,7 +20,7 @@ class ItemModel extends Item {
     description: json['description'],
     imageUrl: json['image_url'],
     category: json['category'],
-    status: json['status'],
+    status: ItemStatus.values.firstWhere((e) => e.name == json['status']),
     createdAt: json['created_at'] != null
         ? DateTime.parse(json['created_at'])
         : null,
@@ -32,6 +33,6 @@ class ItemModel extends Item {
     'description': description,
     'image_url': imageUrl,
     'category': category,
-    'status': status,
+    'status': status.name,
   };
 }

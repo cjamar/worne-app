@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
 
 class ItemCard extends StatelessWidget {
   final Item item;
@@ -87,14 +88,15 @@ class ItemCard extends StatelessWidget {
     Color color;
 
     switch (item.status) {
-      case 'available':
+      case ItemStatus.available:
         color = Colors.green;
         break;
-      case 'borrowed':
+      case ItemStatus.loaned:
         color = Colors.orange;
         break;
-      default:
-        color = Colors.grey;
+      case ItemStatus.reserved:
+        color = Colors.purple;
+        break;
     }
 
     return Container(
@@ -103,10 +105,10 @@ class ItemCard extends StatelessWidget {
         vertical: size.width * 0.01,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey.shade300,
+        color: color.withAlpha(40),
         borderRadius: BorderRadius.circular(size.width * 0.05),
       ),
-      child: Text(item.status, style: TextStyle(color: color)),
+      child: Text(item.status.name, style: TextStyle(color: color)),
     );
   }
 }

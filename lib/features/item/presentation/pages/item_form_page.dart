@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item_category.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
@@ -65,7 +66,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
       description: _descriptionController.text.trim(),
       imageUrl: _uploadedImageUrl ?? '',
       category: _selectedCategory!,
-      status: 'available',
+      status: ItemStatus.available,
     );
 
     if (isEditing) {

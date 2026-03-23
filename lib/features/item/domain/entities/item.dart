@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'item_status.dart';
 
 class Item extends Equatable {
   final String? id;
@@ -7,7 +8,7 @@ class Item extends Equatable {
   final String description;
   final String imageUrl;
   final String category;
-  final String status;
+  final ItemStatus status;
   final DateTime? createdAt;
 
   const Item({
