@@ -25,15 +25,38 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    return Scaffold(body: _homeBody(size), floatingActionButton: _fab());
+    return Scaffold(
+      appBar: AppBar(
+        actionsPadding: EdgeInsets.only(right: size.width * 0.025),
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+        leading: Icon(Icons.logo_dev, size: 50),
+        actions: [_userArea(size)],
+      ),
+      body: SizedBox(
+        width: size.width,
+        height: size.height,
+        child: _homeBody(size),
+      ),
+      backgroundColor: Colors.white,
+      floatingActionButton: _fab(),
+    );
   }
 
+  _userArea(Size size) => CircleAvatar(
+    backgroundColor: Colors.grey.shade300,
+    child: Icon(Icons.person_2_outlined, size: 28, color: Colors.blueGrey),
+  );
+
   _fab() => FloatingActionButton(
+    backgroundColor: Colors.black87,
+    elevation: 0,
+    shape: CircleBorder(),
     onPressed: () => Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ItemFormPage()),
     ),
-    child: Icon(Icons.add),
+    child: Icon(Icons.add, color: Colors.white),
   );
 
   _homeBody(Size size) => SizedBox(
@@ -51,7 +74,7 @@ class _HomePageState extends State<HomePage> {
           if (state.items.isEmpty) {
             return _emptyContainer(size);
           }
-          return _itemList(size, state.items);
+          return _itemListBody(size, state.items);
         }
         return const SizedBox.shrink();
       },
@@ -86,20 +109,57 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
-  _itemList(Size size, List<Item> items) => Container(
-    width: size.width * 0.9,
-    height: size.height * 0.7,
-    color: Colors.yellow,
-    child: GridView.builder(
-      itemCount: items.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        childAspectRatio: 0.79,
-        crossAxisCount: 2,
+  _itemListBody(Size size, List<Item> items) => CustomScrollView(
+    slivers: [_filterItemListButton(size, items), _itemList(size, items)],
+  );
+
+  _filterItemListButton(Size size, List<Item> items) => SliverAppBar(
+    floating: true,
+    snap: true,
+    pinned: false,
+    backgroundColor: Colors.white,
+    toolbarHeight: size.height * 0.06,
+    title: Row(
+      children: [
+        _filterButton(size, 'Disponibles'),
+        _filterButton(size, 'Prestados'),
+        _filterButton(size, 'Reservados'),
+      ],
+    ),
+  );
+
+  _filterButton(Size size, String filterName) => InkWell(
+    borderRadius: BorderRadius.circular(size.width * 0.04),
+    onTap: () {},
+    child: Container(
+      margin: EdgeInsets.symmetric(horizontal: size.width * 0.02),
+      padding: EdgeInsets.symmetric(
+        horizontal: size.width * 0.025,
+        vertical: size.width * 0.015,
       ),
-      itemBuilder: (context, index) => ItemCard(
-        item: items[index],
-        onTap: () => _goToDetail(items[index]),
-        onLongPress: () => _confirmDeleteDialog(size, items[index].id!),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(size.width * 0.04),
+      ),
+      child: Text(filterName, style: TextStyle(fontSize: 15)),
+    ),
+  );
+
+  _itemList(Size size, List<Item> items) => SliverPadding(
+    padding: EdgeInsetsGeometry.all(size.width * 0.01),
+    sliver: SliverGrid(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) => ItemCard(
+          item: items[index],
+          onTap: () => _goToDetail(items[index]),
+          onLongPress: () => _confirmDeleteDialog(size, items[index].id!),
+        ),
+        childCount: items.length,
+      ),
+
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
       ),
     ),
   );

@@ -17,6 +17,7 @@ class ItemCard extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Card(
+        color: Colors.white,
         elevation: 0,
         margin: EdgeInsets.symmetric(
           vertical: size.height * 0.005,
@@ -31,14 +32,11 @@ class ItemCard extends StatelessWidget {
   }
 
   _imageCard(Size size) => ClipRRect(
-    borderRadius: BorderRadius.only(
-      topLeft: Radius.circular(size.width * 0.05),
-      topRight: Radius.circular(size.width * 0.05),
-    ),
+    borderRadius: BorderRadius.circular(size.width * 0.025),
     child: Container(
       width: size.width,
-      height: size.height * 0.17,
-      color: Colors.orange,
+      height: size.height * 0.2,
+      color: Colors.grey.shade200,
       child: item.imageUrl.trim().isNotEmpty
           ? Image.network(
               item.imageUrl,
@@ -54,55 +52,61 @@ class ItemCard extends StatelessWidget {
                   ),
                 );
               },
-              errorBuilder: (context, error, stackTrace) => Center(
-                child: Icon(
-                  Icons.broken_image,
-                  size: size.width * 0.1,
-                  color: Colors.grey,
-                ),
-              ),
+              errorBuilder: (context, error, stackTrace) =>
+                  Center(child: _iconBrokenImage(size)),
             )
           : _iconImage(size),
     ),
   );
 
-  _iconImage(Size size) => Center(
-    child: Icon(Icons.image, size: size.width * 0.1, color: Colors.grey),
+  _iconBrokenImage(Size size) => Icon(
+    Icons.broken_image,
+    size: size.width * 0.15,
+    color: Colors.grey.shade300,
   );
 
-  _contentCard(Size size) => Padding(
+  _iconImage(Size size) => Center(
+    child: Icon(
+      Icons.image,
+      size: size.width * 0.15,
+      color: Colors.grey.shade300,
+    ),
+  );
+
+  _contentCard(Size size) => Container(
+    width: size.width,
     padding: EdgeInsetsGeometry.all(size.width * 0.02),
     child: Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(
-          height: size.height * 0.06,
-          child: Text(item.name, overflow: TextOverflow.ellipsis, maxLines: 2),
-        ),
-        _statusBadgeCard(size),
-      ],
+      children: [_nameCard(size), _statusBadgeCard(size)],
     ),
+  );
+
+  _nameCard(Size size) => Container(
+    width: size.width,
+    padding: EdgeInsets.only(bottom: size.height * 0.01),
+    child: Text(item.name, overflow: TextOverflow.ellipsis, maxLines: 1),
   );
 
   _statusBadgeCard(Size size) {
     Color color;
 
     switch (item.status) {
-      case ItemStatus.available:
+      case ItemStatus.disponible:
         color = Colors.green;
         break;
-      case ItemStatus.loaned:
-        color = Colors.orange;
+      case ItemStatus.prestado:
+        color = Colors.blue;
         break;
-      case ItemStatus.reserved:
-        color = Colors.purple;
+      case ItemStatus.reservado:
+        color = Colors.deepPurpleAccent;
         break;
     }
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: size.width * 0.04,
-        vertical: size.width * 0.01,
+        horizontal: size.width * 0.025,
+        vertical: size.width * 0.005,
       ),
       decoration: BoxDecoration(
         color: color.withAlpha(40),
