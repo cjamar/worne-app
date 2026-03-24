@@ -32,7 +32,7 @@ class ItemCard extends StatelessWidget {
   }
 
   _imageCard(Size size) => ClipRRect(
-    borderRadius: BorderRadius.circular(size.width * 0.025),
+    // borderRadius: BorderRadius.circular(size.width * 0.025),
     child: Container(
       width: size.width,
       height: size.height * 0.2,
@@ -92,13 +92,13 @@ class ItemCard extends StatelessWidget {
     Color color;
 
     switch (item.status) {
-      case ItemStatus.disponible:
+      case ItemStatus.available:
         color = Colors.green;
         break;
-      case ItemStatus.prestado:
+      case ItemStatus.loaned:
         color = Colors.blue;
         break;
-      case ItemStatus.reservado:
+      case ItemStatus.reserved:
         color = Colors.deepPurpleAccent;
         break;
     }

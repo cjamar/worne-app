@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
 
 import '../../domain/entities/item.dart';
 
@@ -15,10 +16,11 @@ class ItemLoading extends ItemState {}
 
 class ItemLoaded extends ItemState {
   final List<Item> items;
-  const ItemLoaded(this.items);
+  final ItemStatus? activeFilter;
+  const ItemLoaded(this.items, {this.activeFilter});
 
   @override
-  List<Object?> get props => [items];
+  List<Object?> get props => [items, activeFilter];
 }
 
 class ItemError extends ItemState {

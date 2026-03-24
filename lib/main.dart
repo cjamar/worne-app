@@ -1,15 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prestar_ropa_app/features/item/data/datasources/item_remote_datasource.dart';
-import 'package:prestar_ropa_app/features/item/data/datasources/item_remote_datasource_impl.dart';
-import 'package:prestar_ropa_app/features/item/data/repositories/item_repository_impl.dart';
-import 'package:prestar_ropa_app/features/item/domain/repositories/item_repository.dart';
-import 'package:prestar_ropa_app/features/item/domain/usecases/create_item.dart';
-import 'package:prestar_ropa_app/features/item/domain/usecases/delete_item.dart';
-import 'package:prestar_ropa_app/features/item/domain/usecases/get_items.dart';
-import 'package:prestar_ropa_app/features/item/domain/usecases/update_item.dart';
-import 'package:prestar_ropa_app/features/item/domain/usecases/upload_item_image.dart';
-import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/app/auth_gate.dart';
 import 'features/auth/data/datasources/auth_remote_datasource_impl.dart';
@@ -21,6 +11,14 @@ import 'features/auth/domain/usecases/sign_out.dart';
 import 'features/auth/domain/usecases/sign_up.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
+import 'features/item/data/datasources/item_remote_datasource_impl.dart';
+import 'features/item/data/repositories/item_repository_impl.dart';
+import 'features/item/domain/usecases/create_item.dart';
+import 'features/item/domain/usecases/delete_item.dart';
+import 'features/item/domain/usecases/get_items.dart';
+import 'features/item/domain/usecases/update_item.dart';
+import 'features/item/domain/usecases/upload_item_image.dart';
+import 'features/item/presentation/bloc/item_bloc.dart';
 import 'features/user/data/datasources/user_remote_datasource_impl.dart';
 import 'features/user/data/repositories/user_repository_impl.dart';
 import 'features/user/domain/usecases/create_user.dart';
@@ -88,7 +86,6 @@ class MyApp extends StatelessWidget {
             uploadItemImage: uploadItemImage,
           ),
         ),
-
         BlocProvider<AuthBloc>(
           create: (_) => AuthBloc(
             signIn: signIn,

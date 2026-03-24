@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
+import '../../domain/entities/item.dart';
 import '../../domain/usecases/create_item.dart';
 import '../../domain/usecases/delete_item.dart';
 import '../../domain/usecases/get_items.dart';
@@ -13,6 +15,8 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
   final UpdateItem updateItem;
   final DeleteItem deleteItem;
   final UploadItemImage uploadItemImage;
+  List<Item> _allItems = [];
+  ItemStatus? _activeFilter;
 
   ItemBloc({
     required this.getItems,
@@ -25,7 +29,9 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       emit(ItemLoading());
       try {
         final items = await getItems();
-        emit(ItemLoaded(items));
+        _allItems = items;
+        emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
+        // emit(ItemLoaded(items));
       } catch (e) {
         emit(ItemError(e.toString()));
       }
@@ -75,5 +81,17 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
         emit(ImageUploadError(e.toString()));
       }
     });
+
+    on<FilterItems>((event, emit) async {
+      _activeFilter = event.status;
+
+      emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
+    });
+  }
+
+  List<Item> _applyFilter() {
+    if (_activeFilter == null) return _allItems;
+
+    return _allItems.where((item) => item.status == _activeFilter).toList();
   }
 }

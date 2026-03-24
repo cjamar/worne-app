@@ -1,1 +1,1 @@
-enum ItemStatus { disponible, prestado, reservado }
+enum ItemStatus { available, loaned, reserved }

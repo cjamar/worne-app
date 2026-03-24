@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/core/utils/items_helper.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
@@ -15,6 +17,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final List<String> filtersItem = [
+    'Todos',
+    'Disponibles',
+    'Prestados',
+    'Reservados',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +39,8 @@ class _HomePageState extends State<HomePage> {
         actionsPadding: EdgeInsets.only(right: size.width * 0.025),
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
-        leading: Icon(Icons.logo_dev, size: 50),
+        toolbarHeight: 45,
+        leading: Icon(Icons.logo_dev, size: size.width * 0.12),
         actions: [_userArea(size)],
       ),
       body: SizedBox(
@@ -45,13 +55,20 @@ class _HomePageState extends State<HomePage> {
 
   _userArea(Size size) => CircleAvatar(
     backgroundColor: Colors.grey.shade300,
-    child: Icon(Icons.person_2_outlined, size: 28, color: Colors.blueGrey),
+    child: Icon(
+      Icons.person_2_outlined,
+      size: size.width * 0.07,
+      color: Colors.blueGrey,
+    ),
   );
 
   _fab() => FloatingActionButton(
-    backgroundColor: Colors.black87,
+    backgroundColor: Colors.black,
     elevation: 0,
-    shape: CircleBorder(),
+    shape: BeveledRectangleBorder(
+      side: BorderSide(width: 0.5, color: Colors.white),
+    ),
+
     onPressed: () => Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ItemFormPage()),
@@ -74,7 +91,7 @@ class _HomePageState extends State<HomePage> {
           if (state.items.isEmpty) {
             return _emptyContainer(size);
           }
-          return _itemListBody(size, state.items);
+          return _itemListBody(size, state);
         }
         return const SizedBox.shrink();
       },
@@ -109,39 +126,55 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
-  _itemListBody(Size size, List<Item> items) => CustomScrollView(
-    slivers: [_filterItemListButton(size, items), _itemList(size, items)],
+  _itemListBody(Size size, ItemLoaded state) => CustomScrollView(
+    slivers: [
+      _filterItemListButton(size, state.activeFilter),
+      _itemList(size, state.items),
+    ],
   );
 
-  _filterItemListButton(Size size, List<Item> items) => SliverAppBar(
+  _filterItemListButton(Size size, ItemStatus? activeFilter) => SliverAppBar(
     floating: true,
     snap: true,
     pinned: false,
+    scrolledUnderElevation: 0,
     backgroundColor: Colors.white,
     toolbarHeight: size.height * 0.06,
-    title: Row(
-      children: [
-        _filterButton(size, 'Disponibles'),
-        _filterButton(size, 'Prestados'),
-        _filterButton(size, 'Reservados'),
-      ],
+    title: SizedBox(
+      height: size.height * 0.04,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: filtersItem.map<Widget>((filter) {
+          final status = ItemsHelper.mapStringToStatus(filter);
+          final isActive = activeFilter == status;
+          return _filterButton(size, filter, isActive);
+        }).toList(),
+        //  filtersItem
+        //     .map<Widget>((filter) => _filterButton(size, filter, isActive))
+        //     .toList(),
+      ),
     ),
   );
 
-  _filterButton(Size size, String filterName) => InkWell(
-    borderRadius: BorderRadius.circular(size.width * 0.04),
-    onTap: () {},
+  _filterButton(Size size, String filter, bool isActive) => InkWell(
+    onTap: () => _filteringItems(filter),
     child: Container(
-      margin: EdgeInsets.symmetric(horizontal: size.width * 0.02),
+      margin: EdgeInsets.only(right: size.width * 0.025),
       padding: EdgeInsets.symmetric(
         horizontal: size.width * 0.025,
         vertical: size.width * 0.015,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(size.width * 0.04),
+        color: isActive ? Colors.black : Colors.white,
+        border: Border.all(width: 0.5),
       ),
-      child: Text(filterName, style: TextStyle(fontSize: 15)),
+      child: Text(
+        filter,
+        style: TextStyle(
+          fontSize: 15,
+          color: isActive ? Colors.white : Colors.black,
+        ),
+      ),
     ),
   );
 
@@ -217,4 +250,25 @@ class _HomePageState extends State<HomePage> {
 
   _deleteItem(String itemId) =>
       context.read<ItemBloc>().add(DeleteEvent(itemId));
+
+  _filteringItems(String filterName) {
+    final bloc = context.read<ItemBloc>();
+
+    switch (filterName) {
+      case 'Todos':
+        bloc.add(FilterItems(null));
+        break;
+      case 'Disponibles':
+        bloc.add(FilterItems(ItemStatus.available));
+        break;
+      case 'Prestados':
+        bloc.add(FilterItems(ItemStatus.loaned));
+        break;
+      case 'Reservados':
+        bloc.add(FilterItems(ItemStatus.reserved));
+        break;
+      default:
+        bloc.add(FilterItems(null));
+    }
+  }
 }

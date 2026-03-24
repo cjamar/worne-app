@@ -66,7 +66,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
       description: _descriptionController.text.trim(),
       imageUrl: _uploadedImageUrl ?? '',
       category: _selectedCategory!,
-      status: ItemStatus.disponible,
+      status: ItemStatus.available,
     );
 
     if (isEditing) {

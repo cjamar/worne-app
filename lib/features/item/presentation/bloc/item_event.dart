@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
 import 'package:prestar_ropa_app/features/item/domain/usecases/update_item.dart';
 import '../../domain/entities/item.dart';
 
@@ -42,4 +43,12 @@ class UploadItemImageEvent extends ItemEvent {
 
   @override
   List<Object?> get props => [imageFile];
+}
+
+class FilterItems extends ItemEvent {
+  final ItemStatus? status;
+  const FilterItems(this.status);
+
+  @override
+  List<Object?> get props => [status];
 }
