@@ -1,8 +1,7 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
-import 'package:prestar_ropa_app/features/item/domain/usecases/update_item.dart';
 import '../../domain/entities/item.dart';
+import '../../domain/entities/item_status.dart';
 
 abstract class ItemEvent extends Equatable {
   const ItemEvent();

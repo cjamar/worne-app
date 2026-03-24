@@ -2,6 +2,7 @@
    <!-- Modificado para Supabase storage. Permiso para acceder a la cámara y subir imágenes -->
    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+   <uses-permission android:name="android.permission.CAMERA"/>
     <application
         android:label="prestar_ropa_app"
         android:name="${applicationName}"

@@ -17,13 +17,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<String> filtersItem = [
-    'Todos',
-    'Disponibles',
-    'Prestados',
-    'Reservados',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -141,17 +134,15 @@ class _HomePageState extends State<HomePage> {
     backgroundColor: Colors.white,
     toolbarHeight: size.height * 0.06,
     title: SizedBox(
+      width: size.width,
       height: size.height * 0.04,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        children: filtersItem.map<Widget>((filter) {
+        children: ItemStatusFilter.filtersItem.map<Widget>((filter) {
           final status = ItemsHelper.mapStringToStatus(filter);
           final isActive = activeFilter == status;
           return _filterButton(size, filter, isActive);
         }).toList(),
-        //  filtersItem
-        //     .map<Widget>((filter) => _filterButton(size, filter, isActive))
-        //     .toList(),
       ),
     ),
   );

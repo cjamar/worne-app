@@ -80,33 +80,40 @@ class _ItemFormPageState extends State<ItemFormPage> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Editar item' : 'Nuevo item'),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          title: Text(isEditing ? 'Editar item' : 'Nuevo item'),
+          backgroundColor: Colors.white,
+        ),
         backgroundColor: Colors.white,
-      ),
-      backgroundColor: Colors.white,
-      body: BlocListener<ItemBloc, ItemState>(
-        listener: (context, state) {
-          if (state is ImageUploaded) {
-            setState(() {
-              _uploadedImageUrl = state.imageUrl;
-            });
-          }
-          if (state is ImageUploadError) {
-            _snackbar(context, state.message);
-          }
-          if (state is ItemLoaded) {
-            Navigator.pop(context);
-          }
-          if (state is ItemError) {
-            _snackbar(context, state.message);
-          }
-        },
-        child: _itemFormBody(size),
+        body: _formPageBody(size),
       ),
     );
   }
+
+  _formPageBody(Size size) => BlocListener<ItemBloc, ItemState>(
+    listener: (context, state) {
+      if (state is ImageUploaded) {
+        setState(() {
+          _uploadedImageUrl = state.imageUrl;
+        });
+      }
+      if (state is ImageUploadError) {
+        _snackbar(context, state.message);
+      }
+      if (state is ItemLoaded) {
+        Navigator.pop(context);
+      }
+      if (state is ItemError) {
+        _snackbar(context, state.message);
+      }
+    },
+    child: _itemFormBody(size),
+  );
 
   _itemFormBody(Size size) => SizedBox(
     width: size.width,
@@ -206,7 +213,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
         foregroundColor: Colors.black,
         backgroundColor: Colors.grey.shade300,
       ),
-      onPressed: _pickImage,
+      onPressed: () => _showImageSourceSelector(size),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -249,8 +256,8 @@ class _ItemFormPageState extends State<ItemFormPage> {
     },
   );
 
-  Future<void> _pickImage() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
+  Future<void> _pickImage(ImageSource source) async {
+    final picked = await _picker.pickImage(source: source);
 
     if (picked != null) {
       final file = File(picked.path);
@@ -261,6 +268,61 @@ class _ItemFormPageState extends State<ItemFormPage> {
       _uploadImage(file);
     }
   }
+
+  Future<void> _showImageSourceSelector(Size size) async =>
+      showModalBottomSheet(
+        context: context,
+        builder: (_) => Container(
+          color: Colors.white,
+          width: size.width,
+          height: size.height * 0.4,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _pickImageSourceButton(
+                size,
+                Icons.camera_alt,
+                'Cámara',
+                ImageSource.camera,
+              ),
+              _pickImageSourceButton(
+                size,
+                Icons.photo_library,
+                'Galería',
+                ImageSource.camera,
+              ),
+            ],
+          ),
+        ),
+      );
+
+  _pickImageSourceButton(
+    Size size,
+    IconData icon,
+    String text,
+    ImageSource source,
+  ) => InkWell(
+    onTap: () {
+      Navigator.pop(context);
+      _pickImage(source);
+    },
+    child: Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: size.width * 0.1,
+        vertical: size.width * 0.09,
+      ),
+      color: Colors.grey.shade200,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: size.width * 0.1),
+          SizedBox(height: size.height * 0.01),
+          Text(text),
+        ],
+      ),
+    ),
+  );
 
   _snackbar(BuildContext context, String message) => ScaffoldMessenger.of(
     context,
