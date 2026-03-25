@@ -8,6 +8,7 @@ import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
 import 'package:prestar_ropa_app/features/item/presentation/pages/item_form_page.dart';
 import 'package:prestar_ropa_app/features/item/presentation/widgets/item_card.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/app_drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         actionsPadding: EdgeInsets.only(right: size.width * 0.025),
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
@@ -43,18 +45,24 @@ class _HomePageState extends State<HomePage> {
       ),
       backgroundColor: Colors.white,
       floatingActionButton: _fab(),
+      drawer: AppDrawer(),
     );
   }
 
-  _userArea(Size size) => CircleAvatar(
-    backgroundColor: Colors.grey.shade300,
-    child: Icon(
-      Icons.person_2_outlined,
-      size: size.width * 0.07,
-      color: Colors.blueGrey,
+  _userArea(Size size) => Builder(
+    builder: (context) => IconButton(
+      padding: EdgeInsets.all(size.width * 0.01),
+      onPressed: () => Scaffold.of(context).openDrawer(),
+      icon: CircleAvatar(
+        backgroundColor: Colors.grey.shade200,
+        child: Icon(
+          Icons.person_2_outlined,
+          color: Colors.blueGrey,
+          size: size.width * 0.07,
+        ),
+      ),
     ),
   );
-
   _fab() => FloatingActionButton(
     backgroundColor: Colors.black,
     elevation: 0,
@@ -127,6 +135,7 @@ class _HomePageState extends State<HomePage> {
   );
 
   _filterItemListButton(Size size, ItemStatus? activeFilter) => SliverAppBar(
+    automaticallyImplyLeading: false,
     floating: true,
     snap: true,
     pinned: false,
