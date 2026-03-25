@@ -34,6 +34,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
   File? _selectedImage;
   final _picker = ImagePicker();
   String? _uploadedImageUrl;
+  bool _isUploadingImage = false;
 
   @override
   void initState() {
@@ -64,7 +65,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
       ownerId: userId,
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
-      imageUrl: _uploadedImageUrl ?? '',
+      imageUrl: _uploadedImageUrl ?? widget.item?.imageUrl ?? '',
       category: _selectedCategory!,
       status: ItemStatus.available,
     );
@@ -100,9 +101,13 @@ class _ItemFormPageState extends State<ItemFormPage> {
       if (state is ImageUploaded) {
         setState(() {
           _uploadedImageUrl = state.imageUrl;
+          _isUploadingImage = false;
         });
       }
       if (state is ImageUploadError) {
+        setState(() {
+          _isUploadingImage = false;
+        });
         _snackbar(context, state.message);
       }
       if (state is ItemLoaded) {
@@ -220,12 +225,16 @@ class _ItemFormPageState extends State<ItemFormPage> {
           Icon(Icons.image, size: size.width * 0.07, color: Colors.grey),
           SizedBox(width: size.width * 0.02),
           Expanded(
-            child: Text(
-              _selectedImage != null ? _selectedImage!.path : 'Subir imagen',
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-              textAlign: TextAlign.end,
-            ),
+            child: _isUploadingImage
+                ? _loader(size)
+                : Text(
+                    _selectedImage != null
+                        ? _selectedImage!.path
+                        : 'Subir imagen',
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    textAlign: TextAlign.end,
+                  ),
           ),
         ],
       ),
@@ -247,9 +256,9 @@ class _ItemFormPageState extends State<ItemFormPage> {
             disabledBackgroundColor: Colors.grey,
             // textStyle: TextStyle()
             disabledForegroundColor: Colors.white,
-            backgroundColor: Colors.blue,
+            backgroundColor: _isUploadingImage ? Colors.grey : Colors.blue,
           ),
-          onPressed: _submit,
+          onPressed: _isUploadingImage ? null : _submit,
           child: Text(isEditing ? ' Guardar cambios' : 'Subir producto'),
         ),
       );
@@ -263,6 +272,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
       final file = File(picked.path);
       setState(() {
         _selectedImage = file;
+        _isUploadingImage = true;
       });
 
       _uploadImage(file);
@@ -290,7 +300,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
                 size,
                 Icons.photo_library,
                 'Galería',
-                ImageSource.camera,
+                ImageSource.gallery,
               ),
             ],
           ),
