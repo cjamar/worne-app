@@ -11,8 +11,8 @@ class ItemRepositoryImpl implements ItemRepository {
   ItemRepositoryImpl(this.datasource);
 
   @override
-  Future<List<Item>> getItems() async {
-    return (await datasource.getItems()).map((e) => e as Item).toList();
+  Future<List<Item>> getItems(String userId) async {
+    return (await datasource.getItems(userId)).map((e) => e as Item).toList();
   }
 
   @override

@@ -1,4 +1,4 @@
-import 'package:prestar_ropa_app/features/item/domain/repositories/item_repository.dart';
+import '../repositories/item_repository.dart';
 
 class DeleteItem {
   final ItemRepository repository;

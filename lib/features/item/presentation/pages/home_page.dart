@@ -189,7 +189,7 @@ class _HomePageState extends State<HomePage> {
         (context, index) => ItemCard(
           item: items[index],
           onTap: () => _goToDetail(items[index]),
-          onLongPress: () => _confirmDeleteDialog(size, items[index].id!),
+          onLongPress: () => _confirmDeleteDialog(size, items[index]),
         ),
         childCount: items.length,
       ),
@@ -206,7 +206,7 @@ class _HomePageState extends State<HomePage> {
     MaterialPageRoute(builder: (context) => ItemFormPage(item: item)),
   );
 
-  Future<void> _confirmDeleteDialog(Size size, String itemId) async {
+  Future<void> _confirmDeleteDialog(Size size, Item item) async {
     final confirmed = await showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -230,7 +230,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-    if (confirmed == true) _deleteItem(itemId);
+    if (confirmed == true) _deleteItem(item);
   }
 
   _textButtonDialog(
@@ -252,8 +252,7 @@ class _HomePageState extends State<HomePage> {
     child: Text(action),
   );
 
-  _deleteItem(String itemId) =>
-      context.read<ItemBloc>().add(DeleteEvent(itemId));
+  _deleteItem(Item item) => context.read<ItemBloc>().add(DeleteEvent(item));
 
   _filteringItems(String filterName) {
     final bloc = context.read<ItemBloc>();

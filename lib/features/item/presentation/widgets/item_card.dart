@@ -78,6 +78,7 @@ class ItemCard extends StatelessWidget {
     padding: EdgeInsetsGeometry.all(size.width * 0.02),
     child: Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [_nameCard(size), _statusBadgeCard(size)],
     ),
   );

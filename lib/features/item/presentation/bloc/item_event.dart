@@ -10,7 +10,13 @@ abstract class ItemEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadItems extends ItemEvent {}
+class LoadItems extends ItemEvent {
+  final String? userId;
+  const LoadItems([this.userId]);
+
+  @override
+  List<Object?> get props => [userId];
+}
 
 class AddItem extends ItemEvent {
   final Item item;
@@ -29,11 +35,11 @@ class EditItem extends ItemEvent {
 }
 
 class DeleteEvent extends ItemEvent {
-  final String itemId;
-  const DeleteEvent(this.itemId);
+  final Item item;
+  const DeleteEvent(this.item);
 
   @override
-  List<Object?> get props => [itemId];
+  List<Object?> get props => [item];
 }
 
 class UploadItemImageEvent extends ItemEvent {

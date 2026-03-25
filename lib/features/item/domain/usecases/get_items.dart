@@ -7,5 +7,6 @@ class GetItems {
 
   GetItems(this.repository);
 
-  Future<List<Item>> call() async => await repository.getItems();
+  Future<List<Item>> call(String userId) async =>
+      await repository.getItems(userId);
 }

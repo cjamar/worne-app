@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/item.dart';
 import '../../domain/usecases/create_item.dart';
 import '../../domain/usecases/delete_item.dart';
@@ -28,10 +29,11 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     on<LoadItems>((event, emit) async {
       emit(ItemLoading());
       try {
-        final items = await getItems();
+        final uId =
+            event.userId ?? Supabase.instance.client.auth.currentUser!.id;
+        final items = await getItems(uId);
         _allItems = items;
         emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
-        // emit(ItemLoaded(items));
       } catch (e) {
         emit(ItemError(e.toString()));
       }
@@ -41,7 +43,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       emit(ItemLoading());
       try {
         await createItem(event.item);
-        add(LoadItems());
+        add(LoadItems(event.item.ownerId));
       } catch (e) {
         emit(ItemError(e.toString()));
       }
@@ -51,7 +53,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       emit(ItemLoading());
       try {
         await updateItem(event.item);
-        add(LoadItems());
+        add(LoadItems(event.item.ownerId));
       } catch (e) {
         emit(ItemError(e.toString()));
       }
@@ -60,8 +62,8 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     on<DeleteEvent>((event, emit) async {
       emit(ItemLoading());
       try {
-        await deleteItem(event.itemId);
-        add(LoadItems());
+        await deleteItem(event.item.id!);
+        add(LoadItems(event.item.ownerId));
       } catch (e) {
         emit(ItemError(e.toString()));
       }
