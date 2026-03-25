@@ -63,6 +63,7 @@ class _HomePageState extends State<HomePage> {
       ),
     ),
   );
+
   _fab() => FloatingActionButton(
     backgroundColor: Colors.black,
     elevation: 0,
@@ -89,14 +90,24 @@ class _HomePageState extends State<HomePage> {
           return _errorContainer(size, state.message);
         }
         if (state is ItemLoaded) {
-          if (state.items.isEmpty) {
-            return _emptyContainer(size);
-          }
           return _itemListBody(size, state);
         }
         return const SizedBox.shrink();
       },
     ),
+  );
+
+  _itemListBody(Size size, ItemLoaded state) => CustomScrollView(
+    slivers: [
+      _filterItemListButton(size, state.activeFilter),
+
+      state.items.isEmpty
+          ? SliverFillRemaining(
+              hasScrollBody: false,
+              child: _emptyContainer(size),
+            )
+          : _itemList(size, state.items),
+    ],
   );
 
   _errorContainer(Size size, String message) => SizedBox(
@@ -125,13 +136,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     ),
-  );
-
-  _itemListBody(Size size, ItemLoaded state) => CustomScrollView(
-    slivers: [
-      _filterItemListButton(size, state.activeFilter),
-      _itemList(size, state.items),
-    ],
   );
 
   _filterItemListButton(Size size, ItemStatus? activeFilter) => SliverAppBar(
