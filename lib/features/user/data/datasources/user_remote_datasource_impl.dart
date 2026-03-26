@@ -82,7 +82,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDatasource {
       await supabase.from('users').insert({
         'id': user.id,
         'email': user.email,
-        'username': user.email,
+        'username': '',
         'avatar_url': null,
       });
     }

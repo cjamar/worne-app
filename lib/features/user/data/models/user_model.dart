@@ -36,12 +36,4 @@ class UserModel extends User {
       createdAt: DateTime.parse(user.createdAt),
     );
   }
-
-  // factory UserModel.fromEntity( User user) => UserModel(
-  //   id: user.id,
-  //   email: user.email,
-  //   username: user.username,
-  //   createdAt: user.createdAt,
-  //   avatarUrl: user.avatarUrl ?? '',
-  // );
 }
