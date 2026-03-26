@@ -1,3 +1,4 @@
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_remote_datasource.dart';
@@ -49,5 +50,11 @@ class UserRepositoryImpl implements UserRepository {
 
     final UserModel updatedUser = await remoteDataSource.updateUser(userModel);
     return updatedUser;
+  }
+
+  @override
+  Future<void> ensureUserExists(supabase.User user) async {
+    final userModel = UserModel.fromSupabase(user);
+    await remoteDataSource.ensureUserExists(userModel);
   }
 }

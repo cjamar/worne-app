@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+import '../../../user/domain/usecases/ensure_user_exists.dart';
 import '../../domain/usecases/get_current_user_id.dart';
 import '../../domain/usecases/sign_in.dart';
 import '../../domain/usecases/sign_in_with_google.dart';
@@ -13,6 +15,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignInWithGoogle signInWithGoogle;
   final SignOut signOut;
   final GetCurrentUserId getCurrentUserId;
+  final EnsureUserExists ensureUserExists;
 
   AuthBloc({
     required this.signIn,
@@ -20,6 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.signInWithGoogle,
     required this.signOut,
     required this.getCurrentUserId,
+    required this.ensureUserExists,
   }) : super(AuthInitial()) {
     on<AuthCheckRequested>((event, emit) async {
       final userId = getCurrentUserId();
@@ -37,10 +41,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         await signIn(email: event.email, password: event.password);
 
-        final userId = getCurrentUserId();
+        final user = supabase.Supabase.instance.client.auth.currentUser;
 
-        if (userId != null) {
-          emit(Authenticated(userId));
+        if (user != null) {
+          await ensureUserExists(user);
+
+          emit(Authenticated(user.id));
         } else {
           emit(const AuthError('Error al hacer login'));
           emit(Unauthenticated());

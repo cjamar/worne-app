@@ -1,3 +1,4 @@
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../../domain/entities/user.dart';
 
 class UserModel extends User {
@@ -24,4 +25,23 @@ class UserModel extends User {
     'avatar_url': avatarUrl,
     if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
   };
+
+  factory UserModel.fromSupabase(supabase.User user) {
+    final metadata = user.userMetadata;
+
+    return UserModel(
+      id: user.id,
+      email: user.email ?? '',
+      username: metadata?['name'] ?? metadata?['username'] ?? '',
+      createdAt: DateTime.parse(user.createdAt),
+    );
+  }
+
+  // factory UserModel.fromEntity( User user) => UserModel(
+  //   id: user.id,
+  //   email: user.email,
+  //   username: user.username,
+  //   createdAt: user.createdAt,
+  //   avatarUrl: user.avatarUrl ?? '',
+  // );
 }
