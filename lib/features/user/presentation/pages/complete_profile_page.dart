@@ -1,8 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
+import 'package:prestar_ropa_app/features/user/presentation/bloc/user_state.dart';
 
 class CompleteProfilePage extends StatefulWidget {
   const CompleteProfilePage({super.key});
@@ -13,7 +14,8 @@ class CompleteProfilePage extends StatefulWidget {
 
 class _CompleteProfilePageState extends State<CompleteProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _usernameController;
+  final ValueNotifier<bool> _isFormValid = ValueNotifier(false);
+  final TextEditingController _usernameController = TextEditingController();
   final FocusNode _usernameFocus = FocusNode();
   final _picker = ImagePicker();
   File? _selectedImage;
@@ -23,7 +25,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   @override
   void initState() {
     super.initState();
-    _usernameController = TextEditingController();
+    _usernameController.addListener(_validateForm);
     _usernameFocus.addListener(() => setState(() {}));
   }
 
@@ -33,8 +35,19 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     super.dispose();
   }
 
-  _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+  // _submit()  {
+  // if(!_isFormValid.value) return;
+  // completar la parte del bloc donde completaremos perfil del user
+  // context.read<UserBloc>().add(event)
+  // }
+
+  _submitFalso() {
+    print('Completando perfil....');
+  }
+
+  _validateForm() {
+    final usernameValid = _usernameController.text.trim().isNotEmpty;
+    _isFormValid.value = usernameValid;
   }
 
   @override
@@ -45,13 +58,18 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       behavior: HitTestBehavior.translucent,
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        appBar: AppBar(
+          title: Text('Completa tu perfil'),
+          elevation: 0,
+          centerTitle: true,
+        ),
         resizeToAvoidBottomInset: false,
         body: _completeProfileBody(size),
       ),
     );
   }
 
-  _completeProfileBody(Size size) => Container(
+  _completeProfileBody(Size size) => SizedBox(
     width: size.width,
     height: size.height,
     child: Form(
@@ -61,32 +79,188 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
         children: [
           Container(
             width: size.width * 0.8,
-            height: size.height * 0.5,
+            height: size.height * 0.45,
             color: Colors.grey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  height: size.height * 0.1,
-                  color: Colors.orange,
-                  child: Center(child: Text('Username textfield')),
-                ),
-                Container(
-                  height: size.height * 0.3,
-                  color: Colors.green,
-                  child: Center(child: Text('Avatar image')),
-                ),
-              ],
+              children: [_userNameTextfield(size), _imageUserArea(size)],
             ),
           ),
-          Container(
-            width: size.width * 0.8,
-            height: size.height * 0.1,
-            color: Colors.blue,
-            child: Center(child: Text('Submit button')),
+          _submitButton(size),
+        ],
+      ),
+    ),
+  );
+
+  _userNameTextfield(Size size) => SizedBox(
+    width: size.width * 0.8,
+    height: size.height * 0.06,
+    child: ValueListenableBuilder<TextEditingValue>(
+      valueListenable: _usernameController,
+      builder: (context, value, _) => TextFormField(
+        controller: _usernameController,
+        focusNode: _usernameFocus,
+        validator: (value) =>
+            value == null || value.trim().isEmpty ? 'Campo vacío' : null,
+        decoration: InputDecoration(
+          hintText: 'Escribe tu nombre',
+          filled: true,
+          fillColor: Colors.white,
+          border: _inputBorder(size, Colors.grey),
+          enabledBorder: _inputBorder(size, Colors.grey),
+          focusedBorder: _inputBorder(size, Colors.grey),
+          errorBorder: _inputBorder(size, Colors.redAccent),
+          suffixIcon: value.text.isNotEmpty && _usernameFocus.hasFocus
+              ? _clearTextField(_usernameController)
+              : null,
+        ),
+      ),
+    ),
+  );
+
+  _imageUserArea(Size size) => SizedBox(
+    width: size.width * 0.8,
+    height: size.height * 0.3,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [_userAvatar(size), _imagePickerButton(size)],
+    ),
+  );
+
+  _userAvatar(Size size) => SizedBox(
+    height: size.height * 0.22,
+    width: size.width,
+    child: CircleAvatar(
+      backgroundColor: Colors.grey.shade200,
+      child: Icon(
+        Icons.person,
+        size: size.width * 0.2,
+        color: Colors.grey.shade400,
+      ),
+    ),
+  );
+
+  _imagePickerButton(Size size) => SizedBox(
+    width: size.width * 0.8,
+    height: size.height * 0.06,
+    child: ElevatedButton(
+      onPressed: () => _showImageSourceSelector(size),
+      child: _isUploadingImage
+          ? _loader()
+          : Text(
+              _selectedImage != null
+                  ? _selectedImage!.path
+                  : 'Añadir foto de perfil',
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+    ),
+  );
+
+  _showImageSourceSelector(Size size) async => showModalBottomSheet(
+    context: context,
+    builder: (_) => Container(
+      color: Colors.white,
+      width: size.width,
+      height: size.height * 0.4,
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _pickImageSourceButton(
+            size,
+            Icons.camera_alt,
+            'Cámara',
+            ImageSource.camera,
+          ),
+          _pickImageSourceButton(
+            size,
+            Icons.photo_library,
+            'Galería',
+            ImageSource.gallery,
           ),
         ],
       ),
     ),
   );
+
+  _pickImageSourceButton(
+    Size size,
+    IconData icon,
+    String text,
+    ImageSource source,
+  ) => InkWell(
+    onTap: () {
+      Navigator.pop(context);
+      _pickImage(source);
+    },
+    child: Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: size.width * 0.1,
+        vertical: size.width * 0.09,
+      ),
+      color: Colors.grey.shade200,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: size.width * 0.1),
+          SizedBox(height: size.height * 0.01),
+          Text(text),
+        ],
+      ),
+    ),
+  );
+
+  void _pickImage(ImageSource source) async {
+    final picked = await _picker.pickImage(source: source);
+
+    if (picked != null) {
+      final file = File(picked.path);
+      setState(() {
+        _selectedImage = file;
+        _isUploadingImage = true;
+      });
+      // _uploadImage(file);
+    }
+  }
+
+  _submitButton(Size size) => ValueListenableBuilder<bool>(
+    valueListenable: _isFormValid,
+    builder: (context, isValid, _) => BlocBuilder<UserBloc, UserState>(
+      builder: (context, state) {
+        final isLoading = state is UserLoading;
+
+        return SizedBox(
+          width: size.width * 0.8,
+          height: size.height * 0.06,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: Colors.grey,
+              disabledForegroundColor: Colors.white,
+              backgroundColor: Colors.blue,
+            ),
+            onPressed: (isValid && !isLoading) ? _submitFalso : null,
+            child: isLoading ? _loader() : Text('Completar perfil'),
+          ),
+        );
+      },
+    ),
+  );
+
+  // añadir subida de imagen a userbloc
+  //   _uploadImage(File file) => context.read<UserBloc>()
+
+  Widget _clearTextField(TextEditingController controller) => IconButton(
+    icon: const Icon(Icons.close, size: 18),
+    onPressed: () => controller.clear(),
+  );
+
+  InputBorder _inputBorder(Size size, Color color) => OutlineInputBorder(
+    borderRadius: BorderRadius.circular(size.width * 0.02),
+    borderSide: BorderSide(color: color),
+  );
+
+  _loader() => Center(child: CircularProgressIndicator());
 }

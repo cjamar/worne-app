@@ -165,6 +165,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
           border: _inputBorder(size, Colors.grey),
           enabledBorder: _inputBorder(size, Colors.grey),
           focusedBorder: _inputBorder(size, Colors.grey),
+          errorBorder: _inputBorder(size, Colors.redAccent),
         ),
       ),
     ),
