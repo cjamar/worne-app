@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/user_repository.dart';
@@ -56,5 +57,15 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> ensureUserExists(supabase.User user) async {
     final userModel = UserModel.fromSupabase(user);
     await remoteDataSource.ensureUserExists(userModel);
+  }
+
+  @override
+  Future<String> uploadUserAvatar(File file) async {
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final path = 'avatars/$fileName.jpg';
+    final client = supabase.Supabase.instance.client;
+
+    await client.storage.from('avatars').upload(path, file);
+    return client.storage.from('avatars').getPublicUrl(path);
   }
 }

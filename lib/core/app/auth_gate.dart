@@ -17,37 +17,51 @@ class AuthGate extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          context.read<UserBloc>().add(LoadCurrentUser(state.userId));
+          final userState = context.read<UserBloc>().state;
+
+          if (userState is! UserLoaded) {
+            context.read<UserBloc>().add(LoadCurrentUser(state.userId));
+          }
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          if (state is AuthLoading) {
-            return _loader();
-          }
-          if (state is Authenticated) {
+        builder: (context, authState) {
+          if (authState is AuthLoading) return _loader();
+
+          if (authState is Authenticated) {
             return BlocBuilder<UserBloc, UserState>(
-              builder: (context, state) {
-                if (state is UserLoading) {
+              builder: (context, userState) {
+                if (userState is UserLoading) {
                   return _loader();
                 }
-                if (state is UserLoaded) {
-                  if (state.user.username.isEmpty) {
+                if (userState is UserLoading) {
+                  return _loader();
+                }
+                if (userState is UserLoaded) {
+                  if (userState.user.username.isEmpty) {
                     return const CompleteProfilePage();
+                  } else {
+                    return const HomePage();
                   }
                 }
-                return const HomePage();
+                if (userState is UserError) {
+                  return _errorScreen('userState.message');
+                }
+                return _loader();
               },
             );
           }
-          if (state is Unauthenticated) {
+          if (authState is Unauthenticated) {
             return const LoginPage();
           }
-          return _loader(); // habrá que cambiarlo por un container error
+          return _loader();
         },
       ),
     );
   }
 
   _loader() => const Scaffold(body: Center(child: CircularProgressIndicator()));
+
+  _errorScreen(String message) =>
+      Scaffold(body: Center(child: Text('UserError, $message')));
 }

@@ -1,5 +1,4 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../models/user_model.dart';
 import 'user_remote_datasource.dart';
 

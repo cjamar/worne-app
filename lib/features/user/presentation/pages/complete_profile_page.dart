@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prestar_ropa_app/features/user/domain/entities/user.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
+import 'package:prestar_ropa_app/features/user/presentation/bloc/user_event.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_state.dart';
 
 class CompleteProfilePage extends StatefulWidget {
@@ -35,14 +37,18 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     super.dispose();
   }
 
-  // _submit()  {
-  // if(!_isFormValid.value) return;
-  // completar la parte del bloc donde completaremos perfil del user
-  // context.read<UserBloc>().add(event)
-  // }
+  _submit() {
+    if (!_isFormValid.value) return;
 
-  _submitFalso() {
-    print('Completando perfil....');
+    final userState = context.read<UserBloc>().state;
+
+    if (userState is UserLoaded) {
+      final updatedUser = userState.user.copyWith(
+        username: _usernameController.text.trim(),
+        avatarUrl: _uploadedImageUrl ?? userState.user.avatarUrl,
+      );
+      _updateUser(updatedUser);
+    }
   }
 
   _validateForm() {
@@ -69,7 +75,24 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     );
   }
 
-  _completeProfileBody(Size size) => SizedBox(
+  _completeProfileBody(Size size) => BlocListener<UserBloc, UserState>(
+    listener: (context, state) {
+      if (state is UserLoaded) {
+        setState(() {
+          _uploadedImageUrl = state.user.avatarUrl;
+          _isUploadingImage = false;
+        });
+      }
+      if (state is UserError) {
+        setState(() {
+          _isUploadingImage = false;
+        });
+      }
+    },
+    child: _formBody(size),
+  );
+
+  _formBody(Size size) => SizedBox(
     width: size.width,
     height: size.height,
     child: Form(
@@ -132,17 +155,27 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     width: size.width,
     child: CircleAvatar(
       backgroundColor: Colors.grey.shade200,
-      child: Icon(
-        Icons.person,
-        size: size.width * 0.2,
-        color: Colors.grey.shade400,
-      ),
+      backgroundImage: _uploadedImageUrl != null
+          ? NetworkImage(
+              '${_uploadedImageUrl!}?t=${DateTime.now().millisecondsSinceEpoch}',
+            )
+          : null,
+      // backgroundImage: _uploadedImageUrl != null
+      //     ? NetworkImage(_uploadedImageUrl!)
+      //     : null,
+      child: _uploadedImageUrl == null
+          ? Icon(
+              Icons.person,
+              size: size.width * 0.2,
+              color: Colors.grey.shade400,
+            )
+          : null,
     ),
   );
 
   _imagePickerButton(Size size) => SizedBox(
     width: size.width * 0.8,
-    height: size.height * 0.06,
+    height: size.height * 0.05,
     child: ElevatedButton(
       onPressed: () => _showImageSourceSelector(size),
       child: _isUploadingImage
@@ -220,7 +253,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
         _selectedImage = file;
         _isUploadingImage = true;
       });
-      // _uploadImage(file);
+      _uploadImage(file);
     }
   }
 
@@ -232,7 +265,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
         return SizedBox(
           width: size.width * 0.8,
-          height: size.height * 0.06,
+          height: size.height * 0.05,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               elevation: 0,
@@ -241,7 +274,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               disabledForegroundColor: Colors.white,
               backgroundColor: Colors.blue,
             ),
-            onPressed: (isValid && !isLoading) ? _submitFalso : null,
+            onPressed: (isValid && !isLoading) ? _submit : null,
             child: isLoading ? _loader() : Text('Completar perfil'),
           ),
         );
@@ -249,8 +282,11 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     ),
   );
 
-  // añadir subida de imagen a userbloc
-  //   _uploadImage(File file) => context.read<UserBloc>()
+  _uploadImage(File file) =>
+      context.read<UserBloc>().add(UploadUserAvatarEvent(file));
+
+  _updateUser(User updatedUser) =>
+      context.read<UserBloc>().add(UpdateUserEvent(updatedUser));
 
   Widget _clearTextField(TextEditingController controller) => IconButton(
     icon: const Icon(Icons.close, size: 18),

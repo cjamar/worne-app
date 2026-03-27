@@ -4,6 +4,7 @@ import '../../domain/usecases/create_user.dart';
 import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/get_user.dart';
 import '../../domain/usecases/update_user.dart';
+import '../../domain/usecases/upload_user_avatar.dart';
 import 'user_event.dart';
 import 'user_state.dart';
 
@@ -12,12 +13,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   final GetUser getUser;
   final CreateUser createUser;
   final UpdateUser updateUser;
+  final UploadUserAvatar uploadUserAvatar;
 
   UserBloc({
     required this.getCurrentUser,
     required this.getUser,
     required this.createUser,
     required this.updateUser,
+    required this.uploadUserAvatar,
   }) : super(UserInitial()) {
     on<LoadCurrentUser>((event, emit) async {
       emit(UserLoading());
@@ -71,8 +74,24 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       emit(UserLoading());
 
       try {
-        final user = await updateUser(event.user);
-        emit(UserLoaded(user));
+        final updatedUser = await updateUser(event.user);
+        emit(UserLoaded(updatedUser));
+      } catch (e) {
+        emit(UserError(e.toString()));
+      }
+    });
+
+    on<UploadUserAvatarEvent>((event, emit) async {
+      try {
+        final currentState = state;
+
+        final url = await uploadUserAvatar(event.file);
+
+        if (currentState is UserLoaded) {
+          final updatedUser = currentState.user.copyWith(avatarUrl: url);
+
+          emit(UserLoaded(updatedUser)); // 🔥 CLAVE
+        }
       } catch (e) {
         emit(UserError(e.toString()));
       }

@@ -9,6 +9,8 @@ import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart
 import 'package:prestar_ropa_app/features/item/presentation/pages/item_form_page.dart';
 import 'package:prestar_ropa_app/features/item/presentation/widgets/item_card.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/app_drawer.dart';
+import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
+import 'package:prestar_ropa_app/features/user/presentation/bloc/user_state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -49,19 +51,29 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _userArea(Size size) => Builder(
-    builder: (context) => IconButton(
-      padding: EdgeInsets.all(size.width * 0.01),
-      onPressed: () => Scaffold.of(context).openDrawer(),
-      icon: CircleAvatar(
-        backgroundColor: Colors.grey.shade200,
-        child: Icon(
-          Icons.person_2_outlined,
-          color: Colors.blueGrey,
-          size: size.width * 0.07,
+  _userArea(Size size) => BlocBuilder<UserBloc, UserState>(
+    builder: (context, state) {
+      String? avatar;
+      if (state is UserLoaded) avatar = state.user.avatarUrl;
+
+      return IconButton(
+        padding: EdgeInsets.all(size.width * 0.01),
+        onPressed: () => Scaffold.of(context).openDrawer(),
+        icon: CircleAvatar(
+          backgroundColor: Colors.grey.shade300,
+          backgroundImage: (avatar != null && avatar.isNotEmpty)
+              ? NetworkImage(avatar)
+              : null,
+          child: (avatar == null || avatar.isEmpty)
+              ? Icon(
+                  Icons.person_2_outlined,
+                  color: Colors.blueGrey,
+                  size: size.width * 0.07,
+                )
+              : null,
         ),
-      ),
-    ),
+      );
+    },
   );
 
   _fab() => FloatingActionButton(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/features/user/domain/usecases/ensure_user_exists.dart';
+import 'package:prestar_ropa_app/features/user/domain/usecases/upload_user_avatar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/app/auth_gate.dart';
 import 'features/auth/data/datasources/auth_remote_datasource_impl.dart';
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
   late final createUser = CreateUser(userRepository);
   late final updateUser = UpdateUser(userRepository);
   late final ensureUserExists = EnsureUserExists(userRepository);
+  late final uploadUserAvatar = UploadUserAvatar(userRepository);
 
   // Auth
   late final authRemoteDatasource = AuthRemoteDatasourceImpl(supabase);
@@ -104,6 +106,7 @@ class MyApp extends StatelessWidget {
             getUser: getUser,
             createUser: createUser,
             updateUser: updateUser,
+            uploadUserAvatar: uploadUserAvatar,
           ),
         ),
       ],

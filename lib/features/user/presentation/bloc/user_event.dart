@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/user.dart';
 
@@ -42,4 +44,12 @@ class UpdateUserEvent extends UserEvent {
 
   @override
   List<Object?> get props => [user];
+}
+
+class UploadUserAvatarEvent extends UserEvent {
+  final File file;
+  const UploadUserAvatarEvent(this.file);
+
+  @override
+  List<Object?> get props => [file];
 }
