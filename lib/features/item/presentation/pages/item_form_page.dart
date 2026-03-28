@@ -56,6 +56,8 @@ class _ItemFormPageState extends State<ItemFormPage> {
   }
 
   void _submit() async {
+    print('🚀 SUBMIT ITEM');
+
     if (!_formKey.currentState!.validate()) return;
 
     final userId = Supabase.instance.client.auth.currentUser!.id;

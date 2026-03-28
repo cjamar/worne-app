@@ -197,14 +197,14 @@ class _HomePageState extends State<HomePage> {
   _itemList(Size size, List<Item> items) => SliverPadding(
     padding: EdgeInsetsGeometry.all(size.width * 0.01),
     sliver: SliverGrid(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => ItemCard(
+      delegate: SliverChildBuilderDelegate((context, index) {
+        return ItemCard(
+          key: ValueKey(items[index].id),
           item: items[index],
           onTap: () => _goToDetail(items[index]),
           onLongPress: () => _confirmDeleteDialog(size, items[index]),
-        ),
-        childCount: items.length,
-      ),
+        );
+      }, childCount: items.length),
 
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,

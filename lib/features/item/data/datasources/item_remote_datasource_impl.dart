@@ -11,30 +11,32 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
 
   @override
   Future<List<ItemModel>> getItems(String userId) async {
-    // ANTES
-    // final response = await supabase
-    //     .from('items')
-    //     .select()
-    //     .order('created_at', ascending: false);
-    // return response.map((e) => ItemModel.fromJson(e)).toList();
-
-    // AHORA
-    // Traemos items propios
     try {
+      // propios
       final ownItemsResponse = await supabase
           .from('items')
           .select()
           .eq('owner_id', userId)
           .order('created_at', ascending: false);
 
-      // Traemos items compartidos con este usuario
-      final sharedItemsResponse = await supabase
-          .from('items')
-          .select('*, item_access(*)') // join implicito con item_access
-          .eq('item_access.shared_with_user_id', userId)
-          .order('created_at', ascending: false);
+      // ids compartidos
+      final accessResponse = await supabase
+          .from('item_access')
+          .select('item_id')
+          .eq('shared_with_user_id', userId);
 
-      // Combinamos y parseamos
+      final itemIds = accessResponse.map((e) => e['item_id']).toList();
+
+      List sharedItemsResponse = [];
+
+      if (itemIds.isNotEmpty) {
+        sharedItemsResponse = await supabase
+            .from('items')
+            .select()
+            .inFilter('id', itemIds)
+            .order('created_at', ascending: false);
+      }
+
       final allItems = [
         ...ownItemsResponse.map((e) => ItemModel.fromJson(e)),
         ...sharedItemsResponse.map((e) => ItemModel.fromJson(e)),
