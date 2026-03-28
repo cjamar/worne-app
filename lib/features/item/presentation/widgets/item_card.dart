@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 
 class ItemCard extends StatelessWidget {
   final Item item;
@@ -32,44 +34,19 @@ class ItemCard extends StatelessWidget {
   }
 
   _imageCard(Size size) => ClipRRect(
-    // borderRadius: BorderRadius.circular(size.width * 0.025),
     child: Container(
       width: size.width,
       height: size.height * 0.2,
       color: Colors.grey.shade200,
       child: item.imageUrl.trim().isNotEmpty
-          ? Image.network(
-              item.imageUrl,
+          ? CachedNetworkImage(
+              imageUrl: item.imageUrl,
               fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(
-                  child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                        : null,
-                  ),
-                );
-              },
-              errorBuilder: (context, error, stackTrace) =>
-                  Center(child: _iconBrokenImage(size)),
+              placeholder: (context, url) => SimpleWidgets.loader(),
+              errorWidget: (context, url, error) =>
+                  SimpleWidgets.errorBrokenImage(size),
             )
-          : _iconImage(size),
-    ),
-  );
-
-  _iconBrokenImage(Size size) => Icon(
-    Icons.broken_image,
-    size: size.width * 0.15,
-    color: Colors.grey.shade300,
-  );
-
-  _iconImage(Size size) => Center(
-    child: Icon(
-      Icons.image,
-      size: size.width * 0.15,
-      color: Colors.grey.shade300,
+          : SimpleWidgets.placeholderImage(size),
     ),
   );
 

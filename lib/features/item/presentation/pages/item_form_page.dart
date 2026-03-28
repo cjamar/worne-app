@@ -8,6 +8,8 @@ import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart'
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/image_selector.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -56,8 +58,6 @@ class _ItemFormPageState extends State<ItemFormPage> {
   }
 
   void _submit() async {
-    print('🚀 SUBMIT ITEM');
-
     if (!_formKey.currentState!.validate()) return;
 
     final userId = Supabase.instance.client.auth.currentUser!.id;
@@ -110,13 +110,13 @@ class _ItemFormPageState extends State<ItemFormPage> {
         setState(() {
           _isUploadingImage = false;
         });
-        _snackbar(context, state.message);
+        SimpleWidgets.snackbar(context, state.message);
       }
       if (state is ItemLoaded) {
         Navigator.pop(context);
       }
       if (state is ItemError) {
-        _snackbar(context, state.message);
+        SimpleWidgets.snackbar(context, state.message);
       }
     },
     child: _itemFormBody(size),
@@ -164,10 +164,13 @@ class _ItemFormPageState extends State<ItemFormPage> {
           hintText: 'Nombre',
           filled: true,
           fillColor: Colors.white,
-          border: _inputBorder(size, Colors.grey),
-          enabledBorder: _inputBorder(size, Colors.grey),
-          focusedBorder: _inputBorder(size, Colors.grey),
-          errorBorder: _inputBorder(size, Colors.redAccent),
+          border: SimpleWidgets.inputBorder(size, Colors.grey),
+          enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          errorBorder: SimpleWidgets.inputBorder(size, Colors.redAccent),
+          suffixIcon: value.text.isNotEmpty && _nameFocus.hasFocus
+              ? _clearTextField(_nameController)
+              : null,
         ),
       ),
     ),
@@ -186,9 +189,12 @@ class _ItemFormPageState extends State<ItemFormPage> {
           hintText: 'Descripción',
           filled: true,
           fillColor: Colors.white,
-          border: _inputBorder(size, Colors.grey),
-          enabledBorder: _inputBorder(size, Colors.grey),
-          focusedBorder: _inputBorder(size, Colors.grey),
+          border: SimpleWidgets.inputBorder(size, Colors.grey),
+          enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          suffixIcon: value.text.isNotEmpty && _descriptionFocus.hasFocus
+              ? _clearTextField(_descriptionController)
+              : null,
         ),
       ),
     ),
@@ -221,7 +227,11 @@ class _ItemFormPageState extends State<ItemFormPage> {
         foregroundColor: Colors.black,
         backgroundColor: Colors.grey.shade300,
       ),
-      onPressed: () => _showImageSourceSelector(size),
+      onPressed: () => ImageSourceSelector.show(
+        context,
+        size: size,
+        onImageSelected: (source) => _pickImage(source),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -229,7 +239,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
           SizedBox(width: size.width * 0.02),
           Expanded(
             child: _isUploadingImage
-                ? _loader(size)
+                ? SimpleWidgets.loader()
                 : Text(
                     _selectedImage != null
                         ? _selectedImage!.path
@@ -247,7 +257,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
   _submitButton(Size size) => BlocBuilder<ItemBloc, ItemState>(
     builder: (context, state) {
       if (state is ItemLoading) {
-        return _loader(size);
+        return SimpleWidgets.loader();
       }
       return SizedBox(
         width: size.width * 0.8,
@@ -282,72 +292,11 @@ class _ItemFormPageState extends State<ItemFormPage> {
     }
   }
 
-  Future<void> _showImageSourceSelector(Size size) async =>
-      showModalBottomSheet(
-        context: context,
-        builder: (_) => Container(
-          color: Colors.white,
-          width: size.width,
-          height: size.height * 0.4,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _pickImageSourceButton(
-                size,
-                Icons.camera_alt,
-                'Cámara',
-                ImageSource.camera,
-              ),
-              _pickImageSourceButton(
-                size,
-                Icons.photo_library,
-                'Galería',
-                ImageSource.gallery,
-              ),
-            ],
-          ),
-        ),
-      );
-
-  _pickImageSourceButton(
-    Size size,
-    IconData icon,
-    String text,
-    ImageSource source,
-  ) => InkWell(
-    onTap: () {
-      Navigator.pop(context);
-      _pickImage(source);
-    },
-    child: Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: size.width * 0.1,
-        vertical: size.width * 0.09,
-      ),
-      color: Colors.grey.shade200,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: size.width * 0.1),
-          SizedBox(height: size.height * 0.01),
-          Text(text),
-        ],
-      ),
-    ),
-  );
-
-  _snackbar(BuildContext context, String message) => ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(SnackBar(content: Text(message)));
-
-  _loader(Size size) => Center(child: CircularProgressIndicator());
-
-  InputBorder _inputBorder(Size size, Color color) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(size.width * 0.02),
-    borderSide: BorderSide(color: color),
-  );
-
   void _uploadImage(File file) =>
       context.read<ItemBloc>().add(UploadItemImageEvent(file));
+
+  _clearTextField(TextEditingController controller) => IconButton(
+    icon: const Icon(Icons.close, size: 18),
+    onPressed: () => controller.clear(),
+  );
 }

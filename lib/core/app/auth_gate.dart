@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/pages/home_page.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_event.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_state.dart';
@@ -60,7 +61,7 @@ class AuthGate extends StatelessWidget {
     );
   }
 
-  _loader() => const Scaffold(body: Center(child: CircularProgressIndicator()));
+  _loader() => Scaffold(body: SimpleWidgets.loader());
 
   _errorScreen(String message) =>
       Scaffold(body: Center(child: Text('UserError, $message')));

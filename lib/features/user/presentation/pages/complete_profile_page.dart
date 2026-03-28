@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/image_selector.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 import 'package:prestar_ropa_app/features/user/domain/entities/user.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_event.dart';
@@ -129,10 +131,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
           hintText: 'Escribe tu nombre',
           filled: true,
           fillColor: Colors.white,
-          border: _inputBorder(size, Colors.grey),
-          enabledBorder: _inputBorder(size, Colors.grey),
-          focusedBorder: _inputBorder(size, Colors.grey),
-          errorBorder: _inputBorder(size, Colors.redAccent),
+          border: SimpleWidgets.inputBorder(size, Colors.grey),
+          enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          errorBorder: SimpleWidgets.inputBorder(size, Colors.redAccent),
           suffixIcon: value.text.isNotEmpty && _usernameFocus.hasFocus
               ? _clearTextField(_usernameController)
               : null,
@@ -160,9 +162,6 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               '${_uploadedImageUrl!}?t=${DateTime.now().millisecondsSinceEpoch}',
             )
           : null,
-      // backgroundImage: _uploadedImageUrl != null
-      //     ? NetworkImage(_uploadedImageUrl!)
-      //     : null,
       child: _uploadedImageUrl == null
           ? Icon(
               Icons.person,
@@ -177,9 +176,13 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     width: size.width * 0.8,
     height: size.height * 0.05,
     child: ElevatedButton(
-      onPressed: () => _showImageSourceSelector(size),
+      onPressed: () => ImageSourceSelector.show(
+        context,
+        size: size,
+        onImageSelected: (source) => _pickImage(source),
+      ),
       child: _isUploadingImage
-          ? _loader()
+          ? SimpleWidgets.loader()
           : Text(
               _selectedImage != null
                   ? _selectedImage!.path
@@ -187,60 +190,6 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
-    ),
-  );
-
-  _showImageSourceSelector(Size size) async => showModalBottomSheet(
-    context: context,
-    builder: (_) => Container(
-      color: Colors.white,
-      width: size.width,
-      height: size.height * 0.4,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _pickImageSourceButton(
-            size,
-            Icons.camera_alt,
-            'Cámara',
-            ImageSource.camera,
-          ),
-          _pickImageSourceButton(
-            size,
-            Icons.photo_library,
-            'Galería',
-            ImageSource.gallery,
-          ),
-        ],
-      ),
-    ),
-  );
-
-  _pickImageSourceButton(
-    Size size,
-    IconData icon,
-    String text,
-    ImageSource source,
-  ) => InkWell(
-    onTap: () {
-      Navigator.pop(context);
-      _pickImage(source);
-    },
-    child: Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: size.width * 0.1,
-        vertical: size.width * 0.09,
-      ),
-      color: Colors.grey.shade200,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: size.width * 0.1),
-          SizedBox(height: size.height * 0.01),
-          Text(text),
-        ],
-      ),
     ),
   );
 
@@ -275,11 +224,18 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               backgroundColor: Colors.blue,
             ),
             onPressed: (isValid && !isLoading) ? _submit : null,
-            child: isLoading ? _loader() : Text('Completar perfil'),
+            child: isLoading
+                ? SimpleWidgets.loader()
+                : Text('Completar perfil'),
           ),
         );
       },
     ),
+  );
+
+  _clearTextField(TextEditingController controller) => IconButton(
+    icon: const Icon(Icons.close, size: 18),
+    onPressed: () => controller.clear(),
   );
 
   _uploadImage(File file) =>
@@ -287,16 +243,4 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
   _updateUser(User updatedUser) =>
       context.read<UserBloc>().add(UpdateUserEvent(updatedUser));
-
-  Widget _clearTextField(TextEditingController controller) => IconButton(
-    icon: const Icon(Icons.close, size: 18),
-    onPressed: () => controller.clear(),
-  );
-
-  InputBorder _inputBorder(Size size, Color color) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(size.width * 0.02),
-    borderSide: BorderSide(color: color),
-  );
-
-  _loader() => Center(child: CircularProgressIndicator());
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
@@ -107,9 +108,9 @@ class _AuthFormState extends State<AuthForm> {
           hintText: 'Email',
           filled: true,
           fillColor: Colors.white,
-          border: _inputBorder(size, Colors.grey),
-          enabledBorder: _inputBorder(size, Colors.grey),
-          focusedBorder: _inputBorder(size, Colors.grey),
+          border: SimpleWidgets.inputBorder(size, Colors.grey),
+          enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
           suffixIcon: value.text.isNotEmpty && _emailFocus.hasFocus
               ? _clearTextField(_emailController)
               : null,
@@ -132,9 +133,9 @@ class _AuthFormState extends State<AuthForm> {
           hintText: 'Contraseña',
           filled: true,
           fillColor: Colors.white,
-          border: _inputBorder(size, Colors.grey),
-          enabledBorder: _inputBorder(size, Colors.grey),
-          focusedBorder: _inputBorder(size, Colors.grey),
+          border: SimpleWidgets.inputBorder(size, Colors.grey),
+          enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -169,9 +170,9 @@ class _AuthFormState extends State<AuthForm> {
           hintText: 'Confirmar contraseña',
           filled: true,
           fillColor: Colors.white,
-          border: _inputBorder(size, Colors.grey),
-          enabledBorder: _inputBorder(size, Colors.grey),
-          focusedBorder: _inputBorder(size, Colors.grey),
+          border: SimpleWidgets.inputBorder(size, Colors.grey),
+          enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -254,22 +255,17 @@ class _AuthFormState extends State<AuthForm> {
     _isFormValid.value = emailValid && passwordValid && confirmValid;
   }
 
-  InputBorder _inputBorder(Size size, Color color) => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(size.width * 0.02),
-    borderSide: BorderSide(color: color),
-  );
-
-  Widget _clearTextField(TextEditingController controller) => IconButton(
-    icon: const Icon(Icons.close, size: 18),
-    onPressed: () => controller.clear(),
-  );
-
-  Widget _togglePasswordVisibility() => IconButton(
+  _togglePasswordVisibility() => IconButton(
     icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
     onPressed: () {
       setState(() {
         _obscurePassword = !_obscurePassword;
       });
     },
+  );
+
+  _clearTextField(TextEditingController controller) => IconButton(
+    icon: const Icon(Icons.close, size: 18),
+    onPressed: () => controller.clear(),
   );
 }
