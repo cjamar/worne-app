@@ -7,20 +7,11 @@ class SimpleWidgets {
     context,
   ).showSnackBar(SnackBar(content: Text(message)));
 
-  static errorBrokenImage(Size size) => Center(
-    child: Icon(
-      Icons.broken_image,
-      size: size.width * 0.15,
-      color: Colors.grey.shade300,
-    ),
-  );
+  static placeholderAvatar(Size size, IconData icon) =>
+      Icon(icon, color: Colors.blueGrey, size: size.width * 0.07);
 
-  static placeholderImage(Size size) => Center(
-    child: Icon(
-      Icons.image,
-      size: size.width * 0.15,
-      color: Colors.grey.shade300,
-    ),
+  static placeholderImage(Size size, IconData icon) => Center(
+    child: Icon(icon, size: size.width * 0.15, color: Colors.grey.shade300),
   );
 
   static inputBorder(Size size, Color color) => OutlineInputBorder(

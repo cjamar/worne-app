@@ -44,9 +44,9 @@ class ItemCard extends StatelessWidget {
               fit: BoxFit.cover,
               placeholder: (context, url) => SimpleWidgets.loader(),
               errorWidget: (context, url, error) =>
-                  SimpleWidgets.errorBrokenImage(size),
+                  SimpleWidgets.placeholderAvatar(size, Icons.broken_image),
             )
-          : SimpleWidgets.placeholderImage(size),
+          : SimpleWidgets.placeholderImage(size, Icons.image),
     ),
   );
 

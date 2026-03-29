@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/core/utils/items_helper.dart';
@@ -9,6 +10,7 @@ import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart
 import 'package:prestar_ropa_app/features/item/presentation/pages/item_form_page.dart';
 import 'package:prestar_ropa_app/features/item/presentation/widgets/item_card.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/app_drawer.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_state.dart';
 
@@ -61,20 +63,41 @@ class _HomePageState extends State<HomePage> {
         onPressed: () => Scaffold.of(context).openDrawer(),
         icon: CircleAvatar(
           backgroundColor: Colors.grey.shade300,
-          backgroundImage: (avatar != null && avatar.isNotEmpty)
-              ? NetworkImage(avatar)
-              : null,
-          child: (avatar == null || avatar.isEmpty)
-              ? Icon(
-                  Icons.person_2_outlined,
-                  color: Colors.blueGrey,
-                  size: size.width * 0.07,
-                )
-              : null,
+          child: ClipOval(
+            child: (avatar != null && avatar.isNotEmpty)
+                ? CachedNetworkImage(
+                    imageUrl: avatar,
+                    width: size.width * 0.08,
+                    height: size.width * 0.08,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => SimpleWidgets.loader(),
+                    errorWidget: (context, url, error) =>
+                        SimpleWidgets.placeholderImage(
+                          size,
+                          Icons.broken_image,
+                        ),
+                  )
+                : SimpleWidgets.placeholderAvatar(
+                    size,
+                    Icons.person_2_outlined,
+                  ),
+          ),
         ),
       );
     },
   );
+
+  // backgroundImage: (avatar != null && avatar.isNotEmpty)
+  //     ? CachedNetworkImageProvider(avatar)
+  //     // NetworkImage(avatar)
+  //     : null,
+  // child: (avatar == null || avatar.isEmpty)
+  //     ? Icon(
+  //         Icons.person_2_outlined,
+  //         color: Colors.blueGrey,
+  //         size: size.width * 0.07,
+  //       )
+  //     : null,
 
   _fab() => FloatingActionButton(
     backgroundColor: Colors.black,
