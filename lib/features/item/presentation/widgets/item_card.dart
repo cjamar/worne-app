@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:prestar_ropa_app/core/utils/items_helper.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
@@ -42,9 +43,11 @@ class ItemCard extends StatelessWidget {
           ? CachedNetworkImage(
               imageUrl: item.imageUrl,
               fit: BoxFit.cover,
+              memCacheWidth: 300,
+              memCacheHeight: 300,
               placeholder: (context, url) => SimpleWidgets.loader(),
               errorWidget: (context, url, error) =>
-                  SimpleWidgets.placeholderAvatar(size, Icons.broken_image),
+                  SimpleWidgets.placeholderImage(size, Icons.broken_image),
             )
           : SimpleWidgets.placeholderImage(size, Icons.image),
     ),
@@ -67,19 +70,7 @@ class ItemCard extends StatelessWidget {
   );
 
   _statusBadgeCard(Size size) {
-    Color color;
-
-    switch (item.status) {
-      case ItemStatus.available:
-        color = Colors.green;
-        break;
-      case ItemStatus.loaned:
-        color = Colors.blue;
-        break;
-      case ItemStatus.reserved:
-        color = Colors.deepPurpleAccent;
-        break;
-    }
+    Color color = ItemsHelper.colorStatus(item);
 
     return Container(
       padding: EdgeInsets.symmetric(

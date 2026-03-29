@@ -43,7 +43,9 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       emit(ItemLoading());
       try {
         await createItem(event.item);
-        add(LoadItems(event.item.ownerId));
+        _allItems = [event.item, ..._allItems];
+        emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
+        //  add(LoadItems(event.item.ownerId));
       } catch (e) {
         emit(ItemError(e.toString()));
       }

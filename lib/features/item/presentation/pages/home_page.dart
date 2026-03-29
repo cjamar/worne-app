@@ -25,7 +25,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    context.read<ItemBloc>().add(LoadItems());
+    final state = context.read<ItemBloc>().state;
+    if (state is! ItemLoaded) {
+      context.read<ItemBloc>().add(LoadItems());
+    }
   }
 
   @override
@@ -86,18 +89,6 @@ class _HomePageState extends State<HomePage> {
       );
     },
   );
-
-  // backgroundImage: (avatar != null && avatar.isNotEmpty)
-  //     ? CachedNetworkImageProvider(avatar)
-  //     // NetworkImage(avatar)
-  //     : null,
-  // child: (avatar == null || avatar.isEmpty)
-  //     ? Icon(
-  //         Icons.person_2_outlined,
-  //         color: Colors.blueGrey,
-  //         size: size.width * 0.07,
-  //       )
-  //     : null,
 
   _fab() => FloatingActionButton(
     backgroundColor: Colors.black,
