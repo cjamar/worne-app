@@ -10,6 +10,7 @@ class Item extends Equatable {
   final String category;
   final ItemStatus status;
   final DateTime? createdAt;
+  final bool isShared;
 
   const Item({
     this.id,
@@ -20,6 +21,7 @@ class Item extends Equatable {
     required this.category,
     required this.status,
     this.createdAt,
+    this.isShared = false,
   });
 
   @override
@@ -32,5 +34,6 @@ class Item extends Equatable {
     category,
     status,
     createdAt,
+    isShared,
   ];
 }

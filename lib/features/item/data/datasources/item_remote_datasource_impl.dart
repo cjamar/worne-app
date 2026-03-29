@@ -38,8 +38,12 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
       }
 
       final allItems = [
-        ...ownItemsResponse.map((e) => ItemModel.fromJson(e)),
-        ...sharedItemsResponse.map((e) => ItemModel.fromJson(e)),
+        ...ownItemsResponse.map(
+          (e) => ItemModel.fromJson(e).copyWith(isShared: false),
+        ),
+        ...sharedItemsResponse.map(
+          (e) => ItemModel.fromJson(e).copyWith(isShared: true),
+        ),
       ];
 
       return allItems;
