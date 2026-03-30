@@ -38,9 +38,23 @@ class _ItemFormPageState extends State<ItemFormPage> {
   String? _uploadedImageUrl;
   bool _isUploadingImage = false;
 
+  late final String _currentUserId;
+  late final bool _isOwner;
+
   @override
   void initState() {
     super.initState();
+    _currentUserId = Supabase.instance.client.auth.currentUser!.id;
+    _isOwner = widget.item == null || widget.item!.ownerId == _currentUserId;
+
+    if (widget.item != null) {
+      _nameController = TextEditingController(text: widget.item?.name);
+      _descriptionController = TextEditingController(
+        text: widget.item?.description,
+      );
+      _uploadedImageUrl = widget.item!.imageUrl;
+    }
+
     _nameController = TextEditingController(text: widget.item?.name ?? '');
     _descriptionController = TextEditingController(
       text: widget.item?.description ?? '',
@@ -132,11 +146,12 @@ class _ItemFormPageState extends State<ItemFormPage> {
         children: [
           Container(
             width: size.width,
-            height: size.height * 0.4,
+            height: _isOwner ? size.height * 0.4 : size.height * 0.48,
             margin: EdgeInsets.only(top: size.height * 0.05),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                _isSharedItemBanner(size),
                 _nameTextfield(size),
                 _descriptionTextfield(size),
                 _categoryDropdown(size),
@@ -151,6 +166,24 @@ class _ItemFormPageState extends State<ItemFormPage> {
     ),
   );
 
+  _isSharedItemBanner(Size size) => _isOwner
+      ? SizedBox()
+      : Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(size.width * 0.03),
+          color: Color(0xffe3b5ff),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(
+                'Este item está compartido contigo',
+                textAlign: TextAlign.center,
+              ),
+              Icon(Icons.handshake, size: size.width * 0.1),
+            ],
+          ),
+        );
+
   _nameTextfield(Size size) => SizedBox(
     width: size.width * 0.8,
     child: ValueListenableBuilder<TextEditingValue>(
@@ -158,6 +191,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
       builder: (context, value, _) => TextFormField(
         controller: _nameController,
         focusNode: _nameFocus,
+        enabled: _isOwner,
         validator: (value) =>
             value == null || value.trim().isEmpty ? 'Campo vacío' : null,
         decoration: InputDecoration(
@@ -183,6 +217,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
       builder: (context, value, _) => TextFormField(
         controller: _descriptionController,
         focusNode: _descriptionFocus,
+        enabled: _isOwner,
         validator: (value) =>
             value == null || value.trim().isEmpty ? 'Campo vacío' : null,
         decoration: InputDecoration(
@@ -224,34 +259,48 @@ class _ItemFormPageState extends State<ItemFormPage> {
     child: ElevatedButton(
       style: ElevatedButton.styleFrom(
         elevation: 0,
-        foregroundColor: Colors.black,
+        foregroundColor: _isOwner ? Colors.black : Colors.grey,
         backgroundColor: Colors.grey.shade300,
       ),
-      onPressed: () => ImageSourceSelector.show(
-        context,
-        size: size,
-        onImageSelected: (source) => _pickImage(source),
-      ),
+      onPressed: () => _isOwner
+          ? ImageSourceSelector.show(
+              context,
+              size: size,
+              onImageSelected: (source) => _pickImage(source),
+            )
+          : null,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.image, size: size.width * 0.07, color: Colors.grey),
+          _thumbnailImagePicker(size),
           SizedBox(width: size.width * 0.02),
-          Expanded(
-            child: _isUploadingImage
-                ? SimpleWidgets.loader()
-                : Text(
-                    _selectedImage != null
-                        ? _selectedImage!.path
-                        : 'Subir imagen',
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    textAlign: TextAlign.end,
-                  ),
-          ),
+          _textImagePicker(size),
         ],
       ),
     ),
+  );
+
+  _thumbnailImagePicker(Size size) =>
+      widget.item != null && widget.item!.imageUrl.isNotEmpty
+      ? CircleAvatar(
+          backgroundColor: Colors.grey,
+          backgroundImage: NetworkImage(widget.item!.imageUrl),
+        )
+      : Icon(Icons.image, size: size.width * 0.07, color: Colors.grey);
+
+  _textImagePicker(Size siz) => Expanded(
+    child: _isUploadingImage
+        ? SimpleWidgets.loader()
+        : Text(
+            _selectedImage != null
+                ? _selectedImage!.path
+                : (_uploadedImageUrl != null && _uploadedImageUrl!.isNotEmpty)
+                ? 'Imagen actual'
+                : 'Añadir imagen',
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            textAlign: TextAlign.end,
+          ),
   );
 
   _submitButton(Size size) => BlocBuilder<ItemBloc, ItemState>(
@@ -266,12 +315,14 @@ class _ItemFormPageState extends State<ItemFormPage> {
           style: ElevatedButton.styleFrom(
             elevation: 0,
             foregroundColor: Colors.white,
-            disabledBackgroundColor: Colors.grey,
+            disabledBackgroundColor: Colors.grey.shade300,
             // textStyle: TextStyle()
             disabledForegroundColor: Colors.white,
-            backgroundColor: _isUploadingImage ? Colors.grey : Colors.blue,
+            backgroundColor: _isUploadingImage
+                ? Colors.grey.shade300
+                : Colors.blue,
           ),
-          onPressed: _isUploadingImage ? null : _submit,
+          onPressed: _isUploadingImage || !_isOwner ? null : _submit,
           child: Text(isEditing ? ' Guardar cambios' : 'Subir producto'),
         ),
       );

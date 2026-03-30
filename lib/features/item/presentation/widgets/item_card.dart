@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
-import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import '../../../../core/utils/items_helper.dart';
 import '../../../shared/widgets/simple_widgets.dart';
 import '../../domain/entities/item.dart';
+import '../bloc/item_bloc.dart';
+import '../bloc/item_event.dart';
 
 class ItemCard extends StatelessWidget {
   final Item item;
@@ -17,8 +17,6 @@ class ItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-
-    print('${item.name} --> ${item.isShared}');
 
     return GestureDetector(
       onTap: onTap,
@@ -39,26 +37,52 @@ class ItemCard extends StatelessWidget {
     );
   }
 
+  // TODO: esto se irá a la homePage o a la detailPage
   _testShareItem(BuildContext context) => context.read<ItemBloc>().add(
     ShareItemWithUser(item.id!, 'ce5c7733-f186-4a7a-b6da-1098b03c68c3'),
   );
 
-  _imageCard(Size size) => ClipRRect(
+  _imageCard(Size size) => Stack(
+    children: [
+      ClipRRect(
+        child: Container(
+          width: size.width,
+          height: size.height * 0.2,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(size.width * 0.1),
+          ),
+          child: item.imageUrl.trim().isNotEmpty
+              ? CachedNetworkImage(
+                  imageUrl: item.imageUrl,
+                  fit: BoxFit.cover,
+                  memCacheWidth: 300,
+                  memCacheHeight: 300,
+                  placeholder: (context, url) => SimpleWidgets.loader(),
+                  errorWidget: (context, url, error) =>
+                      SimpleWidgets.placeholderImage(size, Icons.broken_image),
+                )
+              : SimpleWidgets.placeholderImage(size, Icons.image),
+        ),
+      ),
+      item.isShared ? _isSharedBadge(size) : SizedBox.shrink(),
+    ],
+  );
+
+  _isSharedBadge(Size size) => Positioned(
+    right: 10,
+    top: 8,
     child: Container(
-      width: size.width,
-      height: size.height * 0.2,
-      color: Colors.grey.shade200,
-      child: item.imageUrl.trim().isNotEmpty
-          ? CachedNetworkImage(
-              imageUrl: item.imageUrl,
-              fit: BoxFit.cover,
-              memCacheWidth: 300,
-              memCacheHeight: 300,
-              placeholder: (context, url) => SimpleWidgets.loader(),
-              errorWidget: (context, url, error) =>
-                  SimpleWidgets.placeholderImage(size, Icons.broken_image),
-            )
-          : SimpleWidgets.placeholderImage(size, Icons.image),
+      decoration: BoxDecoration(
+        color: Colors.deepPurpleAccent,
+        borderRadius: BorderRadius.circular(size.width * 0.025),
+      ),
+      child: Icon(
+        Icons.handshake,
+        size: size.width * 0.1,
+        color: Colors.white,
+        // shadows: [Shadow(color: Colors.black, blurRadius: 8)],
+      ),
     ),
   );
 
@@ -67,7 +91,7 @@ class ItemCard extends StatelessWidget {
     padding: EdgeInsetsGeometry.all(size.width * 0.02),
     child: Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [_nameCard(size), _statusBadgeCard(size)],
     ),
   );
