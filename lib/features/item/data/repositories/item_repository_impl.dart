@@ -16,9 +16,8 @@ class ItemRepositoryImpl implements ItemRepository {
   }
 
   @override
-  Future<Item?> getItemById(String id) async {
-    return await datasource.getItemById(id);
-  }
+  Future<Item?> getItemById(String id) async =>
+      await datasource.getItemById(id);
 
   @override
   Future<void> createItem(Item item) async {
@@ -53,12 +52,13 @@ class ItemRepositoryImpl implements ItemRepository {
   }
 
   @override
-  Future<void> deleteItem(String id) async {
-    await datasource.deleteItem(id);
-  }
+  Future<void> deleteItem(String id) async => await datasource.deleteItem(id);
 
   @override
-  Future<String?> uploadImage(File file) async {
-    return await datasource.uploadImage(file);
-  }
+  Future<String?> uploadImage(File file) async =>
+      await datasource.uploadImage(file);
+
+  @override
+  Future<void> shareItem(String itemId, String userId) async =>
+      await datasource.shareItem(itemId, userId);
 }

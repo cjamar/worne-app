@@ -8,4 +8,5 @@ abstract class ItemRemoteDatasource {
   Future<void> updateItem(ItemModel item);
   Future<void> deleteItem(String id);
   Future<String?> uploadImage(File file);
+  Future<void> shareItem(String itemId, String userId);
 }

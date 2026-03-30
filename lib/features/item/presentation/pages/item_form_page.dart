@@ -70,7 +70,6 @@ class _ItemFormPageState extends State<ItemFormPage> {
       imageUrl: _uploadedImageUrl ?? widget.item?.imageUrl ?? '',
       category: _selectedCategory!,
       status: ItemStatus.available,
-      isShared: false,
     );
 
     if (isEditing) {

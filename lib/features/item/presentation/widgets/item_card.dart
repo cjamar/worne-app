@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:prestar_ropa_app/core/utils/items_helper.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
-import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
+import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
+import '../../../../core/utils/items_helper.dart';
+import '../../../shared/widgets/simple_widgets.dart';
+import '../../domain/entities/item.dart';
 
 class ItemCard extends StatelessWidget {
   final Item item;
@@ -16,9 +18,12 @@ class ItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
+    print('${item.name} --> ${item.isShared}');
+
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
+      onDoubleTap: () => _testShareItem(context),
       child: Card(
         color: Colors.white,
         elevation: 0,
@@ -33,6 +38,10 @@ class ItemCard extends StatelessWidget {
       ),
     );
   }
+
+  _testShareItem(BuildContext context) => context.read<ItemBloc>().add(
+    ShareItemWithUser(item.id!, 'ce5c7733-f186-4a7a-b6da-1098b03c68c3'),
+  );
 
   _imageCard(Size size) => ClipRRect(
     child: Container(

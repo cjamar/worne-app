@@ -57,3 +57,12 @@ class FilterItems extends ItemEvent {
   @override
   List<Object?> get props => [status];
 }
+
+class ShareItemWithUser extends ItemEvent {
+  final String itemId;
+  final String userId;
+  const ShareItemWithUser(this.itemId, this.userId);
+
+  @override
+  List<Object?> get props => [itemId, userId];
+}

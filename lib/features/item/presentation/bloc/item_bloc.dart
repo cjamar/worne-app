@@ -5,6 +5,7 @@ import '../../domain/entities/item_status.dart';
 import '../../domain/usecases/create_item.dart';
 import '../../domain/usecases/delete_item.dart';
 import '../../domain/usecases/get_items.dart';
+import '../../domain/usecases/share_item.dart';
 import '../../domain/usecases/update_item.dart';
 import '../../domain/usecases/upload_item_image.dart';
 import 'item_event.dart';
@@ -16,6 +17,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
   final UpdateItem updateItem;
   final DeleteItem deleteItem;
   final UploadItemImage uploadItemImage;
+  final ShareItem shareItem;
   List<Item> _allItems = [];
   ItemStatus? _activeFilter;
 
@@ -25,6 +27,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     required this.updateItem,
     required this.deleteItem,
     required this.uploadItemImage,
+    required this.shareItem,
   }) : super(ItemInitial()) {
     on<LoadItems>((event, emit) async {
       emit(ItemLoading());
@@ -45,7 +48,6 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
         await createItem(event.item);
         _allItems = [event.item, ..._allItems];
         emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
-        //  add(LoadItems(event.item.ownerId));
       } catch (e) {
         emit(ItemError(e.toString()));
       }
@@ -90,6 +92,15 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       _activeFilter = event.status;
 
       emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
+    });
+
+    on<ShareItemWithUser>((event, emit) async {
+      try {
+        await shareItem(event.itemId, event.userId);
+        add(LoadItems());
+      } catch (e) {
+        emit(ItemError(e.toString()));
+      }
     });
   }
 

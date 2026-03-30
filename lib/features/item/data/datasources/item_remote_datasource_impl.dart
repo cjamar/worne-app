@@ -113,4 +113,12 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
       throw Exception('Error al subir imagen: $e');
     }
   }
+
+  @override
+  Future<void> shareItem(String itemId, String userId) async {
+    await supabase.from('item_access').insert({
+      'item_id': itemId,
+      'shared_with_user_id': userId,
+    });
+  }
 }
