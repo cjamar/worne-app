@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/share_item_by_email.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/item.dart';
 import '../../domain/entities/item_status.dart';
@@ -18,6 +19,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
   final DeleteItem deleteItem;
   final UploadItemImage uploadItemImage;
   final ShareItem shareItem;
+  final ShareItemByEmail shareItemByEmail;
   List<Item> _allItems = [];
   ItemStatus? _activeFilter;
 
@@ -28,6 +30,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     required this.deleteItem,
     required this.uploadItemImage,
     required this.shareItem,
+    required this.shareItemByEmail,
   }) : super(ItemInitial()) {
     on<LoadItems>((event, emit) async {
       emit(ItemLoading());
@@ -98,6 +101,14 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       try {
         await shareItem(event.itemId, event.userId);
         add(LoadItems());
+      } catch (e) {
+        emit(ItemError(e.toString()));
+      }
+    });
+
+    on<ShareItemByEmailEvent>((event, emit) async {
+      try {
+        await shareItemByEmail(event.itemId, event.email);
       } catch (e) {
         emit(ItemError(e.toString()));
       }

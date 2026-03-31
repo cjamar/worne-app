@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/features/item/domain/usecases/share_item.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/share_item_by_email.dart';
 import 'package:prestar_ropa_app/features/user/domain/usecases/ensure_user_exists.dart';
 import 'package:prestar_ropa_app/features/user/domain/usecases/upload_user_avatar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -78,6 +79,7 @@ class MyApp extends StatelessWidget {
   late final deleteItem = DeleteItem(itemRepository);
   late final uploadItemImage = UploadItemImage(itemRepository);
   late final shareItem = ShareItem(itemRepository);
+  late final shareItemByEmail = ShareItemByEmail(itemRepository);
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +93,7 @@ class MyApp extends StatelessWidget {
             deleteItem: deleteItem,
             uploadItemImage: uploadItemImage,
             shareItem: shareItem,
+            shareItemByEmail: shareItemByEmail,
           ),
         ),
         BlocProvider<AuthBloc>(

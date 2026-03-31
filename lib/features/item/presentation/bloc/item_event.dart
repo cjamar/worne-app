@@ -66,3 +66,12 @@ class ShareItemWithUser extends ItemEvent {
   @override
   List<Object?> get props => [itemId, userId];
 }
+
+class ShareItemByEmailEvent extends ItemEvent {
+  final String itemId;
+  final String email;
+  const ShareItemByEmailEvent(this.itemId, this.email);
+
+  @override
+  List<Object?> get props => [itemId, email];
+}

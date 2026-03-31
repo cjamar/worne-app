@@ -61,4 +61,8 @@ class ItemRepositoryImpl implements ItemRepository {
   @override
   Future<void> shareItem(String itemId, String userId) async =>
       await datasource.shareItem(itemId, userId);
+
+  @override
+  Future<void> shareItemByEmail(String itemId, String email) async =>
+      await datasource.shareItemByEmail(itemId, email);
 }

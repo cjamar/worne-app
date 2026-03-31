@@ -27,8 +27,10 @@ class _ItemFormPageState extends State<ItemFormPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
+  late TextEditingController _emailController;
   final FocusNode _nameFocus = FocusNode();
   final FocusNode _descriptionFocus = FocusNode();
+  final FocusNode _userFocus = FocusNode();
   String? _selectedCategory;
   final List<String> categories = ItemCategory.values;
   bool get isEditing => widget.item != null;
@@ -59,8 +61,10 @@ class _ItemFormPageState extends State<ItemFormPage> {
     _descriptionController = TextEditingController(
       text: widget.item?.description ?? '',
     );
+    _emailController = TextEditingController();
     _nameFocus.addListener(() => setState(() {}));
     _descriptionFocus.addListener(() => setState(() {}));
+    _userFocus.addListener(() => setState(() {}));
     _selectedCategory = widget.item?.category;
   }
 
@@ -146,7 +150,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
         children: [
           Container(
             width: size.width,
-            height: _isOwner ? size.height * 0.4 : size.height * 0.48,
+            height: size.height * 0.5,
             margin: EdgeInsets.only(top: size.height * 0.05),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -157,6 +161,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
                 _categoryDropdown(size),
                 SizedBox(height: size.height * 0.04),
                 _imagePickerButton(size),
+                _shareItemButton(size),
               ],
             ),
           ),
@@ -303,6 +308,23 @@ class _ItemFormPageState extends State<ItemFormPage> {
           ),
   );
 
+  _shareItemButton(Size size) => SizedBox(
+    width: size.width * 0.8,
+    height: size.height * 0.06,
+    child: Visibility(
+      visible: _isOwner,
+      child: ElevatedButton.icon(
+        onPressed: () => _shareItemDialog(size),
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          backgroundColor: Color(0xffe3b5ff),
+        ),
+        icon: Icon(Icons.handshake, size: 30),
+        label: Text('Compartir'),
+      ),
+    ),
+  );
+
   _submitButton(Size size) => BlocBuilder<ItemBloc, ItemState>(
     builder: (context, state) {
       if (state is ItemLoading) {
@@ -329,6 +351,57 @@ class _ItemFormPageState extends State<ItemFormPage> {
     },
   );
 
+  Future<void> _shareItemDialog(Size size) async {
+    final confirmed = await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Compartir item'),
+        content: _userToShareTextfield(size),
+        actions: [
+          _textButtonDialog(
+            size,
+            'Cancelar',
+            Colors.grey.shade400,
+            Colors.black,
+            false,
+          ),
+          _textButtonDialog(
+            size,
+            'Compartir',
+            Colors.deepPurpleAccent,
+            Colors.white,
+            true,
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) _shareItem(_emailController.text.trim());
+  }
+
+  _userToShareTextfield(Size size) => TextField(
+    controller: _emailController,
+    decoration: InputDecoration(hintText: 'Email del usuario'),
+  );
+
+  _textButtonDialog(
+    Size size,
+    String action,
+    Color backgroundColor,
+    Color foregroundColor,
+    bool confirmButton,
+  ) => TextButton(
+    onPressed: () => Navigator.pop(context, confirmButton),
+    style: TextButton.styleFrom(
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadiusGeometry.circular(size.width * 0.06),
+      ),
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+    ),
+    child: Text(action),
+  );
+
   Future<void> _pickImage(ImageSource source) async {
     final picked = await _picker.pickImage(source: source);
 
@@ -343,8 +416,15 @@ class _ItemFormPageState extends State<ItemFormPage> {
     }
   }
 
-  void _uploadImage(File file) =>
+  _uploadImage(File file) =>
       context.read<ItemBloc>().add(UploadItemImageEvent(file));
+
+  _shareItem(String email) {
+    context.read<ItemBloc>().add(
+      ShareItemByEmailEvent(widget.item!.id!, email),
+    );
+    SimpleWidgets.snackbar(context, 'Compartiendo...');
+  }
 
   _clearTextField(TextEditingController controller) => IconButton(
     icon: const Icon(Icons.close, size: 18),

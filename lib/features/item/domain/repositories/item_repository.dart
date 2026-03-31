@@ -9,4 +9,5 @@ abstract class ItemRepository {
   Future<void> deleteItem(String id);
   Future<String?> uploadImage(File file);
   Future<void> shareItem(String itemId, String userId);
+  Future<void> shareItemByEmail(String itemId, String email);
 }

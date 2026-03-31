@@ -1,8 +1,9 @@
 import 'dart:io';
 
-import 'package:prestar_ropa_app/features/item/data/datasources/item_remote_datasource.dart';
-import 'package:prestar_ropa_app/features/item/data/models/item_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../models/item_model.dart';
+import 'item_remote_datasource.dart';
 
 class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
   final SupabaseClient supabase;
@@ -120,5 +121,18 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
       'item_id': itemId,
       'shared_with_user_id': userId,
     });
+  }
+
+  @override
+  Future<void> shareItemByEmail(String itemId, String email) async {
+    final response = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', email)
+        .maybeSingle();
+    if (response == null) throw Exception('Usuario no encontrado');
+
+    final userId = response['id'];
+    await shareItem(itemId, userId);
   }
 }
