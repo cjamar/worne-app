@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 class SimpleWidgets {
   static loader() => const Center(child: CircularProgressIndicator());
 
-  static snackbar(BuildContext context, String message) =>
+  static snackbar(BuildContext context, String message, Color color) =>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: Color(0xffb5212f),
-          margin: EdgeInsets.all(15),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadiusGeometry.circular(20),
-          ),
+          backgroundColor: color,
+          // margin: EdgeInsets.all(15),
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadiusGeometry.circular(20),
+          // ),
         ),
       );
 

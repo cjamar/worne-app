@@ -128,13 +128,13 @@ class _ItemFormPageState extends State<ItemFormPage> {
         setState(() {
           _isUploadingImage = false;
         });
-        SimpleWidgets.snackbar(context, state.message);
+        SimpleWidgets.snackbar(context, state.message, Colors.red);
       }
       if (state is ItemLoaded) {
         Navigator.pop(context);
       }
       if (state is ItemError) {
-        SimpleWidgets.snackbar(context, state.message);
+        SimpleWidgets.snackbar(context, state.message, Colors.red);
       }
     },
     child: _itemFormBody(size),
@@ -242,19 +242,22 @@ class _ItemFormPageState extends State<ItemFormPage> {
 
   _categoryDropdown(Size size) => SizedBox(
     width: size.width * 0.8,
-    child: DropdownButtonFormField<String>(
-      initialValue: _selectedCategory,
-      decoration: const InputDecoration(labelText: 'Categoría'),
-      items: categories
-          .map(
-            (category) =>
-                DropdownMenuItem(value: category, child: Text(category)),
-          )
-          .toList(),
-      onChanged: (value) => setState(() {
-        _selectedCategory = value;
-      }),
-      validator: (value) => value == null ? 'Selecciona una categoria' : null,
+    child: IgnorePointer(
+      ignoring: !_isOwner,
+      child: DropdownButtonFormField<String>(
+        initialValue: _selectedCategory,
+        decoration: const InputDecoration(labelText: 'Categoría'),
+        items: categories
+            .map(
+              (category) =>
+                  DropdownMenuItem(value: category, child: Text(category)),
+            )
+            .toList(),
+        onChanged: (value) => setState(() {
+          _selectedCategory = value;
+        }),
+        validator: (value) => value == null ? 'Selecciona una categoria' : null,
+      ),
     ),
   );
 
@@ -375,7 +378,9 @@ class _ItemFormPageState extends State<ItemFormPage> {
         ],
       ),
     );
-    if (confirmed == true) _shareItem(_emailController.text.trim());
+    if (confirmed == true && widget.item != null) {
+      _shareItem(_emailController.text.trim());
+    }
   }
 
   _userToShareTextfield(Size size) => TextField(
@@ -423,7 +428,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
     context.read<ItemBloc>().add(
       ShareItemByEmailEvent(widget.item!.id!, email),
     );
-    SimpleWidgets.snackbar(context, 'Compartiendo...');
+    SimpleWidgets.snackbar(context, 'Compartiendo...', Colors.black);
   }
 
   _clearTextField(TextEditingController controller) => IconButton(

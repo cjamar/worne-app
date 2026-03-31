@@ -128,8 +128,9 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
     final response = await supabase
         .from('users')
         .select('id')
-        .eq('email', email)
+        .eq('email', email.toLowerCase())
         .maybeSingle();
+
     if (response == null) throw Exception('Usuario no encontrado');
 
     final userId = response['id'];
