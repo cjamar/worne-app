@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prestar_ropa_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:sign_in_button/sign_in_button.dart';
-
 import '../bloc/auth_bloc.dart';
+import '../bloc/auth_event.dart';
 import '../widgets/auth_form.dart';
 import 'register_page.dart';
 
@@ -14,11 +13,16 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      body: SizedBox(
-        width: size.width,
-        height: size.height,
-        child: Column(children: [_logoArea(size), _formArea(context, size)]),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: SizedBox(
+          width: size.width,
+          height: size.height,
+          child: Column(children: [_logoArea(size), _formArea(context, size)]),
+        ),
       ),
     );
   }
@@ -26,13 +30,19 @@ class LoginPage extends StatelessWidget {
   Widget _logoArea(Size size) => Container(
     width: size.width,
     height: size.height * 0.4,
-    color: Colors.black87,
+    color: Colors.white,
     child: Center(
       child: Container(
         width: size.width * 0.45,
         height: size.height * 0.08,
         color: Colors.white54,
-        child: const Center(child: Text('Logo')),
+        child: Center(
+          child: Icon(
+            Icons.logo_dev,
+            size: size.width * 0.25,
+            color: Colors.grey.shade300,
+          ),
+        ),
       ),
     ),
   );
@@ -61,18 +71,20 @@ class LoginPage extends StatelessWidget {
     ),
   );
 
-  Widget _formButtons(BuildContext context, Size size) => Container(
-    color: Colors.black26,
+  Widget _formButtons(BuildContext context, Size size) => SizedBox(
     width: size.width,
-    height: size.height * 0.25,
-    padding: EdgeInsets.symmetric(vertical: size.height * 0.05),
+    height: size.height * 0.2,
     child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [_googleButton(context, size), _registerButton(context, size)],
     ),
   );
 
-  Widget _googleButton(BuildContext context, Size size) => SizedBox(
+  Widget _googleButton(BuildContext context, Size size) => Container(
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey),
+      borderRadius: BorderRadius.circular(size.width * 0.07),
+    ),
     height: 50,
     width: size.width * 0.8,
     child: SignInButton(
@@ -82,26 +94,31 @@ class LoginPage extends StatelessWidget {
       ),
       Buttons.google,
       text: "Continuar con Google",
-      onPressed: () => context.read<AuthBloc>().add(GoogleSignInRequested()),
+      onPressed: () => googleSignIn(context),
     ),
   );
 
   Widget _registerButton(BuildContext context, Size size) => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
       const Text('¿No tienes una cuenta?'),
       TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.grey.shade200,
+          foregroundColor: Colors.blueAccent,
+          padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+        ),
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const RegisterPage()),
           );
         },
-        child: const Text(
-          'Registrarme',
-          style: TextStyle(fontSize: 12, decoration: TextDecoration.underline),
-        ),
+        child: const Text('Registrarme'),
       ),
     ],
   );
+
+  googleSignIn(BuildContext context) =>
+      context.read<AuthBloc>().add(GoogleSignInRequested());
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 
+import '../../../../core/utils/users_helper.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
 
@@ -102,8 +103,11 @@ class _AuthFormState extends State<AuthForm> {
       builder: (context, value, _) => TextFormField(
         controller: _emailController,
         focusNode: _emailFocus,
-        validator: (value) =>
-            value == null || value.trim().isEmpty ? 'Campo vacío' : null,
+        validator: (value) {
+          if (value == null || value.trim().isEmpty) return 'Campo vacío';
+          if (!UsersHelper.isValidEmail(value.trim())) return 'Email inválido';
+          return null;
+        },
         decoration: InputDecoration(
           hintText: 'Email',
           filled: true,
@@ -200,8 +204,7 @@ class _AuthFormState extends State<AuthForm> {
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: Colors.grey,
-                // textStyle: TextStyle()
+                disabledBackgroundColor: Colors.grey.shade300,
                 disabledForegroundColor: Colors.white,
                 backgroundColor: Colors.blue,
               ),
@@ -217,7 +220,7 @@ class _AuthFormState extends State<AuthForm> {
   );
 
   _rememberAndForgotPassword() => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
     children: [_rememberMeCheck(), Text('¿Olvidaste la contraseña?')],
   );
 
@@ -235,7 +238,8 @@ class _AuthFormState extends State<AuthForm> {
   );
 
   void _onSubmit() {
-    if (!_isFormValid.value) return;
+    if (!_formKey.currentState!.validate()) return;
+    // if (!_isFormValid.value) return;
 
     widget.onSubmit(
       _emailController.text.trim(),
@@ -244,7 +248,8 @@ class _AuthFormState extends State<AuthForm> {
   }
 
   void _validateForm() {
-    final emailValid = _emailController.text.trim().isNotEmpty;
+    final email = _emailController.text.trim();
+    final emailValid = email.isNotEmpty && UsersHelper.isValidEmail(email);
     final passwordValid = _passwordController.text.trim().isNotEmpty;
 
     final confirmValid =

@@ -4,22 +4,30 @@ class SimpleWidgets {
   static loader() => const Center(child: CircularProgressIndicator());
 
   static snackbar(BuildContext context, String message, Color color) =>
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: color,
-          // margin: EdgeInsets.all(15),
-          // shape: RoundedRectangleBorder(
-          //   borderRadius: BorderRadiusGeometry.circular(20),
-          // ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
 
   static placeholderAvatar(Size size, IconData icon) =>
       Icon(icon, color: Colors.blueGrey, size: size.width * 0.07);
 
   static placeholderImage(Size size, IconData icon) => Center(
     child: Icon(icon, size: size.width * 0.15, color: Colors.grey.shade300),
+  );
+
+  static containerWithIcon(Size size, IconData icon, String text) => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.auto_awesome,
+          size: size.width * 0.15,
+          color: Colors.grey.shade300,
+        ),
+        SizedBox(height: size.height * 0.03),
+        Text(text, textAlign: TextAlign.center),
+      ],
+    ),
   );
 
   static inputBorder(Size size, Color color) => OutlineInputBorder(

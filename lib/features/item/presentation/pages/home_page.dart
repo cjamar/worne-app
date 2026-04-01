@@ -130,7 +130,11 @@ class _HomePageState extends State<HomePage> {
       state.items.isEmpty
           ? SliverFillRemaining(
               hasScrollBody: false,
-              child: _emptyContainer(size),
+              child: SimpleWidgets.containerWithIcon(
+                size,
+                Icons.auto_awesome,
+                'Aún no tienes ningún producto, \n ¡añádelo a la lista!',
+              ),
             )
           : _itemList(size, state.items),
     ],
@@ -145,20 +149,6 @@ class _HomePageState extends State<HomePage> {
         children: [
           Icon(Icons.error),
           Text('Ha ocurrido un error, $message', textAlign: TextAlign.center),
-        ],
-      ),
-    ),
-  );
-
-  _emptyContainer(Size size) => SizedBox(
-    width: size.width * 0.8,
-    height: size.height * 0.3,
-    child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.inbox),
-          Text('Aún no tienes ningún producto, ¡añádelo a la lista!'),
         ],
       ),
     ),
