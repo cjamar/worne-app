@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prestar_ropa_app/core/utils/users_helper.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item_category.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
@@ -25,12 +26,15 @@ class ItemFormPage extends StatefulWidget {
 
 class _ItemFormPageState extends State<ItemFormPage> {
   final _formKey = GlobalKey<FormState>();
+  final _modalShareFormKey = GlobalKey<FormState>();
+  final ValueNotifier<bool> _isFormValid = ValueNotifier(false);
+  final ValueNotifier<bool> _isShareFormValid = ValueNotifier(false);
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   late TextEditingController _emailController;
   final FocusNode _nameFocus = FocusNode();
   final FocusNode _descriptionFocus = FocusNode();
-  final FocusNode _userFocus = FocusNode();
+  final FocusNode _emailFocus = FocusNode();
   String? _selectedCategory;
   final List<String> categories = ItemCategory.values;
   bool get isEditing => widget.item != null;
@@ -39,7 +43,6 @@ class _ItemFormPageState extends State<ItemFormPage> {
   final _picker = ImagePicker();
   String? _uploadedImageUrl;
   bool _isUploadingImage = false;
-
   late final String _currentUserId;
   late final bool _isOwner;
 
@@ -49,22 +52,21 @@ class _ItemFormPageState extends State<ItemFormPage> {
     _currentUserId = Supabase.instance.client.auth.currentUser!.id;
     _isOwner = widget.item == null || widget.item!.ownerId == _currentUserId;
 
-    if (widget.item != null) {
-      _nameController = TextEditingController(text: widget.item?.name);
-      _descriptionController = TextEditingController(
-        text: widget.item?.description,
-      );
-      _uploadedImageUrl = widget.item!.imageUrl;
-    }
+    if (widget.item != null) _uploadedImageUrl = widget.item!.imageUrl;
 
     _nameController = TextEditingController(text: widget.item?.name ?? '');
     _descriptionController = TextEditingController(
       text: widget.item?.description ?? '',
     );
     _emailController = TextEditingController();
+
+    _nameController.addListener(_validateForm);
+    _descriptionController.addListener(_validateForm);
+    _emailController.addListener(_shareModalValidateForm);
+
     _nameFocus.addListener(() => setState(() {}));
     _descriptionFocus.addListener(() => setState(() {}));
-    _userFocus.addListener(() => setState(() {}));
+    _emailFocus.addListener(() => setState(() {}));
     _selectedCategory = widget.item?.category;
   }
 
@@ -72,10 +74,14 @@ class _ItemFormPageState extends State<ItemFormPage> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    _emailController.dispose();
+    _isFormValid.dispose();
+    _isShareFormValid.dispose();
     super.dispose();
   }
 
   void _submit() async {
+    if (!_isFormValid.value) return;
     if (!_formKey.currentState!.validate()) return;
 
     final userId = Supabase.instance.client.auth.currentUser!.id;
@@ -96,6 +102,15 @@ class _ItemFormPageState extends State<ItemFormPage> {
       context.read<ItemBloc>().add(AddItem(item));
     }
   }
+
+  _validateForm() {
+    final nameValid = _nameController.text.trim().isNotEmpty;
+    final descriptionValid = _descriptionController.text.trim().isNotEmpty;
+    _isFormValid.value = nameValid && descriptionValid;
+  }
+
+  _shareModalValidateForm() =>
+      _isShareFormValid.value = _emailController.text.trim().isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -288,13 +303,17 @@ class _ItemFormPageState extends State<ItemFormPage> {
     ),
   );
 
-  _thumbnailImagePicker(Size size) =>
-      widget.item != null && widget.item!.imageUrl.isNotEmpty
-      ? CircleAvatar(
-          backgroundColor: Colors.grey,
-          backgroundImage: NetworkImage(widget.item!.imageUrl),
-        )
-      : Icon(Icons.image, size: size.width * 0.07, color: Colors.grey);
+  _thumbnailImagePicker(Size size) {
+    final imageUrl = _uploadedImageUrl ?? widget.item?.imageUrl ?? '';
+    if (imageUrl.isNotEmpty) {
+      return CircleAvatar(
+        backgroundColor: Colors.grey,
+        backgroundImage: NetworkImage(imageUrl),
+      );
+    }
+
+    return Icon(Icons.image, size: size.width * 0.07, color: Colors.grey);
+  }
 
   _textImagePicker(Size siz) => Expanded(
     child: _isUploadingImage
@@ -328,83 +347,158 @@ class _ItemFormPageState extends State<ItemFormPage> {
     ),
   );
 
-  _submitButton(Size size) => BlocBuilder<ItemBloc, ItemState>(
-    builder: (context, state) {
-      if (state is ItemLoading) {
-        return SimpleWidgets.loader();
-      }
-      return SizedBox(
-        width: size.width * 0.8,
-        height: size.height * 0.06,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: Colors.grey.shade300,
-            // textStyle: TextStyle()
-            disabledForegroundColor: Colors.white,
-            backgroundColor: _isUploadingImage
-                ? Colors.grey.shade300
-                : Colors.blue,
+  _submitButton(Size size) => ValueListenableBuilder<bool>(
+    valueListenable: _isFormValid,
+    builder: (context, isValid, child) => BlocBuilder<ItemBloc, ItemState>(
+      builder: (context, state) {
+        if (state is ItemLoading) {
+          return SimpleWidgets.loader();
+        }
+        return SizedBox(
+          width: size.width * 0.8,
+          height: size.height * 0.06,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: Colors.grey.shade300,
+              // textStyle: TextStyle()
+              disabledForegroundColor: Colors.white,
+              backgroundColor: _isUploadingImage
+                  ? Colors.grey.shade300
+                  : Colors.blue,
+            ),
+            onPressed: (isValid && !_isUploadingImage && _isOwner)
+                ? _submit
+                : null,
+            child: Text(isEditing ? ' Guardar cambios' : 'Subir producto'),
           ),
-          onPressed: _isUploadingImage || !_isOwner ? null : _submit,
-          child: Text(isEditing ? ' Guardar cambios' : 'Subir producto'),
-        ),
-      );
-    },
+        );
+      },
+    ),
   );
 
   Future<void> _shareItemDialog(Size size) async {
-    final confirmed = await showDialog(
+    final email = await showModalBottomSheet<String>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Compartir item'),
-        content: _userToShareTextfield(size),
-        actions: [
-          _textButtonDialog(
-            size,
-            'Cancelar',
-            Colors.grey.shade400,
-            Colors.black,
-            false,
-          ),
-          _textButtonDialog(
-            size,
-            'Compartir',
-            Colors.deepPurpleAccent,
-            Colors.white,
-            true,
-          ),
-        ],
-      ),
+      builder: (context) => _shareItemModalBottom(context, size),
     );
-    if (confirmed == true && widget.item != null) {
-      _shareItem(_emailController.text.trim());
+    if (email != null && widget.item != null) {
+      _shareItem(email);
     }
   }
 
-  _userToShareTextfield(Size size) => TextField(
-    controller: _emailController,
-    decoration: InputDecoration(hintText: 'Email del usuario'),
+  _shareItemModalBottom(BuildContext context, Size size) => Container(
+    color: Colors.white,
+    height: size.height * 0.5,
+    padding: EdgeInsets.symmetric(
+      vertical: size.height * 0.025,
+      horizontal: size.width * 0.05,
+    ),
+    child: Form(
+      key: _modalShareFormKey,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Text('Comparte tu producto con otro usuario'),
+          _textfieldAndButtonsModal(size),
+        ],
+      ),
+    ),
   );
 
-  _textButtonDialog(
+  _textfieldAndButtonsModal(Size size) => Container(
+    padding: EdgeInsets.only(bottom: size.height * 0.025),
+    height: size.height * 0.35,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _userToShareTextfield(size),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            _userToShareButton(
+              size,
+              'Cancelar',
+              Colors.grey.shade200,
+              Colors.black,
+              false,
+            ),
+            _userToShareButton(
+              size,
+              'Compartir',
+              Colors.deepPurpleAccent,
+              Colors.white,
+              true,
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+
+  _userToShareTextfield(Size size) => SizedBox(
+    width: size.width * 0.8,
+    child: ValueListenableBuilder<TextEditingValue>(
+      valueListenable: _emailController,
+      builder: (context, value, _) => TextFormField(
+        controller: _emailController,
+        focusNode: _emailFocus,
+        validator: (value) {
+          if (value == null || value.trim().isEmpty) return 'Campo vacío';
+          if (!UsersHelper.isValidEmail(value.trim())) return 'Email inválido';
+          return null;
+        },
+        decoration: InputDecoration(
+          hintText: 'Email del usuario',
+          filled: true,
+          fillColor: Colors.white,
+          border: SimpleWidgets.inputBorder(size, Colors.grey),
+          enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          suffixIcon: value.text.isNotEmpty && _emailFocus.hasFocus
+              ? _clearTextField(_emailController)
+              : null,
+        ),
+      ),
+    ),
+  );
+
+  _userToShareButton(
     Size size,
     String action,
     Color backgroundColor,
     Color foregroundColor,
     bool confirmButton,
-  ) => TextButton(
-    onPressed: () => Navigator.pop(context, confirmButton),
-    style: TextButton.styleFrom(
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadiusGeometry.circular(size.width * 0.06),
+  ) => ValueListenableBuilder<bool>(
+    valueListenable: _isShareFormValid,
+    builder: (context, isValid, _) => SizedBox(
+      height: size.height * 0.05,
+      width: size.width * 0.4,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          foregroundColor: foregroundColor,
+          backgroundColor: backgroundColor,
+          disabledBackgroundColor: Colors.grey.shade300,
+          disabledForegroundColor: Colors.grey,
+        ),
+        onPressed: (confirmButton && !isValid)
+            ? null
+            : () {
+                if (confirmButton) {
+                  if (!_modalShareFormKey.currentState!.validate()) return;
+                }
+                _emailController.clear();
+                Navigator.pop(
+                  context,
+                  confirmButton ? _emailController.text.trim() : null,
+                );
+              },
+        child: Text(action),
       ),
-      backgroundColor: backgroundColor,
-      foregroundColor: foregroundColor,
     ),
-    child: Text(action),
   );
 
   Future<void> _pickImage(ImageSource source) async {
