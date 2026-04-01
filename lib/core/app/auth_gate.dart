@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prestar_ropa_app/features/item/presentation/pages/home_page.dart';
-import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
-import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
-import 'package:prestar_ropa_app/features/user/presentation/bloc/user_event.dart';
-import 'package:prestar_ropa_app/features/user/presentation/bloc/user_state.dart';
-import 'package:prestar_ropa_app/features/user/presentation/pages/complete_profile_page.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/item/presentation/bloc/item_bloc.dart';
+import '../../features/item/presentation/bloc/item_event.dart';
+import '../../features/item/presentation/pages/home_page.dart';
+import '../../features/shared/widgets/simple_widgets.dart';
+import '../../features/user/presentation/bloc/user_bloc.dart';
+import '../../features/user/presentation/bloc/user_event.dart';
+import '../../features/user/presentation/bloc/user_state.dart';
+import '../../features/user/presentation/pages/complete_profile_page.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -18,11 +20,8 @@ class AuthGate extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          final userState = context.read<UserBloc>().state;
-
-          if (userState is! UserLoaded) {
-            context.read<UserBloc>().add(LoadCurrentUser(state.userId));
-          }
+          context.read<UserBloc>().add(LoadCurrentUser(state.userId));
+          context.read<ItemBloc>().add(LoadItems(state.userId));
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(
@@ -32,9 +31,6 @@ class AuthGate extends StatelessWidget {
           if (authState is Authenticated) {
             return BlocBuilder<UserBloc, UserState>(
               builder: (context, userState) {
-                if (userState is UserLoading) {
-                  return _loader();
-                }
                 if (userState is UserLoading) {
                   return _loader();
                 }

@@ -25,9 +25,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   }
 
   @override
-  Future<void> signOut() async {
-    await supabase.auth.signOut();
-  }
+  Future<void> signOut() async => await supabase.auth.signOut();
 
   @override
   String? getCurrentUserId() {
