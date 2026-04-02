@@ -109,6 +109,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     on<ShareItemByEmailEvent>((event, emit) async {
       try {
         await shareItemByEmail(event.itemId, event.email);
+        emit(ItemSharedSuccess('Se ha compartido con éxito a ${event.email}'));
       } catch (e) {
         emit(ItemError(e.toString()));
       }

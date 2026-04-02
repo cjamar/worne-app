@@ -42,3 +42,11 @@ class ImageUploadError extends ItemState {
   final String message;
   const ImageUploadError(this.message);
 }
+
+class ItemSharedSuccess extends ItemState {
+  final String message;
+  const ItemSharedSuccess(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

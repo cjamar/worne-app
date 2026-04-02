@@ -148,6 +148,9 @@ class _ItemFormPageState extends State<ItemFormPage> {
       if (state is ItemLoaded) {
         Navigator.pop(context);
       }
+      if (state is ItemSharedSuccess) {
+        SimpleWidgets.snackbar(context, state.message, Colors.blue);
+      }
       if (state is ItemError) {
         SimpleWidgets.snackbar(context, state.message, Colors.red);
       }
@@ -381,6 +384,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
   Future<void> _shareItemDialog(Size size) async {
     final email = await showModalBottomSheet<String>(
       context: context,
+      isScrollControlled: true,
       builder: (context) => _shareItemModalBottom(context, size),
     );
     if (email != null && widget.item != null) {
@@ -388,54 +392,53 @@ class _ItemFormPageState extends State<ItemFormPage> {
     }
   }
 
-  _shareItemModalBottom(BuildContext context, Size size) => Container(
-    color: Colors.white,
-    height: size.height * 0.5,
-    padding: EdgeInsets.symmetric(
-      vertical: size.height * 0.025,
-      horizontal: size.width * 0.05,
+  _shareItemModalBottom(BuildContext context, Size size) => Padding(
+    padding: EdgeInsetsGeometry.only(
+      bottom: MediaQuery.of(context).viewInsets.bottom,
     ),
-    child: Form(
-      key: _modalShareFormKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Text('Comparte tu producto con otro usuario'),
-          _textfieldAndButtonsModal(size),
-        ],
+    child: Container(
+      color: Colors.white,
+      height: size.height * 0.4,
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+      child: Form(
+        key: _modalShareFormKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Column(
+              children: [
+                Text('Comparte tu producto con otro usuario'),
+                SizedBox(height: size.height * 0.025),
+                _userToShareTextfield(size),
+              ],
+            ),
+            _textfieldAndButtonsModal(size),
+          ],
+        ),
       ),
     ),
   );
 
-  _textfieldAndButtonsModal(Size size) => Container(
-    padding: EdgeInsets.only(bottom: size.height * 0.025),
-    height: size.height * 0.35,
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _userToShareTextfield(size),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            _userToShareButton(
-              size,
-              'Cancelar',
-              Colors.grey.shade200,
-              Colors.black,
-              false,
-            ),
-            _userToShareButton(
-              size,
-              'Compartir',
-              Colors.deepPurpleAccent,
-              Colors.white,
-              true,
-            ),
-          ],
-        ),
-      ],
-    ),
+  _textfieldAndButtonsModal(Size size) => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    mainAxisSize: MainAxisSize.max,
+    children: [
+      _userToShareButton(
+        size,
+        'Cancelar',
+        Colors.grey.shade200,
+        Colors.black,
+        false,
+      ),
+      _userToShareButton(
+        size,
+        'Compartir',
+        Colors.deepPurpleAccent,
+        Colors.white,
+        true,
+      ),
+    ],
   );
 
   _userToShareTextfield(Size size) => SizedBox(
@@ -490,11 +493,9 @@ class _ItemFormPageState extends State<ItemFormPage> {
                 if (confirmButton) {
                   if (!_modalShareFormKey.currentState!.validate()) return;
                 }
+                final email = _emailController.text.trim();
                 _emailController.clear();
-                Navigator.pop(
-                  context,
-                  confirmButton ? _emailController.text.trim() : null,
-                );
+                Navigator.pop(context, confirmButton ? email : null);
               },
         child: Text(action),
       ),
@@ -522,7 +523,6 @@ class _ItemFormPageState extends State<ItemFormPage> {
     context.read<ItemBloc>().add(
       ShareItemByEmailEvent(widget.item!.id!, email),
     );
-    SimpleWidgets.snackbar(context, 'Compartiendo...', Colors.black);
   }
 
   _clearTextField(TextEditingController controller) => IconButton(
