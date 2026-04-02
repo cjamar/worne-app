@@ -11,6 +11,8 @@ class ItemsHelper {
         return ItemStatus.loaned;
       case 'Reservados':
         return ItemStatus.reserved;
+      case 'Perdidos':
+        return ItemStatus.losted;
       default:
         return null;
     }
@@ -28,6 +30,9 @@ class ItemsHelper {
         break;
       case ItemStatus.reserved:
         color = Colors.deepPurpleAccent;
+        break;
+      case ItemStatus.losted:
+        color = Colors.grey;
         break;
     }
     return color;

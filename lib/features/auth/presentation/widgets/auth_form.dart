@@ -199,7 +199,7 @@ class _AuthFormState extends State<AuthForm> {
 
           return SizedBox(
             width: size.width * 0.8,
-            height: size.height * 0.06,
+            height: size.height * 0.05,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 elevation: 0,

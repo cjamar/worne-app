@@ -13,45 +13,62 @@ class RegisterPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Crear cuenta')),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: const Text('Crear cuenta'),
+          backgroundColor: Colors.white,
+        ),
+        body: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthError) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
 
-      body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
-          }
+            if (state is Unauthenticated) {
+              Navigator.pop(context);
+            }
+          },
 
-          if (state is Unauthenticated) {
-            Navigator.pop(context);
-          }
-        },
-
-        child: _registerBody(context, size),
+          child: _registerBody(context, size),
+        ),
       ),
     );
   }
 
-  Widget _registerBody(BuildContext context, Size size) => Column(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      _logoArea(size),
-      SizedBox(
-        width: size.width * 0.8,
-        height: size.height * 0.35,
-        child: _registerForm(context),
-      ),
-      _backToLogin(context, size),
-    ],
+  Widget _registerBody(BuildContext context, Size size) => SizedBox(
+    width: size.width,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _logoArea(size),
+        SizedBox(
+          width: size.width * 0.8,
+          height: size.height * 0.35,
+          child: _registerForm(context),
+        ),
+        SizedBox(height: size.height * 0.025),
+        _backToLogin(context, size),
+      ],
+    ),
   );
 
-  _logoArea(Size size) => Container(
+  _logoArea(Size size) => SizedBox(
     width: size.width,
     height: size.height * 0.3,
-    color: Colors.black12,
-    child: Center(child: Text('Image')),
+    child: Center(
+      child: Icon(
+        Icons.key_sharp,
+        size: size.width * 0.2,
+        color: Colors.grey.shade300,
+      ),
+    ),
   );
 
   _registerForm(BuildContext context) => AuthForm(
@@ -65,11 +82,16 @@ class RegisterPage extends StatelessWidget {
     },
   );
 
-  _backToLogin(BuildContext context, Size size) => Padding(
-    padding: EdgeInsets.only(top: size.height * 0.03),
+  _backToLogin(BuildContext context, Size size) => Container(
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.blueAccent),
+      borderRadius: BorderRadius.circular(size.width * 0.06),
+    ),
+    width: size.width * 0.8,
+    height: size.height * 0.05,
     child: TextButton(
       onPressed: () => Navigator.pop(context),
-      child: Text('Volver a Login'),
+      child: Text('Volver a Login', style: TextStyle(color: Colors.blueAccent)),
     ),
   );
 }
