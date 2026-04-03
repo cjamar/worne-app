@@ -386,7 +386,7 @@ class _HomePageState extends State<HomePage> {
   _errorContainer(Size size, String message) => SimpleWidgets.containerWithIcon(
     size,
     Icons.error,
-    'Ha ocurrido un error, $message',
+    'Ha ocurrido un error, \n $message',
   );
 
   _undefinedErrorContainer(Size size) => SimpleWidgets.containerWithIcon(

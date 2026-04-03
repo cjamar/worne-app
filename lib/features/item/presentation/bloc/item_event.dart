@@ -75,3 +75,5 @@ class ShareItemByEmailEvent extends ItemEvent {
   @override
   List<Object?> get props => [itemId, email];
 }
+
+class ClearItemSharedState extends ItemEvent {}

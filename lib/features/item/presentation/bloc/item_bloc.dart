@@ -135,23 +135,25 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       await _emitGroupedState(emit, filteredItems, userId);
     });
 
-    on<ShareItemWithUser>((event, emit) async {
-      try {
-        await shareItem(event.itemId, event.userId);
-        add(LoadItems());
-      } catch (e) {
-        emit(ItemError(e.toString()));
-      }
-    });
+    // EN DESHUSO DE MOMENTO
+    // on<ShareItemWithUser>((event, emit) async {
+    //   try {
+    //     await shareItem(event.itemId, event.userId);
+    //     add(LoadItems());
+    //   } catch (e) {
+    //     emit(ItemError(e.toString()));
+    //   }
+    // });
 
-    on<ShareItemByEmailEvent>((event, emit) async {
-      try {
-        await shareItemByEmail(event.itemId, event.email);
-        emit(ItemSharedSuccess('Se ha compartido con éxito a ${event.email}'));
-      } catch (e) {
-        emit(ItemError(e.toString()));
-      }
-    });
+    // ACTUALMENTE NO SE LE LLAMA DIRECTAMENTE, LA IDEA ES REACTIVARLO
+    // on<ShareItemByEmailEvent>((event, emit) async {
+    //   try {
+    //     await shareItemByEmail(event.itemId, event.email);
+    //     //  emit(ItemSharedSuccess('Se ha compartido con éxito a ${event.email}'));
+    //   } catch (e) {
+    //     emit(ItemError(e.toString()));
+    //   }
+    // });
   }
 
   List<Item> _applyFilter() {
@@ -175,5 +177,13 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       sharedGroups,
     );
     emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
+  }
+
+  Future<void> shareItemToUserByEmail(String itemId, String email) async {
+    try {
+      await shareItemByEmail(itemId, email);
+    } catch (e) {
+      rethrow;
+    }
   }
 }

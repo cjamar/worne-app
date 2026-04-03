@@ -1,20 +1,18 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:prestar_ropa_app/core/utils/users_helper.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/item_category.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
-import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
-import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
-import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
-import 'package:prestar_ropa_app/features/shared/widgets/image_selector.dart';
-import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
-
+import '../../../../core/utils/users_helper.dart';
+import '../../../shared/widgets/image_selector.dart';
+import '../../../shared/widgets/simple_widgets.dart';
 import '../../domain/entities/item.dart';
+import '../../domain/entities/item_category.dart';
+import '../../domain/entities/item_status.dart';
+import '../bloc/item_bloc.dart';
+import '../bloc/item_event.dart';
+import '../bloc/item_state.dart';
 
 class ItemFormPage extends StatefulWidget {
   final Item? item;
@@ -151,6 +149,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
       }
       if (state is ItemSharedSuccess) {
         SimpleWidgets.snackbar(context, state.message, Colors.blue);
+        //  _clearItemState();
       }
       if (state is ItemError) {
         SimpleWidgets.snackbar(context, state.message, Colors.red);
@@ -520,11 +519,31 @@ class _ItemFormPageState extends State<ItemFormPage> {
   _uploadImage(File file) =>
       context.read<ItemBloc>().add(UploadItemImageEvent(file));
 
-  _shareItem(String email) {
-    context.read<ItemBloc>().add(
-      ShareItemByEmailEvent(widget.item!.id!, email),
-    );
+  _shareItem(String email) async {
+    try {
+      await context.read<ItemBloc>().shareItemToUserByEmail(
+        widget.item!.id!,
+        email,
+      );
+      if (!mounted) return;
+      _snackbarShareItemSuccess(email);
+    } catch (e) {
+      if (!mounted) return;
+      _snackbarShareItemError(e);
+    }
   }
+
+  _snackbarShareItemSuccess(String email) => SimpleWidgets.snackbar(
+    context,
+    'Item compartido correctamente con $email',
+    Colors.blue,
+  );
+
+  _snackbarShareItemError(Object e) => SimpleWidgets.snackbar(
+    context,
+    'Error al compartir item : ${e.toString()}',
+    Colors.blue,
+  );
 
   _clearTextField(TextEditingController controller) => IconButton(
     icon: const Icon(Icons.close, size: 18),

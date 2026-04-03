@@ -16,7 +16,7 @@ class SimpleWidgets {
   );
 
   static containerWithIcon(Size size, IconData icon, String text) => Padding(
-    padding: EdgeInsetsGeometry.only(bottom: size.height * 0.1),
+    padding: EdgeInsetsGeometry.only(bottom: size.height * 0.13),
     child: Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
