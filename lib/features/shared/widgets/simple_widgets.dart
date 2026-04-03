@@ -15,14 +15,17 @@ class SimpleWidgets {
     child: Icon(icon, size: size.width * 0.15, color: Colors.grey.shade300),
   );
 
-  static containerWithIcon(Size size, IconData icon, String text) => Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, size: size.width * 0.2, color: Colors.grey.shade300),
-        SizedBox(height: size.height * 0.02),
-        Text(text, textAlign: TextAlign.center),
-      ],
+  static containerWithIcon(Size size, IconData icon, String text) => Padding(
+    padding: EdgeInsetsGeometry.only(bottom: size.height * 0.1),
+    child: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: size.width * 0.2, color: Colors.grey.shade300),
+          SizedBox(height: size.height * 0.02),
+          Text(text, textAlign: TextAlign.center),
+        ],
+      ),
     ),
   );
 

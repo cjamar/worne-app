@@ -116,7 +116,8 @@ class _HomePageState extends State<HomePage> {
           return _errorContainer(size, state.message);
         }
         if (state is ItemLoadedGrouped) {
-          return _itemListBody(size, state);
+          // return _itemListBody(size, state);
+          return _tabView(size, state);
         }
         print('BLOC STATE ERROR --> ${state.runtimeType}');
         return _undefinedErrorContainer(size);
@@ -124,50 +125,99 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
-  _itemListBody(Size size, ItemLoadedGrouped state) => CustomScrollView(
-    slivers: [
-      // Botonera de filtros
-      _filterItemListButton(size, state.activeFilter),
+  _tabView(Size size, ItemLoadedGrouped state) => DefaultTabController(
+    length: 2,
+    child: Column(
+      children: [
+        TabBar(
+          tabs: [_tabTitle('Mis items'), _tabTitle('Itemsc compartidos')],
+          labelColor: Colors.black,
+          indicatorColor: Colors.blue,
+        ),
+        Expanded(
+          child: TabBarView(
+            children: [
+              _tabViewOwnItems(size, state),
+              _tabViewSharedItems(size, state),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 
-      // Si no hay nada, mostramos mensaje
-      if (state.ownItems.isEmpty && state.groupedSharedItems.isEmpty)
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: _emptyListContainer(size),
-        )
-      else ...[
-        // Mis items propios
-        if (state.ownItems.isNotEmpty) _itemList(size, state.ownItems),
+  _tabTitle(String text) => Tab(text: text);
 
-        // Cada grupo de items compartidos por usuario
-        ...state.groupedSharedItems.entries.expand((entry) {
+  _tabViewOwnItems(Size size, ItemLoadedGrouped state) => state.ownItems.isEmpty
+      ? _emptyOwnListContainer(size)
+      : _ownItemsList(size, state.ownItems);
+
+  _tabViewSharedItems(Size size, ItemLoadedGrouped state) =>
+      state.groupedSharedItems.isEmpty
+      ? _emptySharedListContainer(size)
+      : _sharedItemsList(size, state.groupedSharedItems);
+
+  _sharedItemsList(Size size, Map<String, List<Item>> groupsByUserItems) =>
+      ListView.builder(
+        itemCount: groupsByUserItems.length,
+        itemBuilder: (context, index) {
+          final entry = groupsByUserItems.entries.elementAt(index);
           final userName = entry.key;
           final itemsList = entry.value;
 
-          return [
-            // Título del grupo
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 6,
-                ),
-                child: Text(
-                  'Compartido con $userName',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-            // Grid de items del grupo
-            _itemList(size, itemsList),
-          ];
-        }),
-      ],
-    ],
-  );
+          if (itemsList.isEmpty) return SizedBox.shrink();
+          return ListTile(
+            title: Text(userName),
+            subtitle: Text('${itemsList.length} items en común'),
+            onTap: () {}, // navegar a lista de items compartidos con el usuario
+          );
+        },
+      );
+
+  // _itemListBody(Size size, ItemLoadedGrouped state) => CustomScrollView(
+  //   slivers: [
+  //     // Botonera de filtros
+  //     _filterItemListButton(size, state.activeFilter),
+
+  //     // Si no hay nada, mostramos mensaje
+  //     if (state.ownItems.isEmpty && state.groupedSharedItems.isEmpty)
+  //       SliverFillRemaining(
+  //         hasScrollBody: false,
+  //         child: _emptyListContainer(size),
+  //       )
+  //     else ...[
+  //       // Mis items propios
+  //       if (state.ownItems.isNotEmpty) _itemList(size, state.ownItems),
+
+  //       // Cada grupo de items compartidos por usuario
+  //       ...state.groupedSharedItems.entries.expand((entry) {
+  //         final userName = entry.key;
+  //         final itemsList = entry.value;
+
+  //         return [
+  //           // Título del grupo
+  //           SliverToBoxAdapter(
+  //             child: Padding(
+  //               padding: const EdgeInsets.symmetric(
+  //                 horizontal: 16,
+  //                 vertical: 6,
+  //               ),
+  //               child: Text(
+  //                 'Compartido con $userName',
+  //                 style: const TextStyle(
+  //                   fontSize: 16,
+  //                   fontWeight: FontWeight.w600,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //           // Grid de items del grupo
+  //           _itemList(size, itemsList),
+  //         ];
+  //       }),
+  //     ],
+  //   ],
+  // );
 
   _filterItemListButton(Size size, ItemStatus? activeFilter) => SliverAppBar(
     automaticallyImplyLeading: false,
@@ -213,24 +263,38 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
-  _itemList(Size size, List<Item> items) => SliverPadding(
-    padding: EdgeInsetsGeometry.all(size.width * 0.01),
-    sliver: SliverGrid(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => ItemCard(
-          key: ValueKey(items[index].id),
-          item: items[index],
-          onTap: () => _goToDetail(items[index]),
-          onLongPress: () => _confirmDeleteDialog(size, items[index]),
-        ),
-        childCount: items.length,
-      ),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.75,
-      ),
+  _ownItemsList(Size size, List<Item> items) => GridView.builder(
+    itemCount: items.length,
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      childAspectRatio: 0.75,
+    ),
+    itemBuilder: (context, index) => ItemCard(
+      key: ValueKey(items[index].id),
+      item: items[index],
+      onTap: () => _goToDetail(items[index]),
+      onLongPress: () => _confirmDeleteDialog(size, items[index]),
     ),
   );
+
+  // _itemList(Size size, List<Item> items) => SliverPadding(
+  //   padding: EdgeInsetsGeometry.all(size.width * 0.01),
+  //   sliver: SliverGrid(
+  //     delegate: SliverChildBuilderDelegate(
+  //       (context, index) => ItemCard(
+  //         key: ValueKey(items[index].id),
+  //         item: items[index],
+  //         onTap: () => _goToDetail(items[index]),
+  //         onLongPress: () => _confirmDeleteDialog(size, items[index]),
+  //       ),
+  //       childCount: items.length,
+  //     ),
+  //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+  //       crossAxisCount: 2,
+  //       childAspectRatio: 0.75,
+  //     ),
+  //   ),
+  // );
 
   _goToDetail(Item item) => Navigator.push(
     context,
@@ -306,10 +370,16 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _emptyListContainer(Size size) => SimpleWidgets.containerWithIcon(
+  _emptyOwnListContainer(Size size) => SimpleWidgets.containerWithIcon(
     size,
     Icons.auto_awesome,
     'Aún no tienes ningún producto, \n ¡añádelo a la lista!',
+  );
+
+  _emptySharedListContainer(Size size) => SimpleWidgets.containerWithIcon(
+    size,
+    Icons.handshake,
+    'Aún no tienes ningún producto compartido, \n ¡comparte items con usuarios amigos!',
   );
 
   _errorContainer(Size size, String message) => SimpleWidgets.containerWithIcon(

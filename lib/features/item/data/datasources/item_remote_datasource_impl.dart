@@ -46,22 +46,41 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
 
   @override
   Future<List<SharedGroup>> getSharedGroups(String userId) async {
+    // Traemos los shared_groups donde participa el usuario
     final response = await supabase
         .from('shared_group')
-        .select()
+        .select('id, user_a_id, user_b_id')
         .or('user_a_id.eq.$userId,user_b_id.eq.$userId');
 
-    return response
-        .map(
-          (e) => SharedGroup(
-            id: e['id'],
-            userAId: e['user_a_id'],
-            userBId: e['user_b_id'],
-            nameUserA: e['name_user_a'],
-            nameUserB: e['name_user_b'],
-          ),
-        )
-        .toList();
+    // Mapeamos a SharedGroup y traemos el nombre de cada usuario
+    final List<SharedGroup> groups = [];
+    for (final g in response) {
+      final userAId = g['user_a_id'];
+      final userBId = g['user_b_id'];
+
+      // Traemos nombre de usuario de la tabla users
+      final nameUserA = await supabase
+          .from('users')
+          .select('username')
+          .eq('id', userAId)
+          .maybeSingle();
+      final nameUserB = await supabase
+          .from('users')
+          .select('username')
+          .eq('id', userBId)
+          .maybeSingle();
+
+      groups.add(
+        SharedGroup(
+          id: g['id'],
+          userAId: userAId,
+          userBId: userBId,
+          nameUserA: nameUserA?['username'] ?? 'Usuario sin identificar',
+          nameUserB: nameUserB?['username'] ?? 'Usuario sin identificar',
+        ),
+      );
+    }
+    return groups;
   }
 
   // TODO: Método pendiente de uso (sustituirá a getItems)
