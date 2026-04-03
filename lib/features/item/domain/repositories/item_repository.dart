@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:prestar_ropa_app/features/item/domain/entities/shared_group.dart';
+
 import '../entities/item.dart';
 
 abstract class ItemRepository {
@@ -10,4 +12,5 @@ abstract class ItemRepository {
   Future<String?> uploadImage(File file);
   Future<void> shareItem(String itemId, String userId);
   Future<void> shareItemByEmail(String itemId, String email);
+  Future<List<SharedGroup>> getSharedGroups(String userId);
 }

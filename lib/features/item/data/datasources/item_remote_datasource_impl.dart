@@ -1,7 +1,7 @@
 import 'dart:io';
-
+import 'package:prestar_ropa_app/core/utils/items_helper.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/shared_group.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../models/item_model.dart';
 import 'item_remote_datasource.dart';
 
@@ -10,48 +10,123 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
 
   ItemRemoteDatasourceImpl(this.supabase);
 
+  // GET
   @override
   Future<List<ItemModel>> getItems(String userId) async {
     try {
-      // propios
+      final ownItems = await supabase
+          .from('items')
+          .select()
+          .eq('owner_id', userId)
+          .order('created_at', ascending: false);
+
+      final sharedGroupIds = (await getSharedGroups(
+        userId,
+      )).map((g) => g.id).toList();
+
+      List sharedItems = [];
+      if (sharedGroupIds.isNotEmpty) {
+        sharedItems = await supabase
+            .from('items')
+            .select()
+            .inFilter('shared_group_id', sharedGroupIds)
+            .order('created_at', ascending: false);
+      }
+
+      return [
+        ...ownItems.map((e) => ItemModel.fromJson(e).copyWith(isShared: false)),
+        ...sharedItems.map(
+          (e) => ItemModel.fromJson(e).copyWith(isShared: true),
+        ),
+      ];
+    } catch (e) {
+      throw Exception('Error al obtener items: $e');
+    }
+  }
+
+  @override
+  Future<List<SharedGroup>> getSharedGroups(String userId) async {
+    final response = await supabase
+        .from('shared_group')
+        .select()
+        .or('user_a_id.eq.$userId,user_b_id.eq.$userId');
+
+    return response
+        .map(
+          (e) => SharedGroup(
+            id: e['id'],
+            userAId: e['user_a_id'],
+            userBId: e['user_b_id'],
+            nameUserA: e['name_user_a'],
+            nameUserB: e['name_user_b'],
+          ),
+        )
+        .toList();
+  }
+
+  // TODO: Método pendiente de uso (sustituirá a getItems)
+  @override
+  Future<Map<String, dynamic>> getItemsGrouped(String userId) async {
+    try {
+      // 1️⃣ Items propios
       final ownItemsResponse = await supabase
           .from('items')
           .select()
           .eq('owner_id', userId)
           .order('created_at', ascending: false);
 
-      // ids compartidos
-      final accessResponse = await supabase
-          .from('item_access')
-          .select('item_id')
-          .eq('shared_with_user_id', userId);
+      final ownItems = ownItemsResponse
+          .map((e) => ItemModel.fromJson(e).copyWith(isShared: false))
+          .toList();
 
-      final itemIds = accessResponse.map((e) => e['item_id']).toList();
+      // 2️⃣ Items compartidos por shared_group
+      final sharedGroups = await getSharedGroups(userId);
+      final sharedGroupIds = sharedGroups.map((g) => g.id).toList();
 
-      List sharedItemsResponse = [];
-
-      if (itemIds.isNotEmpty) {
-        sharedItemsResponse = await supabase
+      List<ItemModel> sharedItems = [];
+      if (sharedGroupIds.isNotEmpty) {
+        final sharedItemsResponse = await supabase
             .from('items')
             .select()
-            .inFilter('id', itemIds)
+            .inFilter('shared_group_id', sharedGroupIds)
             .order('created_at', ascending: false);
+
+        sharedItems = sharedItemsResponse
+            .map((e) => ItemModel.fromJson(e).copyWith(isShared: true))
+            .toList();
       }
 
-      final allItems = [
-        ...ownItemsResponse.map(
-          (e) => ItemModel.fromJson(e).copyWith(isShared: false),
-        ),
-        ...sharedItemsResponse.map(
-          (e) => ItemModel.fromJson(e).copyWith(isShared: true),
-        ),
-      ];
+      // 3️⃣ Agrupar los items compartidos por el otro usuario
+      final groupedSharedItems = ItemsHelper.groupSharedItemsByUser(
+        sharedItems,
+        userId,
+        sharedGroups,
+      );
 
-      return allItems;
+      // 🔹 Retornamos todo en un Map con ambas vistas
+      return {'ownItems': ownItems, 'sharedItems': groupedSharedItems};
     } catch (e) {
-      throw Exception('Error al obtener items: $e');
+      throw Exception('Error al obtener items agrupados: $e');
     }
   }
+
+  // @override
+  // Future<List<ItemModel>> getItems(String userId) async {
+  //   try {
+  //     final response = await supabase
+  //         .from('items')
+  //         .select()
+  //         .order('created_at', ascending: false);
+
+  //     return response.map((e) {
+  //       final item = ItemModel.fromJson(e);
+
+  //       return item.copyWith(isShared: item.ownerId != userId);
+  //     }).toList();
+  //   } catch (e) {
+  //     throw Exception('Error al obtener items: $e');
+  //   }
+  // }
 
   @override
   Future<ItemModel?> getItemById(String id) async {
@@ -67,6 +142,7 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
     }
   }
 
+  // INSERT
   @override
   Future<void> insertItem(ItemModel item) async {
     try {
@@ -76,6 +152,7 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
     }
   }
 
+  // UPDATE
   @override
   Future<void> updateItem(ItemModel item) async {
     if (item.id == null) {
@@ -88,6 +165,7 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
     }
   }
 
+  // DELETE
   @override
   Future<void> deleteItem(String id) async {
     try {
@@ -97,24 +175,7 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
     }
   }
 
-  @override
-  Future<String?> uploadImage(File file) async {
-    try {
-      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      final path = 'items/$fileName.jpg';
-
-      await supabase.storage.from('items-images').upload(path, file);
-
-      final publicUrl = supabase.storage
-          .from('items-images')
-          .getPublicUrl(path);
-
-      return publicUrl;
-    } catch (e) {
-      throw Exception('Error al subir imagen: $e');
-    }
-  }
-
+  // SHARE
   @override
   Future<void> shareItem(String itemId, String userId) async {
     await supabase.from('item_access').insert({
@@ -135,5 +196,24 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
 
     final userId = response['id'];
     await shareItem(itemId, userId);
+  }
+
+  // IMAGE
+  @override
+  Future<String?> uploadImage(File file) async {
+    try {
+      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      final path = 'items/$fileName.jpg';
+
+      await supabase.storage.from('items-images').upload(path, file);
+
+      final publicUrl = supabase.storage
+          .from('items-images')
+          .getPublicUrl(path);
+
+      return publicUrl;
+    } catch (e) {
+      throw Exception('Error al subir imagen: $e');
+    }
   }
 }

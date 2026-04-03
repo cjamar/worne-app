@@ -19,12 +19,8 @@ class SimpleWidgets {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.auto_awesome,
-          size: size.width * 0.15,
-          color: Colors.grey.shade300,
-        ),
-        SizedBox(height: size.height * 0.03),
+        Icon(icon, size: size.width * 0.2, color: Colors.grey.shade300),
+        SizedBox(height: size.height * 0.02),
         Text(text, textAlign: TextAlign.center),
       ],
     ),

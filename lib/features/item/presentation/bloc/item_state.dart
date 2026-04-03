@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
-
 import '../../domain/entities/item.dart';
+import '../../domain/entities/item_status.dart';
 
 abstract class ItemState extends Equatable {
   const ItemState();
@@ -21,6 +20,20 @@ class ItemLoaded extends ItemState {
 
   @override
   List<Object?> get props => [items, activeFilter];
+}
+
+class ItemLoadedGrouped extends ItemState {
+  final List<Item> ownItems;
+  final Map<String, List<Item>> groupedSharedItems;
+  final ItemStatus? activeFilter;
+  const ItemLoadedGrouped(
+    this.ownItems,
+    this.groupedSharedItems,
+    this.activeFilter,
+  );
+
+  @override
+  List<Object?> get props => [ownItems, groupedSharedItems, activeFilter];
 }
 
 class ItemError extends ItemState {

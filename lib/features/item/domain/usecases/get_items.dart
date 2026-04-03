@@ -1,6 +1,5 @@
-import 'package:prestar_ropa_app/features/item/domain/repositories/item_repository.dart';
-
 import '../entities/item.dart';
+import '../repositories/item_repository.dart';
 
 class GetItems {
   final ItemRepository repository;

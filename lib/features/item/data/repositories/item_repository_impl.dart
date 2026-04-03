@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:prestar_ropa_app/features/item/data/datasources/item_remote_datasource_impl.dart';
 import 'package:prestar_ropa_app/features/item/data/models/item_model.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/shared_group.dart';
 import 'package:prestar_ropa_app/features/item/domain/repositories/item_repository.dart';
 
 class ItemRepositoryImpl implements ItemRepository {
@@ -31,6 +32,7 @@ class ItemRepositoryImpl implements ItemRepository {
         category: item.category,
         status: item.status,
         createdAt: item.createdAt,
+        sharedGroupId: item.sharedGroupId,
       ),
     );
   }
@@ -47,6 +49,7 @@ class ItemRepositoryImpl implements ItemRepository {
         category: item.category,
         status: item.status,
         createdAt: item.createdAt,
+        sharedGroupId: item.sharedGroupId,
       ),
     );
   }
@@ -65,4 +68,8 @@ class ItemRepositoryImpl implements ItemRepository {
   @override
   Future<void> shareItemByEmail(String itemId, String email) async =>
       await datasource.shareItemByEmail(itemId, email);
+
+  @override
+  Future<List<SharedGroup>> getSharedGroups(String userId) async =>
+      await datasource.getSharedGroups(userId);
 }

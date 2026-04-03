@@ -1,4 +1,4 @@
-enum ItemStatus { available, loaned, reserved, losted }
+enum ItemStatus { available, loaned, reserved, lost }
 
 class ItemStatusFilter {
   static final List<String> filtersItem = [

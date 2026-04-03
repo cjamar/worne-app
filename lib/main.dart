@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/get_shared_groups.dart';
 import 'package:prestar_ropa_app/features/item/domain/usecases/share_item.dart';
 import 'package:prestar_ropa_app/features/item/domain/usecases/share_item_by_email.dart';
 import 'package:prestar_ropa_app/features/user/domain/usecases/ensure_user_exists.dart';
@@ -74,6 +75,7 @@ class MyApp extends StatelessWidget {
   late final itemRepository = ItemRepositoryImpl(itemRemoteDatasource);
 
   late final getItems = GetItems(itemRepository);
+  late final getSharedGroups = GetSharedGroups(itemRepository);
   late final createItem = CreateItem(itemRepository);
   late final updateItem = UpdateItem(itemRepository);
   late final deleteItem = DeleteItem(itemRepository);
@@ -88,6 +90,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<ItemBloc>(
           create: (_) => ItemBloc(
             getItems: getItems,
+            getSharedGroups: getSharedGroups,
             createItem: createItem,
             updateItem: updateItem,
             deleteItem: deleteItem,

@@ -12,6 +12,7 @@ class ItemModel extends Item {
     required super.status,
     required super.createdAt,
     super.isShared,
+    required super.sharedGroupId,
   });
 
   factory ItemModel.fromJson(Map<String, dynamic> json) => ItemModel(
@@ -25,6 +26,7 @@ class ItemModel extends Item {
     createdAt: json['created_at'] != null
         ? DateTime.parse(json['created_at'])
         : null,
+    sharedGroupId: json['shared_group_id'],
   );
 
   Map<String, dynamic> toJson() => {
@@ -35,6 +37,7 @@ class ItemModel extends Item {
     'image_url': imageUrl,
     'category': category,
     'status': status.name,
+    'shared_group_id': sharedGroupId,
   };
 
   ItemModel copyWith({
@@ -47,6 +50,7 @@ class ItemModel extends Item {
     ItemStatus? status,
     DateTime? createdAt,
     bool? isShared,
+    String? sharedGroupId,
   }) {
     return ItemModel(
       id: id ?? this.id,
@@ -58,6 +62,7 @@ class ItemModel extends Item {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       isShared: isShared ?? this.isShared,
+      sharedGroupId: sharedGroupId ?? this.sharedGroupId,
     );
   }
 }

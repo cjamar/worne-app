@@ -11,6 +11,7 @@ class Item extends Equatable {
   final ItemStatus status;
   final DateTime? createdAt;
   final bool isShared;
+  final String? sharedGroupId;
 
   const Item({
     this.id,
@@ -22,6 +23,7 @@ class Item extends Equatable {
     required this.status,
     this.createdAt,
     this.isShared = false,
+    this.sharedGroupId,
   });
 
   @override
@@ -35,5 +37,6 @@ class Item extends Equatable {
     status,
     createdAt,
     isShared,
+    sharedGroupId,
   ];
 }

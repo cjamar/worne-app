@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prestar_ropa_app/features/item/domain/usecases/share_item_by_email.dart';
+import 'package:prestar_ropa_app/core/utils/items_helper.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/get_shared_groups.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/item.dart';
 import '../../domain/entities/item_status.dart';
@@ -7,6 +8,7 @@ import '../../domain/usecases/create_item.dart';
 import '../../domain/usecases/delete_item.dart';
 import '../../domain/usecases/get_items.dart';
 import '../../domain/usecases/share_item.dart';
+import '../../domain/usecases/share_item_by_email.dart';
 import '../../domain/usecases/update_item.dart';
 import '../../domain/usecases/upload_item_image.dart';
 import 'item_event.dart';
@@ -20,6 +22,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
   final UploadItemImage uploadItemImage;
   final ShareItem shareItem;
   final ShareItemByEmail shareItemByEmail;
+  final GetSharedGroups getSharedGroups;
   List<Item> _allItems = [];
   ItemStatus? _activeFilter;
 
@@ -31,15 +34,34 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     required this.uploadItemImage,
     required this.shareItem,
     required this.shareItemByEmail,
+    required this.getSharedGroups,
   }) : super(ItemInitial()) {
     on<LoadItems>((event, emit) async {
       emit(ItemLoading());
       try {
         final uId =
             event.userId ?? Supabase.instance.client.auth.currentUser!.id;
+
+        // ANTES
+        // final items = await getItems(uId);
+        // _allItems = items;
+        // emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
+
+        // AHORA
         final items = await getItems(uId);
+        final sharedGroups = await getSharedGroups(uId);
         _allItems = items;
-        emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
+        // separar
+        final ownItems = items.where((i) => !i.isShared).toList();
+        final sharedItems = items.where((i) => i.isShared).toList();
+        // agrupar
+        final groupedSharedItems = ItemsHelper.groupSharedItemsByUser(
+          sharedItems,
+          uId,
+          sharedGroups,
+        );
+        // emitir nuevo estado
+        emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
       } catch (e) {
         emit(ItemError(e.toString()));
       }

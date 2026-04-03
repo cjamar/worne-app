@@ -110,48 +110,63 @@ class _HomePageState extends State<HomePage> {
     child: BlocBuilder<ItemBloc, ItemState>(
       builder: (context, state) {
         if (state is ItemLoading) {
-          return Center(child: CircularProgressIndicator());
+          return SimpleWidgets.loader();
         }
         if (state is ItemError) {
           return _errorContainer(size, state.message);
         }
-        if (state is ItemLoaded) {
+        if (state is ItemLoadedGrouped) {
           return _itemListBody(size, state);
         }
-        return const SizedBox.shrink();
+        print('BLOC STATE ERROR --> ${state.runtimeType}');
+        return _undefinedErrorContainer(size);
       },
     ),
   );
 
-  _itemListBody(Size size, ItemLoaded state) => CustomScrollView(
+  _itemListBody(Size size, ItemLoadedGrouped state) => CustomScrollView(
     slivers: [
+      // Botonera de filtros
       _filterItemListButton(size, state.activeFilter),
 
-      state.items.isEmpty
-          ? SliverFillRemaining(
-              hasScrollBody: false,
-              child: SimpleWidgets.containerWithIcon(
-                size,
-                Icons.auto_awesome,
-                'Aún no tienes ningún producto, \n ¡añádelo a la lista!',
-              ),
-            )
-          : _itemList(size, state.items),
-    ],
-  );
+      // Si no hay nada, mostramos mensaje
+      if (state.ownItems.isEmpty && state.groupedSharedItems.isEmpty)
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: _emptyListContainer(size),
+        )
+      else ...[
+        // Mis items propios
+        if (state.ownItems.isNotEmpty) _itemList(size, state.ownItems),
 
-  _errorContainer(Size size, String message) => SizedBox(
-    width: size.width * 0.8,
-    height: size.height * 0.3,
-    child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error),
-          Text('Ha ocurrido un error, $message', textAlign: TextAlign.center),
-        ],
-      ),
-    ),
+        // Cada grupo de items compartidos por usuario
+        ...state.groupedSharedItems.entries.expand((entry) {
+          final userName = entry.key;
+          final itemsList = entry.value;
+
+          return [
+            // Título del grupo
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
+                child: Text(
+                  'Compartido con $userName',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            // Grid de items del grupo
+            _itemList(size, itemsList),
+          ];
+        }),
+      ],
+    ],
   );
 
   _filterItemListButton(Size size, ItemStatus? activeFilter) => SliverAppBar(
@@ -290,4 +305,22 @@ class _HomePageState extends State<HomePage> {
         bloc.add(FilterItems(null));
     }
   }
+
+  _emptyListContainer(Size size) => SimpleWidgets.containerWithIcon(
+    size,
+    Icons.auto_awesome,
+    'Aún no tienes ningún producto, \n ¡añádelo a la lista!',
+  );
+
+  _errorContainer(Size size, String message) => SimpleWidgets.containerWithIcon(
+    size,
+    Icons.error,
+    'Ha ocurrido un error, $message',
+  );
+
+  _undefinedErrorContainer(Size size) => SimpleWidgets.containerWithIcon(
+    size,
+    Icons.warning_rounded,
+    'Ha ocurrido un estado inesperado, \n reinicia la aplicación',
+  );
 }
