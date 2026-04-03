@@ -13,4 +13,7 @@ abstract class ItemRemoteDatasource {
   Future<void> shareItem(String itemId, String userId);
   Future<void> shareItemByEmail(String itemId, String email);
   Future<List<SharedGroup>> getSharedGroups(String userId);
+  Future<Map<String, List<ItemModel>>> groupSharedItemsByUser(
+    String currentUserId,
+  );
 }

@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'dart:io';
-import 'package:prestar_ropa_app/core/utils/items_helper.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/shared_group.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../domain/entities/shared_group.dart';
 import '../models/item_model.dart';
 import 'item_remote_datasource.dart';
 
@@ -14,22 +14,29 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
   @override
   Future<List<ItemModel>> getItems(String userId) async {
     try {
+      print('CURRENT USER ID: $userId');
+
       final ownItems = await supabase
           .from('items')
           .select()
           .eq('owner_id', userId)
           .order('created_at', ascending: false);
+      final access = await supabase
+          .from('item_access')
+          .select('item_id')
+          .eq('shared_with_user_id', userId);
 
-      final sharedGroupIds = (await getSharedGroups(
-        userId,
-      )).map((g) => g.id).toList();
+      print('ACCESS RAW: $access');
+
+      final sharedItemIds = access.map((e) => e['item_id'] as String).toList();
 
       List sharedItems = [];
-      if (sharedGroupIds.isNotEmpty) {
+
+      if (sharedItemIds.isNotEmpty) {
         sharedItems = await supabase
             .from('items')
             .select()
-            .inFilter('shared_group_id', sharedGroupIds)
+            .inFilter('id', sharedItemIds)
             .order('created_at', ascending: false);
       }
 
@@ -44,6 +51,73 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
     }
   }
 
+  @override
+  Future<Map<String, List<ItemModel>>> groupSharedItemsByUser(
+    String currentUserId,
+  ) async {
+    try {
+      final currentUserId = Supabase.instance.client.auth.currentUser!.id;
+
+      // 1️⃣ Traemos todos los accesos donde el usuario está involucrado
+      final allAccess = await supabase
+          .from('item_access')
+          .select('item_id, shared_with_user_id, owner_id')
+          .or(
+            'shared_with_user_id.eq.$currentUserId,owner_id.eq.$currentUserId',
+          );
+
+      if (allAccess.isEmpty) return {};
+
+      // 2️⃣ Sacamos todos los item_ids para traer los items
+      final itemIds = allAccess.map((e) => e['item_id'] as String).toList();
+
+      final itemsRaw = <Map<String, dynamic>>[];
+
+      for (var itemId in itemIds) {
+        final res = await supabase.from('items').select().eq('id', itemId);
+        itemsRaw.addAll(res);
+      }
+
+      // 3️⃣ Creamos map de id -> ItemModel
+      final Map<String, ItemModel> itemsMap = {
+        for (var e in itemsRaw) e['id'] as String: ItemModel.fromJson(e),
+      };
+
+      // 4️⃣ Agrupamos por el "otro usuario"
+      final Map<String, List<ItemModel>> grouped = {};
+
+      for (var access in allAccess) {
+        final itemId = access['item_id'] as String;
+        final ownerId = access['owner_id'] as String;
+        final sharedWithId = access['shared_with_user_id'] as String;
+
+        final item = itemsMap[itemId];
+        if (item == null) continue;
+
+        // Determinar "el otro usuario"
+        final otherUserId = currentUserId == ownerId ? sharedWithId : ownerId;
+
+        grouped.putIfAbsent(otherUserId, () => []);
+        grouped[otherUserId]!.add(item.copyWith(isShared: true));
+      }
+
+      print('GROUPED SHARED ITEMS: $grouped');
+      return grouped;
+    } catch (e) {
+      throw Exception('Error agrupando items compartidos: $e');
+    }
+  }
+
+  // Función auxiliar para obtener los IDs de los items que el usuario posee
+  Future<List<String>> _getOwnedItemIds(String userId) async {
+    final response = await supabase
+        .from('items')
+        .select('id')
+        .eq('owner_id', userId);
+    return response.map<String>((e) => e['id'] as String).toList();
+  }
+
+  //TODO: DE MOMENTO ESTA EN DESHUSO
   @override
   Future<List<SharedGroup>> getSharedGroups(String userId) async {
     // Traemos los shared_groups donde participa el usuario
@@ -83,51 +157,46 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
     return groups;
   }
 
-  // TODO: Método pendiente de uso (sustituirá a getItems)
-  @override
-  Future<Map<String, dynamic>> getItemsGrouped(String userId) async {
-    try {
-      // 1️⃣ Items propios
-      final ownItemsResponse = await supabase
-          .from('items')
-          .select()
-          .eq('owner_id', userId)
-          .order('created_at', ascending: false);
+  // @override
+  // Future<Map<String, dynamic>> getItemsGrouped(String userId) async {
+  //   try {
+  //     // 1️⃣ Items propios
+  //     final ownItemsResponse = await supabase
+  //         .from('items')
+  //         .select()
+  //         .eq('owner_id', userId)
+  //         .order('created_at', ascending: false);
 
-      final ownItems = ownItemsResponse
-          .map((e) => ItemModel.fromJson(e).copyWith(isShared: false))
-          .toList();
+  //     final ownItems = ownItemsResponse
+  //         .map((e) => ItemModel.fromJson(e).copyWith(isShared: false))
+  //         .toList();
 
-      // 2️⃣ Items compartidos por shared_group
-      final sharedGroups = await getSharedGroups(userId);
-      final sharedGroupIds = sharedGroups.map((g) => g.id).toList();
+  //     // 2️⃣ Items compartidos por shared_group
+  //     final sharedGroups = await getSharedGroups(userId);
+  //     final sharedGroupIds = sharedGroups.map((g) => g.id).toList();
 
-      List<ItemModel> sharedItems = [];
-      if (sharedGroupIds.isNotEmpty) {
-        final sharedItemsResponse = await supabase
-            .from('items')
-            .select()
-            .inFilter('shared_group_id', sharedGroupIds)
-            .order('created_at', ascending: false);
+  //     List<ItemModel> sharedItems = [];
+  //     if (sharedGroupIds.isNotEmpty) {
+  //       final sharedItemsResponse = await supabase
+  //           .from('items')
+  //           .select()
+  //           .inFilter('shared_group_id', sharedGroupIds)
+  //           .order('created_at', ascending: false);
 
-        sharedItems = sharedItemsResponse
-            .map((e) => ItemModel.fromJson(e).copyWith(isShared: true))
-            .toList();
-      }
+  //       sharedItems = sharedItemsResponse
+  //           .map((e) => ItemModel.fromJson(e).copyWith(isShared: true))
+  //           .toList();
+  //     }
 
-      // 3️⃣ Agrupar los items compartidos por el otro usuario
-      final groupedSharedItems = ItemsHelper.groupSharedItemsByUser(
-        sharedItems,
-        userId,
-        sharedGroups,
-      );
+  //     // 3️⃣ Agrupar los items compartidos por el otro usuario
+  //     final groupedSharedItems = groupSharedItemsByUser(sharedItems, userId);
 
-      // 🔹 Retornamos todo en un Map con ambas vistas
-      return {'ownItems': ownItems, 'sharedItems': groupedSharedItems};
-    } catch (e) {
-      throw Exception('Error al obtener items agrupados: $e');
-    }
-  }
+  //     // 🔹 Retornamos todo en un Map con ambas vistas
+  //     return {'ownItems': ownItems, 'sharedItems': groupedSharedItems};
+  //   } catch (e) {
+  //     throw Exception('Error al obtener items agrupados: $e');
+  //   }
+  // }
 
   // @override
   // Future<List<ItemModel>> getItems(String userId) async {
@@ -197,19 +266,40 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
   // SHARE
   @override
   Future<void> shareItem(String itemId, String userId) async {
-    final existing = await supabase
+    // 🔹 Obtener current user (owner)
+    final ownerId = Supabase.instance.client.auth.currentUser!.id;
+
+    // 1️⃣ Insertar para el invitado
+    final existingGuest = await supabase
         .from('item_access')
         .select('id')
         .eq('item_id', itemId)
         .eq('shared_with_user_id', userId)
         .maybeSingle();
 
-    if (existing != null) return;
+    if (existingGuest == null) {
+      await supabase.from('item_access').insert({
+        'item_id': itemId,
+        'owner_id': ownerId,
+        'shared_with_user_id': userId,
+      });
+    }
 
-    await supabase.from('item_access').insert({
-      'item_id': itemId,
-      'shared_with_user_id': userId,
-    });
+    // 2️⃣ Insertar para el owner (si no existe)
+    final existingOwner = await supabase
+        .from('item_access')
+        .select('id')
+        .eq('item_id', itemId)
+        .eq('shared_with_user_id', ownerId)
+        .maybeSingle();
+
+    if (existingOwner == null) {
+      await supabase.from('item_access').insert({
+        'item_id': itemId,
+        'owner_id': ownerId,
+        'shared_with_user_id': ownerId,
+      });
+    }
   }
 
   @override

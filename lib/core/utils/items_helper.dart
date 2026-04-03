@@ -1,38 +1,8 @@
-import 'package:flutter/material.dart';
 import '../../features/item/domain/entities/item.dart';
+import 'package:flutter/material.dart';
 import '../../features/item/domain/entities/item_status.dart';
-import '../../features/item/domain/entities/shared_group.dart';
 
 class ItemsHelper {
-  static Map<String, List<Item>> groupSharedItemsByUser(
-    List<Item> sharedItems,
-    String currentUserId,
-    List<SharedGroup> sharedGroups,
-  ) {
-    final Map<String, List<Item>> grouped = {};
-
-    for (var item in sharedItems) {
-      if (item.sharedGroupId == null) continue;
-
-      final matches = sharedGroups.where((g) => g.id == item.sharedGroupId);
-
-      if (matches.isEmpty) continue;
-
-      final group = matches.first;
-
-      final otherUserName = group.userAId == currentUserId
-          ? group.nameUserB
-          : group.nameUserA;
-
-      final safeName = otherUserName ?? 'Usuario';
-
-      grouped.putIfAbsent(safeName, () => []);
-      grouped[safeName]!.add(item);
-    }
-
-    return grouped;
-  }
-
   static ItemStatus? mapStringToStatus(String filter) {
     switch (filter) {
       case 'Disponibles':

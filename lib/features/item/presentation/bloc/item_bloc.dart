@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prestar_ropa_app/core/utils/items_helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/item.dart';
 import '../../domain/entities/item_status.dart';
@@ -7,6 +6,7 @@ import '../../domain/usecases/create_item.dart';
 import '../../domain/usecases/delete_item.dart';
 import '../../domain/usecases/get_items.dart';
 import '../../domain/usecases/get_shared_groups.dart';
+import '../../domain/usecases/group_shared_items_by_user.dart';
 import '../../domain/usecases/share_item.dart';
 import '../../domain/usecases/share_item_by_email.dart';
 import '../../domain/usecases/update_item.dart';
@@ -23,6 +23,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
   final ShareItem shareItem;
   final ShareItemByEmail shareItemByEmail;
   final GetSharedGroups getSharedGroups;
+  final GroupSharedItemsByUser groupSharedItemsByUser;
   List<Item> _allItems = [];
   ItemStatus? _activeFilter;
 
@@ -35,32 +36,26 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     required this.shareItem,
     required this.shareItemByEmail,
     required this.getSharedGroups,
+    required this.groupSharedItemsByUser,
   }) : super(ItemInitial()) {
     on<LoadItems>((event, emit) async {
       emit(ItemLoading());
+
       try {
+        // 🔹 Obtenemos el ID del usuario actual
         final uId =
             event.userId ?? Supabase.instance.client.auth.currentUser!.id;
 
-        // ANTES
-        // final items = await getItems(uId);
-        // _allItems = items;
-        // emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
+        // 🔹 1️⃣ Traemos todos los items del usuario (propios + shared flag)
+        _allItems = await getItems(uId); // 🔹 actualizamos _allItems
 
-        // AHORA
-        final items = await getItems(uId);
-        final sharedGroups = await getSharedGroups(uId);
-        _allItems = items;
-        // separar
-        final ownItems = items.where((i) => !i.isShared).toList();
-        final sharedItems = items.where((i) => i.isShared).toList();
-        // agrupar
-        final groupedSharedItems = ItemsHelper.groupSharedItemsByUser(
-          sharedItems,
-          uId,
-          sharedGroups,
-        );
-        // emitir nuevo estado
+        // 🔹 2️⃣ Obtenemos solo los items propios
+        final ownItems = _allItems.where((i) => !i.isShared).toList();
+
+        // 🔹 3️⃣ Llamamos a groupSharedItemsByUser para agrupar items compartidos
+        final groupedSharedItems = await groupSharedItemsByUser(uId);
+
+        // 🔹 4️⃣ Emitimos estado con items propios y agrupados por "otro usuario"
         emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
       } catch (e) {
         emit(ItemError(e.toString()));
@@ -137,23 +132,37 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
 
     // EN DESHUSO DE MOMENTO
     // on<ShareItemWithUser>((event, emit) async {
+    //   emit(ItemLoading());
     //   try {
+    //     // 1️⃣ Compartir el item
     //     await shareItem(event.itemId, event.userId);
-    //     add(LoadItems());
+
+    //     // 2️⃣ Refrescar todos los items del usuario actual
+    //     final currentUserId = Supabase.instance.client.auth.currentUser!.id;
+    //     _allItems = await getItems(currentUserId);
+
+    //     // 3️⃣ Emitir estado actualizado con items propios y compartidos
+    //     await _emitGroupedState(emit, _allItems, currentUserId);
     //   } catch (e) {
     //     emit(ItemError(e.toString()));
     //   }
     // });
 
-    // ACTUALMENTE NO SE LE LLAMA DIRECTAMENTE, LA IDEA ES REACTIVARLO
-    // on<ShareItemByEmailEvent>((event, emit) async {
-    //   try {
-    //     await shareItemByEmail(event.itemId, event.email);
-    //     //  emit(ItemSharedSuccess('Se ha compartido con éxito a ${event.email}'));
-    //   } catch (e) {
-    //     emit(ItemError(e.toString()));
-    //   }
-    // });
+    on<ShareItemByEmailEvent>((event, emit) async {
+      emit(ItemLoading());
+      try {
+        await shareItemByEmail(event.itemId, event.email);
+
+        // 🔹 Refrescar _allItems desde Supabase
+        final uId = Supabase.instance.client.auth.currentUser!.id;
+        _allItems = await getItems(uId);
+
+        // 🔹 Emitir el estado actualizado con items propios y compartidos
+        await _emitGroupedState(emit, _allItems, uId);
+      } catch (e) {
+        emit(ItemError(e.toString()));
+      }
+    });
   }
 
   List<Item> _applyFilter() {
@@ -165,18 +174,19 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
   // Método privado para emitir el estado agrupado
   Future<void> _emitGroupedState(
     Emitter<ItemState> emit,
-    List<Item> items,
+    List<Item> allItems,
     String userId,
   ) async {
-    final sharedGroups = await getSharedGroups(userId);
-    final ownItems = items.where((i) => !i.isShared).toList();
-    final sharedItems = items.where((i) => i.isShared).toList();
-    final groupedSharedItems = ItemsHelper.groupSharedItemsByUser(
-      sharedItems,
-      userId,
-      sharedGroups,
-    );
-    emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
+    try {
+      final ownItems = allItems.where((i) => !i.isShared).toList();
+
+      // Llamamos a groupSharedItemsByUser para agrupar items compartidos
+      final groupedSharedItems = await groupSharedItemsByUser(userId);
+
+      emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
+    } catch (e) {
+      emit(ItemError(e.toString()));
+    }
   }
 
   Future<void> shareItemToUserByEmail(String itemId, String email) async {

@@ -65,4 +65,16 @@ class ItemModel extends Item {
       sharedGroupId: sharedGroupId ?? this.sharedGroupId,
     );
   }
+
+  factory ItemModel.fromEntity(Item item) => ItemModel(
+    id: item.id,
+    ownerId: item.ownerId,
+    name: item.name,
+    description: item.description,
+    imageUrl: item.imageUrl,
+    category: item.category,
+    status: item.status,
+    createdAt: item.createdAt,
+    sharedGroupId: item.sharedGroupId,
+  );
 }

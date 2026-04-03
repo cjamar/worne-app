@@ -1,7 +1,6 @@
 import 'dart:io';
-import 'package:prestar_ropa_app/features/item/domain/entities/shared_group.dart';
-
 import '../entities/item.dart';
+import '../entities/shared_group.dart';
 
 abstract class ItemRepository {
   Future<List<Item>> getItems(String userId);
@@ -13,4 +12,5 @@ abstract class ItemRepository {
   Future<void> shareItem(String itemId, String userId);
   Future<void> shareItemByEmail(String itemId, String email);
   Future<List<SharedGroup>> getSharedGroups(String userId);
+  Future<Map<String, List<Item>>> groupSharedItemsByUser(String currentUserId);
 }
