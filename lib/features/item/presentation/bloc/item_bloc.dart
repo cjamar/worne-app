@@ -1,12 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/core/utils/items_helper.dart';
-import 'package:prestar_ropa_app/features/item/domain/usecases/get_shared_groups.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/item.dart';
 import '../../domain/entities/item_status.dart';
 import '../../domain/usecases/create_item.dart';
 import '../../domain/usecases/delete_item.dart';
 import '../../domain/usecases/get_items.dart';
+import '../../domain/usecases/get_shared_groups.dart';
 import '../../domain/usecases/share_item.dart';
 import '../../domain/usecases/share_item_by_email.dart';
 import '../../domain/usecases/update_item.dart';
@@ -67,12 +67,15 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       }
     });
 
+    // Refactor de AddItem
     on<AddItem>((event, emit) async {
       emit(ItemLoading());
       try {
         await createItem(event.item);
         _allItems = [event.item, ..._allItems];
-        emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
+
+        // Emitimos el estado correcto agrupado
+        await _emitGroupedState(emit, _allItems, event.item.ownerId);
       } catch (e) {
         emit(ItemError(e.toString()));
       }
@@ -82,7 +85,11 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       emit(ItemLoading());
       try {
         await updateItem(event.item);
-        add(LoadItems(event.item.ownerId));
+        // Reemplazar item en _allItems
+        final index = _allItems.indexWhere((i) => i.id == event.item.id);
+        if (index != -1) _allItems[index] = event.item;
+        // Emitir estado agrupado
+        await _emitGroupedState(emit, _allItems, event.item.ownerId);
       } catch (e) {
         emit(ItemError(e.toString()));
       }
@@ -92,7 +99,10 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       emit(ItemLoading());
       try {
         await deleteItem(event.item.id!);
-        add(LoadItems(event.item.ownerId));
+        // Eliminar item de _allItems
+        _allItems.removeWhere((i) => i.id == event.item.id);
+        // Emitir estado agrupado
+        await _emitGroupedState(emit, _allItems, event.item.ownerId);
       } catch (e) {
         emit(ItemError(e.toString()));
       }
@@ -115,8 +125,14 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
 
     on<FilterItems>((event, emit) async {
       _activeFilter = event.status;
-
-      emit(ItemLoaded(_applyFilter(), activeFilter: _activeFilter));
+      final filteredItems = _allItems
+          .where(
+            (item) => _activeFilter == null || item.status == _activeFilter,
+          )
+          .toList();
+      // Emitimos estado agrupado con los items filtrados
+      final userId = Supabase.instance.client.auth.currentUser!.id;
+      await _emitGroupedState(emit, filteredItems, userId);
     });
 
     on<ShareItemWithUser>((event, emit) async {
@@ -142,5 +158,22 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     if (_activeFilter == null) return _allItems;
 
     return _allItems.where((item) => item.status == _activeFilter).toList();
+  }
+
+  // Método privado para emitir el estado agrupado
+  Future<void> _emitGroupedState(
+    Emitter<ItemState> emit,
+    List<Item> items,
+    String userId,
+  ) async {
+    final sharedGroups = await getSharedGroups(userId);
+    final ownItems = items.where((i) => !i.isShared).toList();
+    final sharedItems = items.where((i) => i.isShared).toList();
+    final groupedSharedItems = ItemsHelper.groupSharedItemsByUser(
+      sharedItems,
+      userId,
+      sharedGroups,
+    );
+    emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
   }
 }

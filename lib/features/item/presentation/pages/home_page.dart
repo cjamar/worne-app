@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     final state = context.read<ItemBloc>().state;
-    if (state is! ItemLoaded) {
+    if (state is! ItemLoadedGrouped) {
       context.read<ItemBloc>().add(LoadItems());
     }
   }
@@ -130,7 +130,7 @@ class _HomePageState extends State<HomePage> {
     child: Column(
       children: [
         TabBar(
-          tabs: [_tabTitle('Mis items'), _tabTitle('Itemsc compartidos')],
+          tabs: [_tabTitle('Mis items'), _tabTitle('Items compartidos')],
           labelColor: Colors.black,
           indicatorColor: Colors.blue,
         ),
@@ -264,6 +264,7 @@ class _HomePageState extends State<HomePage> {
   );
 
   _ownItemsList(Size size, List<Item> items) => GridView.builder(
+    shrinkWrap: true,
     itemCount: items.length,
     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 2,

@@ -138,6 +138,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
           _uploadedImageUrl = state.imageUrl;
           _isUploadingImage = false;
         });
+        _validateForm();
       }
       if (state is ImageUploadError) {
         setState(() {
@@ -145,7 +146,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
         });
         SimpleWidgets.snackbar(context, state.message, Colors.red);
       }
-      if (state is ItemLoaded) {
+      if (state is ItemLoadedGrouped) {
         Navigator.pop(context);
       }
       if (state is ItemSharedSuccess) {
