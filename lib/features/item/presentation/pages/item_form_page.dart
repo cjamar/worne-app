@@ -542,7 +542,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
   _snackbarShareItemError(Object e) => SimpleWidgets.snackbar(
     context,
     'Error al compartir item : ${e.toString()}',
-    Colors.blue,
+    Colors.red,
   );
 
   _clearTextField(TextEditingController controller) => IconButton(

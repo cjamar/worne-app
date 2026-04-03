@@ -197,6 +197,15 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
   // SHARE
   @override
   Future<void> shareItem(String itemId, String userId) async {
+    final existing = await supabase
+        .from('item_access')
+        .select('id')
+        .eq('item_id', itemId)
+        .eq('shared_with_user_id', userId)
+        .maybeSingle();
+
+    if (existing != null) return;
+
     await supabase.from('item_access').insert({
       'item_id': itemId,
       'shared_with_user_id': userId,
