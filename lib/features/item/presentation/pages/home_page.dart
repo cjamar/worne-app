@@ -8,6 +8,7 @@ import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart'
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
 import 'package:prestar_ropa_app/features/item/presentation/pages/item_form_page.dart';
+import 'package:prestar_ropa_app/features/item/presentation/pages/shared_items_page.dart';
 import 'package:prestar_ropa_app/features/item/presentation/widgets/item_card.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/app_drawer.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
@@ -190,8 +191,7 @@ class _HomePageState extends State<HomePage> {
               ),
               title: Text('Compartido con $userName'),
               subtitle: Text('${itemsList.length} items en común'),
-              onTap:
-                  () {}, // navegar a lista de items compartidos con el usuario
+              onTap: () => _goToSharedItem(userName, itemsList),
             ),
           );
         },
@@ -393,6 +393,13 @@ class _HomePageState extends State<HomePage> {
         bloc.add(FilterItems(null));
     }
   }
+
+  _goToSharedItem(String userName, List<Item> itemsList) => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => SharedItemsPage(username: userName, items: itemsList),
+    ),
+  );
 
   _emptyOwnListContainer(Size size) => SimpleWidgets.containerWithIcon(
     size,
