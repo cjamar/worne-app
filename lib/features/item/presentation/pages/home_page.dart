@@ -107,21 +107,29 @@ class _HomePageState extends State<HomePage> {
   _homeBody(Size size) => SizedBox(
     width: size.width,
     height: size.height,
-    child: BlocBuilder<ItemBloc, ItemState>(
-      builder: (context, state) {
-        if (state is ItemLoading) {
-          return SimpleWidgets.loader();
+    child: BlocListener<ItemBloc, ItemState>(
+      listener: (context, state) {
+        if (state is ItemSharedSuccess) {
+          SimpleWidgets.snackbar(context, state.message, Colors.blue);
+        } else if (state is ItemSharedError) {
+          SimpleWidgets.snackbar(context, state.message, Colors.red);
         }
-        if (state is ItemError) {
-          return _errorContainer(size, state.message);
-        }
-        if (state is ItemLoadedGrouped) {
-          // return _itemListBody(size, state);
-          return _tabView(size, state);
-        }
-        print('BLOC STATE ERROR --> ${state.runtimeType}');
-        return _undefinedErrorContainer(size);
       },
+      child: BlocBuilder<ItemBloc, ItemState>(
+        builder: (context, state) {
+          if (state is ItemLoading) {
+            return SimpleWidgets.loader();
+          }
+          if (state is ItemError) {
+            return _errorContainer(size, state.message);
+          }
+          if (state is ItemLoadedGrouped) {
+            return _tabView(size, state); // items propios + items compartidos
+          }
+          // Cualquier otro estado que no sea ItemLoadedGrouped
+          return _undefinedErrorContainer(size);
+        },
+      ),
     ),
   );
 
@@ -166,10 +174,25 @@ class _HomePageState extends State<HomePage> {
           final itemsList = entry.value;
 
           if (itemsList.isEmpty) return SizedBox.shrink();
-          return ListTile(
-            title: Text(userName),
-            subtitle: Text('${itemsList.length} items en común'),
-            onTap: () {}, // navegar a lista de items compartidos con el usuario
+          return Container(
+            margin: EdgeInsets.symmetric(
+              horizontal: size.width * 0.02,
+              vertical: size.width * 0.01,
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(size.width * 0.03),
+            ),
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.grey,
+                backgroundImage: NetworkImage(itemsList[0].imageUrl),
+              ),
+              title: Text('Compartido con $userName'),
+              subtitle: Text('${itemsList.length} items en común'),
+              onTap:
+                  () {}, // navegar a lista de items compartidos con el usuario
+            ),
           );
         },
       );

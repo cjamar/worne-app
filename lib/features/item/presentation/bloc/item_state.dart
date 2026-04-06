@@ -63,3 +63,11 @@ class ItemSharedSuccess extends ItemState {
   @override
   List<Object?> get props => [message];
 }
+
+class ItemSharedError extends ItemState {
+  final String message;
+  const ItemSharedError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

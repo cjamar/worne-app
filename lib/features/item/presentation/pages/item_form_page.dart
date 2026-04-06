@@ -149,7 +149,10 @@ class _ItemFormPageState extends State<ItemFormPage> {
       }
       if (state is ItemSharedSuccess) {
         SimpleWidgets.snackbar(context, state.message, Colors.blue);
-        //  _clearItemState();
+        // context.read<ItemBloc>().add(LoadItems());
+      }
+      if (state is ItemSharedError) {
+        SimpleWidgets.snackbar(context, state.message, Colors.red);
       }
       if (state is ItemError) {
         SimpleWidgets.snackbar(context, state.message, Colors.red);
@@ -519,30 +522,8 @@ class _ItemFormPageState extends State<ItemFormPage> {
   _uploadImage(File file) =>
       context.read<ItemBloc>().add(UploadItemImageEvent(file));
 
-  _shareItem(String email) async {
-    try {
-      await context.read<ItemBloc>().shareItemToUserByEmail(
-        widget.item!.id!,
-        email,
-      );
-      if (!mounted) return;
-      _snackbarShareItemSuccess(email);
-    } catch (e) {
-      if (!mounted) return;
-      _snackbarShareItemError(e);
-    }
-  }
-
-  _snackbarShareItemSuccess(String email) => SimpleWidgets.snackbar(
-    context,
-    'Item compartido correctamente con $email',
-    Colors.blue,
-  );
-
-  _snackbarShareItemError(Object e) => SimpleWidgets.snackbar(
-    context,
-    'Error al compartir item : ${e.toString()}',
-    Colors.red,
+  _shareItem(String email) async => context.read<ItemBloc>().add(
+    ShareItemByEmailEvent(widget.item!.id!, email),
   );
 
   _clearTextField(TextEditingController controller) => IconButton(
