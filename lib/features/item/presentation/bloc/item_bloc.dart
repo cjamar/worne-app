@@ -152,13 +152,15 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       emit(ItemLoading());
       try {
         await shareItemByEmail(event.itemId, event.email);
+        await Future.delayed(Duration(milliseconds: 300));
 
         // 🔹 Refrescar _allItems desde Supabase
         final uId = Supabase.instance.client.auth.currentUser!.id;
         _allItems = await getItems(uId);
 
         // 🔹 Emitir el estado actualizado con items propios y compartidos
-        await _emitGroupedState(emit, _allItems, uId);
+        // await _emitGroupedState(emit, _allItems, uId);
+        add(LoadItems());
       } catch (e) {
         emit(ItemError(e.toString()));
       }
