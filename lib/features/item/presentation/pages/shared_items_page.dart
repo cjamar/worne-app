@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import '../../../shared/widgets/simple_widgets.dart';
 import '../../domain/entities/item.dart';
+import '../widgets/item_card.dart';
+import 'item_form_page.dart';
 
 class SharedItemsPage extends StatelessWidget {
   final String username;
@@ -17,33 +18,31 @@ class SharedItemsPage extends StatelessWidget {
     final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Compartido con $username')),
-      body: _sharedItemsBody(size),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+        title: Text('Compartido con $username'),
+      ),
+      backgroundColor: Colors.white,
+      body: _sharedItemsBody(size, context),
     );
   }
 
-  _sharedItemsBody(Size size) => items.isEmpty
-      ? _emptyContainer(size)
-      : ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (context, index) => _sharedItemCard(size, items[index]),
-        );
+  _sharedItemsBody(Size size, BuildContext context) =>
+      items.isEmpty ? _emptyContainer(size) : _sharedItemsList(size, context);
 
-  _sharedItemCard(Size size, Item item) => Container(
-    margin: EdgeInsets.symmetric(vertical: size.width * 0.01),
-    decoration: BoxDecoration(
-      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+  _sharedItemsList(Size size, BuildContext context) => GridView.builder(
+    shrinkWrap: true,
+    itemCount: items.length,
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      childAspectRatio: 0.75,
     ),
-    child: ListTile(
-      leading: ClipRRect(
-        borderRadius: BorderRadiusGeometry.circular(size.width * 0.02),
-        child: Image.network(item.imageUrl),
-      ),
-      title: Text(item.name),
-      subtitle: Text(item.description),
-      trailing: item.isShared
-          ? Icon(Icons.handshake, color: Colors.deepPurpleAccent)
-          : null,
+    itemBuilder: (context, index) => ItemCard(
+      key: ValueKey(items[index].id),
+      item: items[index],
+      onTap: () => _goToDetail(items[index], context),
+      onLongPress: () {},
     ),
   );
 
@@ -51,5 +50,10 @@ class SharedItemsPage extends StatelessWidget {
     size,
     Icons.error,
     'Ha ocurrido un error, no hay items',
+  );
+
+  _goToDetail(Item item, BuildContext context) => Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => ItemFormPage(item: item)),
   );
 }

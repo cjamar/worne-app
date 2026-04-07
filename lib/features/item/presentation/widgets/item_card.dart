@@ -30,45 +30,23 @@ class ItemCard extends StatelessWidget {
     );
   }
 
-  _imageCard(Size size) => Stack(
-    children: [
-      ClipRRect(
-        borderRadius: BorderRadiusGeometry.circular(size.width * 0.05),
-        child: Container(
-          width: size.width,
-          height: size.height * 0.2,
-          color: Colors.grey.shade200,
-          child: item.imageUrl.trim().isNotEmpty
-              ? CachedNetworkImage(
-                  imageUrl: item.imageUrl,
-                  fit: BoxFit.cover,
-                  memCacheWidth: 300,
-                  memCacheHeight: 300,
-                  placeholder: (context, url) => SimpleWidgets.loader(),
-                  errorWidget: (context, url, error) =>
-                      SimpleWidgets.placeholderImage(size, Icons.broken_image),
-                )
-              : SimpleWidgets.placeholderImage(size, Icons.auto_awesome),
-        ),
-      ),
-      item.isShared ? _isSharedBadge(size) : SizedBox.shrink(),
-    ],
-  );
-
-  _isSharedBadge(Size size) => Positioned(
-    right: 10,
-    top: 8,
+  _imageCard(Size size) => ClipRRect(
+    borderRadius: BorderRadiusGeometry.circular(size.width * 0.05),
     child: Container(
-      decoration: BoxDecoration(
-        color: Colors.deepPurpleAccent,
-        borderRadius: BorderRadius.circular(size.width * 0.03),
-      ),
-      child: Icon(
-        Icons.handshake,
-        size: size.width * 0.1,
-        color: Colors.white,
-        // shadows: [Shadow(color: Colors.black, blurRadius: 8)],
-      ),
+      width: size.width,
+      height: size.height * 0.2,
+      color: Colors.grey.shade200,
+      child: item.imageUrl.trim().isNotEmpty
+          ? CachedNetworkImage(
+              imageUrl: item.imageUrl,
+              fit: BoxFit.cover,
+              memCacheWidth: 300,
+              memCacheHeight: 300,
+              placeholder: (context, url) => SimpleWidgets.loader(),
+              errorWidget: (context, url, error) =>
+                  SimpleWidgets.placeholderImage(size, Icons.broken_image),
+            )
+          : SimpleWidgets.placeholderImage(size, Icons.auto_awesome),
     ),
   );
 

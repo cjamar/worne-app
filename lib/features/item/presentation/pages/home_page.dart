@@ -9,6 +9,7 @@ import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
 import 'package:prestar_ropa_app/features/item/presentation/pages/item_form_page.dart';
 import 'package:prestar_ropa_app/features/item/presentation/pages/shared_items_page.dart';
+import 'package:prestar_ropa_app/features/item/presentation/widgets/grouped_items_by_user_card.dart';
 import 'package:prestar_ropa_app/features/item/presentation/widgets/item_card.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/app_drawer.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
@@ -175,25 +176,32 @@ class _HomePageState extends State<HomePage> {
           final itemsList = entry.value;
 
           if (itemsList.isEmpty) return SizedBox.shrink();
-          return Container(
-            margin: EdgeInsets.symmetric(
-              horizontal: size.width * 0.02,
-              vertical: size.width * 0.01,
-            ),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(size.width * 0.03),
-            ),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.grey,
-                backgroundImage: NetworkImage(itemsList[0].imageUrl),
-              ),
-              title: Text('Compartido con $userName'),
-              subtitle: Text('${itemsList.length} items en común'),
-              onTap: () => _goToSharedItem(userName, itemsList),
-            ),
+
+          return GroupedItemsByUserCard(
+            groupByUser: groupsByUserItems,
+            index: index,
+            onTap: () => _goToSharedItem(userName, itemsList),
           );
+
+          // return Container(
+          //   margin: EdgeInsets.symmetric(
+          //     horizontal: size.width * 0.02,
+          //     vertical: size.width * 0.01,
+          //   ),
+          //   decoration: BoxDecoration(
+          //     border: Border.all(color: Colors.grey.shade300),
+          //     borderRadius: BorderRadius.circular(size.width * 0.03),
+          //   ),
+          //   child: ListTile(
+          //     leading: CircleAvatar(
+          //       backgroundColor: Colors.grey,
+          //       backgroundImage: NetworkImage(itemsList[0].imageUrl),
+          //     ),
+          //     title: Text('Compartido con $userName'),
+          //     subtitle: Text('${itemsList.length} items en común'),
+          //     onTap: () => _goToSharedItem(userName, itemsList),
+          //   ),
+          // );
         },
       );
 
