@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
         actionsPadding: EdgeInsets.only(right: size.width * 0.025),
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
-        toolbarHeight: 45,
+        toolbarHeight: size.height * 0.05,
         leading: Icon(Icons.logo_dev, size: size.width * 0.12),
         actions: [_userArea(size)],
       ),
@@ -142,8 +142,17 @@ class _HomePageState extends State<HomePage> {
       children: [
         TabBar(
           tabs: [_tabTitle('Mis items'), _tabTitle('Items compartidos')],
+          indicatorSize: TabBarIndicatorSize.tab,
           labelColor: Colors.black,
-          indicatorColor: Colors.blue,
+          unselectedLabelColor: Colors.grey,
+          dividerColor: Colors.transparent,
+          indicatorPadding: EdgeInsetsGeometry.symmetric(
+            horizontal: size.width * 0.02,
+          ),
+          indicator: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(size.width * 0.025),
+          ),
         ),
         Expanded(
           child: TabBarView(
@@ -157,11 +166,19 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
-  _tabTitle(String text) => Tab(text: text);
+  _tabTitle(String text) =>
+      Tab(child: Text(text, style: TextStyle(fontSize: 15)));
 
-  _tabViewOwnItems(Size size, ItemLoadedGrouped state) => state.ownItems.isEmpty
-      ? _emptyOwnListContainer(size)
-      : _ownItemsList(size, state.ownItems);
+  _tabViewOwnItems(Size size, ItemLoadedGrouped state) => Column(
+    children: [
+      _filterItemListButton(size, state.activeFilter),
+      Expanded(
+        child: state.ownItems.isEmpty
+            ? _emptyOwnListContainer(size)
+            : _ownItemsList(size, state.ownItems),
+      ),
+    ],
+  );
 
   _tabViewSharedItems(Size size, ItemLoadedGrouped state) =>
       state.groupedSharedItems.isEmpty
@@ -188,79 +205,28 @@ class _HomePageState extends State<HomePage> {
         },
       );
 
-  // NO BORRAR!!!! SE USARÁ PROXIMAMENTE
-  // _itemListBody(Size size, ItemLoadedGrouped state) => CustomScrollView(
-  //   slivers: [
-  //     // Botonera de filtros
-  //     _filterItemListButton(size, state.activeFilter),
-
-  //     // Si no hay nada, mostramos mensaje
-  //     if (state.ownItems.isEmpty && state.groupedSharedItems.isEmpty)
-  //       SliverFillRemaining(
-  //         hasScrollBody: false,
-  //         child: _emptyListContainer(size),
-  //       )
-  //     else ...[
-  //       // Mis items propios
-  //       if (state.ownItems.isNotEmpty) _itemList(size, state.ownItems),
-
-  //       // Cada grupo de items compartidos por usuario
-  //       ...state.groupedSharedItems.entries.expand((entry) {
-  //         final userName = entry.key;
-  //         final itemsList = entry.value;
-
-  //         return [
-  //           // Título del grupo
-  //           SliverToBoxAdapter(
-  //             child: Padding(
-  //               padding: const EdgeInsets.symmetric(
-  //                 horizontal: 16,
-  //                 vertical: 6,
-  //               ),
-  //               child: Text(
-  //                 'Compartido con $userName',
-  //                 style: const TextStyle(
-  //                   fontSize: 16,
-  //                   fontWeight: FontWeight.w600,
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //           // Grid de items del grupo
-  //           _itemList(size, itemsList),
-  //         ];
-  //       }),
-  //     ],
-  //   ],
-  // );
-
   // PROXIMAMENTE SE USARÁ (NO BORRAR!!!)
-  _filterItemListButton(Size size, ItemStatus? activeFilter) => SliverAppBar(
-    automaticallyImplyLeading: false,
-    floating: true,
-    snap: true,
-    pinned: false,
-    scrolledUnderElevation: 0,
-    backgroundColor: Colors.white,
-    toolbarHeight: size.height * 0.06,
-    title: SizedBox(
-      width: size.width,
-      height: size.height * 0.04,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: ItemStatusFilter.filtersItem.map<Widget>((filter) {
-          final status = ItemsHelper.mapStringToStatus(filter);
-          final isActive = activeFilter == status;
-          return _filterButton(size, filter, isActive);
-        }).toList(),
-      ),
+  _filterItemListButton(Size size, ItemStatus? activeFilter) => Container(
+    margin: EdgeInsets.symmetric(
+      vertical: size.height * 0.01,
+      horizontal: size.width * 0.02,
+    ),
+    height: size.height * 0.04,
+    child: ListView(
+      scrollDirection: Axis.horizontal,
+      children: ItemStatusFilter.filtersItem.map<Widget>((filter) {
+        final status = ItemsHelper.mapStringToStatus(filter);
+        final isActive = activeFilter == status;
+        return _filterButton(size, filter, isActive);
+      }).toList(),
     ),
   );
 
   _filterButton(Size size, String filter, bool isActive) => InkWell(
+    borderRadius: BorderRadius.circular(size.width * 0.05),
     onTap: () => _filteringItems(filter),
     child: Container(
-      margin: EdgeInsets.only(right: size.width * 0.025),
+      margin: EdgeInsets.only(right: size.width * 0.02),
       padding: EdgeInsets.symmetric(
         horizontal: size.width * 0.025,
         vertical: size.width * 0.015,
@@ -268,13 +234,11 @@ class _HomePageState extends State<HomePage> {
       decoration: BoxDecoration(
         color: isActive ? Colors.black : Colors.white,
         border: Border.all(width: 0.5),
+        borderRadius: BorderRadius.circular(size.width * 0.05),
       ),
       child: Text(
         filter,
-        style: TextStyle(
-          fontSize: 15,
-          color: isActive ? Colors.white : Colors.black,
-        ),
+        style: TextStyle(color: isActive ? Colors.white : Colors.black),
       ),
     ),
   );
@@ -293,25 +257,6 @@ class _HomePageState extends State<HomePage> {
       onLongPress: () => _confirmDeleteDialog(size, items[index]),
     ),
   );
-
-  // _itemList(Size size, List<Item> items) => SliverPadding(
-  //   padding: EdgeInsetsGeometry.all(size.width * 0.01),
-  //   sliver: SliverGrid(
-  //     delegate: SliverChildBuilderDelegate(
-  //       (context, index) => ItemCard(
-  //         key: ValueKey(items[index].id),
-  //         item: items[index],
-  //         onTap: () => _goToDetail(items[index]),
-  //         onLongPress: () => _confirmDeleteDialog(size, items[index]),
-  //       ),
-  //       childCount: items.length,
-  //     ),
-  //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-  //       crossAxisCount: 2,
-  //       childAspectRatio: 0.75,
-  //     ),
-  //   ),
-  // );
 
   _goToDetail(Item item) => Navigator.push(
     context,
