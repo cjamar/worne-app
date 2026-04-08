@@ -13,6 +13,7 @@ import 'package:prestar_ropa_app/features/item/presentation/pages/shared_items_p
 import 'package:prestar_ropa_app/features/item/presentation/widgets/grouped_items_by_user_card.dart';
 import 'package:prestar_ropa_app/features/item/presentation/widgets/item_card.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/app_drawer.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/remove_item_modal.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
 import 'package:prestar_ropa_app/features/user/presentation/bloc/user_state.dart';
@@ -319,50 +320,14 @@ class _HomePageState extends State<HomePage> {
   );
 
   Future<void> _confirmDeleteDialog(Size size, Item item) async {
-    final confirmed = await showDialog(
+    final confirmed = await RemoveItemModal.showConfirmDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Eliminar item'),
-        content: const Text('¿Deseas eliminar este producto?'),
-        actions: [
-          _textButtonDialog(
-            size,
-            'Cancelar',
-            Colors.grey.shade400,
-            Colors.black,
-            false,
-          ),
-          _textButtonDialog(
-            size,
-            'Eliminar',
-            Colors.redAccent,
-            Colors.white,
-            true,
-          ),
-        ],
-      ),
+      title: 'Eliminar item',
+      content: '¿Deseas eliminar "${item.name}"?',
+      confirmText: 'Eliminar',
     );
     if (confirmed == true) _deleteItem(item);
   }
-
-  _textButtonDialog(
-    Size size,
-    String action,
-    Color backgroundColor,
-    Color foregroundColor,
-    bool confirmButton,
-  ) => TextButton(
-    onPressed: () => Navigator.pop(context, confirmButton),
-    style: TextButton.styleFrom(
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadiusGeometry.circular(size.width * 0.06),
-      ),
-      backgroundColor: backgroundColor,
-      foregroundColor: foregroundColor,
-    ),
-    child: Text(action),
-  );
 
   _deleteItem(Item item) => context.read<ItemBloc>().add(DeleteEvent(item));
 

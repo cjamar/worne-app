@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
+import 'package:prestar_ropa_app/features/shared/widgets/remove_item_modal.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/widgets/simple_widgets.dart';
 import '../../domain/entities/item.dart';
@@ -70,55 +71,16 @@ class SharedItemsPage extends StatelessWidget {
     Item item,
     BuildContext context,
   ) async {
-    final confirmed = await showDialog(
+    final confirmed = await RemoveItemModal.showConfirmDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Eliminar item'),
-        content: const Text('¿Deseas eliminar este producto?'),
-        actions: [
-          _textButtonDialog(
-            size,
-            context,
-            'Cancelar',
-            Colors.grey.shade400,
-            Colors.black,
-            false,
-          ),
-          _textButtonDialog(
-            size,
-            context,
-            'Eliminar',
-            Colors.redAccent,
-            Colors.white,
-            true,
-          ),
-        ],
-      ),
+      title: 'Sacar del grupo',
+      content: '¿Quieres eliminar "${item.name}" del grupo de $username?',
+      confirmText: 'Sacar del grupo',
     );
     if (confirmed == true && context.mounted) {
       _removeItemFromShared(item, context);
     }
   }
-
-  _textButtonDialog(
-    Size size,
-    BuildContext context,
-    String action,
-    Color backgroundColor,
-    Color foregroundColor,
-    bool confirmButton,
-  ) => TextButton(
-    onPressed: () => Navigator.pop(context, confirmButton),
-    style: TextButton.styleFrom(
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadiusGeometry.circular(size.width * 0.06),
-      ),
-      backgroundColor: backgroundColor,
-      foregroundColor: foregroundColor,
-    ),
-    child: Text(action),
-  );
 
   _removeItemFromShared(Item item, BuildContext context) {
     final currentUserId = Supabase.instance.client.auth.currentUser!.id;
