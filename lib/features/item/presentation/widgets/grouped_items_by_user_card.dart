@@ -24,12 +24,15 @@ class GroupedItemsByUserCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+        ),
         height: size.height * 0.15,
         margin: EdgeInsets.symmetric(
           vertical: size.height * 0.005,
           horizontal: size.height * 0.005,
         ),
-        // decoration: BoxDecoration(color: Colors.amber),
+        padding: EdgeInsets.only(bottom: size.height * 0.01),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -40,16 +43,27 @@ class GroupedItemsByUserCard extends StatelessWidget {
             SizedBox(width: size.width * 0.03),
             Expanded(
               child: Padding(
-                padding: EdgeInsetsGeometry.only(top: size.height * 0.01),
+                padding: EdgeInsetsGeometry.symmetric(
+                  vertical: size.height * 0.01,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Compartido con $userName',
-                      style: TextStyle(fontSize: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Compartido con'),
+                        Text(
+                          userName,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: size.height * 0.005),
-                    Text('${itemsList.length} items en común'),
+                    _itemsLenghtContainer(size, itemsList.length),
                   ],
                 ),
               ),
@@ -57,20 +71,18 @@ class GroupedItemsByUserCard extends StatelessWidget {
           ],
         ),
       ),
-
-      // child: ListTile(
-      //   minTileHeight: size.height * 0.15,
-      //   contentPadding: EdgeInsets.zero,
-      //   visualDensity: VisualDensity(vertical: 4),
-      //   tileColor: Colors.amber,
-      //   title: Text('Compartido con $userName'),
-      //   subtitle: Text('${itemsList.length} items en común'),
-      //   leading: ItemsCollage(
-      //     items: itemsList,
-      //     width: size.width * 0.2,
-      //     height: size.height,
-      //   ),
-      // ),
     );
   }
+
+  _itemsLenghtContainer(Size size, int itemsLength) => Container(
+    decoration: BoxDecoration(
+      color: Colors.grey.shade200,
+      borderRadius: BorderRadius.circular(size.width * 0.04),
+    ),
+    padding: EdgeInsets.symmetric(
+      vertical: size.width * 0.01,
+      horizontal: size.width * 0.03,
+    ),
+    child: Text('$itemsLength items en común', style: TextStyle(fontSize: 13)),
+  );
 }

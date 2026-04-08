@@ -16,7 +16,7 @@ class ItemsCollage extends StatelessWidget {
     final images = items
         .take(4)
         .map((e) => e.imageUrl)
-        .where((url) => url != null && url.isNotEmpty)
+        .where((url) => url.isNotEmpty)
         .toList();
 
     return SizedBox(

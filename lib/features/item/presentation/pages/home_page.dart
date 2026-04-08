@@ -182,26 +182,6 @@ class _HomePageState extends State<HomePage> {
             index: index,
             onTap: () => _goToSharedItem(userName, itemsList),
           );
-
-          // return Container(
-          //   margin: EdgeInsets.symmetric(
-          //     horizontal: size.width * 0.02,
-          //     vertical: size.width * 0.01,
-          //   ),
-          //   decoration: BoxDecoration(
-          //     border: Border.all(color: Colors.grey.shade300),
-          //     borderRadius: BorderRadius.circular(size.width * 0.03),
-          //   ),
-          //   child: ListTile(
-          //     leading: CircleAvatar(
-          //       backgroundColor: Colors.grey,
-          //       backgroundImage: NetworkImage(itemsList[0].imageUrl),
-          //     ),
-          //     title: Text('Compartido con $userName'),
-          //     subtitle: Text('${itemsList.length} items en común'),
-          //     onTap: () => _goToSharedItem(userName, itemsList),
-          //   ),
-          // );
         },
       );
 
