@@ -1,10 +1,9 @@
 import 'dart:io';
-
-import 'package:prestar_ropa_app/features/item/data/datasources/item_remote_datasource_impl.dart';
-import 'package:prestar_ropa_app/features/item/data/models/item_model.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/shared_group.dart';
-import 'package:prestar_ropa_app/features/item/domain/repositories/item_repository.dart';
+import '../../domain/entities/item.dart';
+import '../../domain/entities/shared_group.dart';
+import '../../domain/repositories/item_repository.dart';
+import '../datasources/item_remote_datasource_impl.dart';
+import '../models/item_model.dart';
 
 class ItemRepositoryImpl implements ItemRepository {
   final ItemRemoteDatasourceImpl datasource;
@@ -70,25 +69,9 @@ class ItemRepositoryImpl implements ItemRepository {
       await datasource.shareItemByEmail(itemId, email);
 
   @override
-  Future<List<SharedGroup>> getSharedGroups(String userId) async =>
-      await datasource.getSharedGroups(userId);
-
-  @override
   Future<Map<String, SharedGroup>> groupSharedItemsByUser(
     String currentUserId,
-  ) async {
-    // 1️⃣ Convertimos cada Item del dominio a ItemModel
-    // final sharedItemModels = sharedItems
-    //     .map((i) => ItemModel.fromEntity(i))
-    //     .toList();
-
-    // 2️⃣ Llamamos al datasource que espera List<ItemModel>
-    final groupedSharedItems = await datasource.groupSharedItemsByUser(
-      currentUserId,
-    );
-
-    return groupedSharedItems;
-  }
+  ) async => await datasource.groupSharedItemsByUser(currentUserId);
 
   @override
   Future<void> removeItemFromShared(

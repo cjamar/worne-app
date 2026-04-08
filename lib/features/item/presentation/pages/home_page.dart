@@ -1,22 +1,22 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prestar_ropa_app/core/utils/items_helper.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
-import 'package:prestar_ropa_app/features/item/domain/entities/shared_group.dart';
-import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
-import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
-import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
-import 'package:prestar_ropa_app/features/item/presentation/pages/item_form_page.dart';
-import 'package:prestar_ropa_app/features/item/presentation/pages/shared_items_page.dart';
-import 'package:prestar_ropa_app/features/item/presentation/widgets/grouped_items_by_user_card.dart';
-import 'package:prestar_ropa_app/features/item/presentation/widgets/item_card.dart';
-import 'package:prestar_ropa_app/features/shared/widgets/app_drawer.dart';
-import 'package:prestar_ropa_app/features/shared/widgets/remove_item_modal.dart';
-import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
-import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
-import 'package:prestar_ropa_app/features/user/presentation/bloc/user_state.dart';
+import '../../../../core/utils/items_helper.dart';
+import '../../../shared/widgets/app_drawer.dart';
+import '../../../shared/widgets/remove_item_modal.dart';
+import '../../../shared/widgets/simple_widgets.dart';
+import '../../../user/presentation/bloc/user_bloc.dart';
+import '../../../user/presentation/bloc/user_state.dart';
+import '../../domain/entities/item.dart';
+import '../../domain/entities/item_status.dart';
+import '../../domain/entities/shared_group.dart';
+import '../bloc/item_bloc.dart';
+import '../bloc/item_event.dart';
+import '../bloc/item_state.dart';
+import '../widgets/grouped_items_by_user_card.dart';
+import '../widgets/item_card.dart';
+import 'item_form_page.dart';
+import 'shared_items_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -128,9 +128,8 @@ class _HomePageState extends State<HomePage> {
             return _errorContainer(size, state.message);
           }
           if (state is ItemLoadedGrouped) {
-            return _tabView(size, state); // items propios + items compartidos
+            return _tabView(size, state);
           }
-          // Cualquier otro estado que no sea ItemLoadedGrouped
           return _undefinedErrorContainer(size);
         },
       ),
@@ -174,12 +173,10 @@ class _HomePageState extends State<HomePage> {
         itemCount: groupsByUserItems.length,
         itemBuilder: (context, index) {
           final entry = groupsByUserItems.entries.elementAt(index);
-          final otherUserId = entry.key; // ✅ sigue siendo la key
-          final sharedGroup = entry.value; // ✅ ahora entry.value es SharedGroup
-          final itemsList = sharedGroup.items; // ✅ lista de items del grupo
-          final userName =
-              sharedGroup.nameUserB ??
-              'Usuario'; // ✅ el username del otro usuario
+          final otherUserId = entry.key;
+          final sharedGroup = entry.value;
+          final itemsList = sharedGroup.items;
+          final userName = sharedGroup.nameUserB ?? 'Usuario';
 
           if (itemsList.isEmpty) return SizedBox.shrink();
 
@@ -191,6 +188,7 @@ class _HomePageState extends State<HomePage> {
         },
       );
 
+  // NO BORRAR!!!! SE USARÁ PROXIMAMENTE
   // _itemListBody(Size size, ItemLoadedGrouped state) => CustomScrollView(
   //   slivers: [
   //     // Botonera de filtros
@@ -236,6 +234,7 @@ class _HomePageState extends State<HomePage> {
   //   ],
   // );
 
+  // PROXIMAMENTE SE USARÁ (NO BORRAR!!!)
   _filterItemListButton(Size size, ItemStatus? activeFilter) => SliverAppBar(
     automaticallyImplyLeading: false,
     floating: true,
