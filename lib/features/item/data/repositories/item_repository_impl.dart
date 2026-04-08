@@ -74,7 +74,7 @@ class ItemRepositoryImpl implements ItemRepository {
       await datasource.getSharedGroups(userId);
 
   @override
-  Future<Map<String, List<ItemModel>>> groupSharedItemsByUser(
+  Future<Map<String, SharedGroup>> groupSharedItemsByUser(
     String currentUserId,
   ) async {
     // 1️⃣ Convertimos cada Item del dominio a ItemModel

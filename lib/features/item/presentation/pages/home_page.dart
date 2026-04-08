@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/core/utils/items_helper.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item.dart';
 import 'package:prestar_ropa_app/features/item/domain/entities/item_status.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/shared_group.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
@@ -167,20 +168,24 @@ class _HomePageState extends State<HomePage> {
       ? _emptySharedListContainer(size)
       : _sharedItemsList(size, state.groupedSharedItems);
 
-  _sharedItemsList(Size size, Map<String, List<Item>> groupsByUserItems) =>
+  _sharedItemsList(Size size, Map<String, SharedGroup> groupsByUserItems) =>
       ListView.builder(
         itemCount: groupsByUserItems.length,
         itemBuilder: (context, index) {
           final entry = groupsByUserItems.entries.elementAt(index);
-          final userName = entry.key;
-          final itemsList = entry.value;
+          final otherUserId = entry.key; // ✅ sigue siendo la key
+          final sharedGroup = entry.value; // ✅ ahora entry.value es SharedGroup
+          final itemsList = sharedGroup.items; // ✅ lista de items del grupo
+          final userName =
+              sharedGroup.nameUserB ??
+              'Usuario'; // ✅ el username del otro usuario
 
           if (itemsList.isEmpty) return SizedBox.shrink();
 
           return GroupedItemsByUserCard(
             groupByUser: groupsByUserItems,
             index: index,
-            onTap: () => _goToSharedItem(userName, itemsList),
+            onTap: () => _goToSharedItem(userName, itemsList, otherUserId),
           );
         },
       );
@@ -382,12 +387,17 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _goToSharedItem(String userName, List<Item> itemsList) => Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => SharedItemsPage(username: userName, items: itemsList),
-    ),
-  );
+  _goToSharedItem(String userName, List<Item> itemsList, String otherUserId) =>
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SharedItemsPage(
+            username: userName,
+            items: itemsList,
+            otherUserId: otherUserId,
+          ),
+        ),
+      );
 
   _emptyOwnListContainer(Size size) => SimpleWidgets.containerWithIcon(
     size,

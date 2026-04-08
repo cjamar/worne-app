@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/shared_group.dart';
 import '../../domain/entities/item.dart';
 import '../../domain/entities/item_status.dart';
 
@@ -24,7 +25,7 @@ class ItemLoaded extends ItemState {
 
 class ItemLoadedGrouped extends ItemState {
   final List<Item> ownItems;
-  final Map<String, List<Item>> groupedSharedItems;
+  final Map<String, SharedGroup> groupedSharedItems;
   final ItemStatus? activeFilter;
   const ItemLoadedGrouped(
     this.ownItems,

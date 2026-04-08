@@ -52,11 +52,10 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
   }
 
   @override
-  Future<Map<String, List<ItemModel>>> groupSharedItemsByUser(
+  Future<Map<String, SharedGroup>> groupSharedItemsByUser(
     String currentUserId,
   ) async {
     try {
-      // 🔹 Obtener el currentUserId desde Supabase (por seguridad)
       final currentUserId = Supabase.instance.client.auth.currentUser!.id;
 
       // 1️⃣ Traemos todos los accesos donde el usuario está involucrado
@@ -80,7 +79,7 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
       }
 
       // 3️⃣ Construimos los espacios compartidos por usuario
-      final Map<String, List<ItemModel>> grouped = {};
+      final Map<String, SharedGroup> grouped = {};
       for (var otherUserId in relations) {
         // 🔹 Traemos todos los items compartidos entre currentUserId y otherUserId
         final sharedAccess = await supabase
@@ -103,21 +102,30 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
           itemsRaw.addAll(res);
         }
 
-        final items = itemsRaw.map((e) => ItemModel.fromJson(e)).toList();
+        final items = itemsRaw
+            .map((e) => ItemModel.fromJson(e).copyWith(isShared: true))
+            .toList();
 
-        // 🔹 Obtenemos el username del otro usuario
-        final userRes = await supabase
+        // 🔹 Obtenemos usernames de ambos usuarios
+        final userARes = await supabase
+            .from('users')
+            .select('username')
+            .eq('id', currentUserId)
+            .maybeSingle();
+        final userBRes = await supabase
             .from('users')
             .select('username')
             .eq('id', otherUserId)
             .maybeSingle();
 
-        final username = userRes?['username'] ?? otherUserId;
-
-        // 🔹 Añadimos al mapa final
-        grouped[username] = items
-            .map((i) => i.copyWith(isShared: true))
-            .toList();
+        grouped[otherUserId] = SharedGroup(
+          id: otherUserId, // puedes cambiar a un id de grupo si lo defines en Supabase
+          userAId: currentUserId,
+          userBId: otherUserId,
+          nameUserA: userARes?['username'] ?? currentUserId,
+          nameUserB: userBRes?['username'] ?? otherUserId,
+          items: items, // añadimos los items para la UI y acciones
+        );
       }
 
       print('GROUPED SHARED ITEMS: $grouped');

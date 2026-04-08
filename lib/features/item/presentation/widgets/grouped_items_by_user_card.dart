@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:prestar_ropa_app/features/item/domain/entities/shared_group.dart';
 import 'package:prestar_ropa_app/features/item/presentation/widgets/items_collage.dart';
 
-import '../../domain/entities/item.dart';
-
 class GroupedItemsByUserCard extends StatelessWidget {
-  final Map<String, List<Item>> groupByUser;
+  final Map<String, SharedGroup> groupByUser;
   final int index;
   final VoidCallback? onTap;
   const GroupedItemsByUserCard({
@@ -18,8 +17,9 @@ class GroupedItemsByUserCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final entry = groupByUser.entries.elementAt(index);
-    final userName = entry.key;
-    final itemsList = entry.value;
+    final sharedGroup = entry.value;
+    final itemsList = sharedGroup.items;
+    final userName = sharedGroup.nameUserB ?? 'Usuario';
 
     return InkWell(
       onTap: onTap,
