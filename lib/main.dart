@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/features/item/domain/usecases/get_shared_groups.dart';
 import 'package:prestar_ropa_app/features/item/domain/usecases/group_shared_items_by_user.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/remove_item_from_shared.dart';
 import 'package:prestar_ropa_app/features/item/domain/usecases/share_item.dart';
 import 'package:prestar_ropa_app/features/item/domain/usecases/share_item_by_email.dart';
 import 'package:prestar_ropa_app/features/user/domain/usecases/ensure_user_exists.dart';
@@ -84,6 +85,7 @@ class MyApp extends StatelessWidget {
   late final shareItem = ShareItem(itemRepository);
   late final shareItemByEmail = ShareItemByEmail(itemRepository);
   late final groupSharedItemsByUser = GroupSharedItemsByUser(itemRepository);
+  late final removeItemFromShared = RemoveItemFromShared(itemRepository);
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +102,7 @@ class MyApp extends StatelessWidget {
             uploadItemImage: uploadItemImage,
             shareItem: shareItem,
             shareItemByEmail: shareItemByEmail,
+            removeItemFromShared: removeItemFromShared,
           ),
         ),
         BlocProvider<AuthBloc>(

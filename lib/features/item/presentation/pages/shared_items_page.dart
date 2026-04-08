@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
+import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/widgets/simple_widgets.dart';
 import '../../domain/entities/item.dart';
@@ -34,7 +36,19 @@ class SharedItemsPage extends StatelessWidget {
   }
 
   _sharedItemsBody(Size size, BuildContext context) =>
-      items.isEmpty ? _emptyContainer(size) : _sharedItemsList(size, context);
+      BlocListener<ItemBloc, ItemState>(
+        listener: (context, state) {
+          if (state is ItemLoadedGrouped) {
+            Navigator.pop(context);
+          }
+          if (state is ItemError) {
+            SimpleWidgets.snackbar(context, state.message, Colors.red);
+          }
+        },
+        child: items.isEmpty
+            ? _emptyContainer(size)
+            : _sharedItemsList(size, context),
+      );
 
   _sharedItemsList(Size size, BuildContext context) => GridView.builder(
     shrinkWrap: true,
@@ -115,6 +129,15 @@ class SharedItemsPage extends StatelessWidget {
         Colors.red,
       );
       return;
+    } else {
+      context.read<ItemBloc>().add(
+        RemoveSharedItemEvent(item.id!, currentUserId, otherUserId),
+      );
+      SimpleWidgets.snackbar(
+        context,
+        'Has eliminado del grupo compartido el item ${item.name}',
+        Colors.blue,
+      );
     }
   }
 

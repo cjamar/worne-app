@@ -77,3 +77,13 @@ class ShareItemByEmailEvent extends ItemEvent {
 }
 
 class ClearItemSharedState extends ItemEvent {}
+
+class RemoveSharedItemEvent extends ItemEvent {
+  final String itemId;
+  final String ownerId;
+  final String otherUserId;
+  const RemoveSharedItemEvent(this.itemId, this.ownerId, this.otherUserId);
+
+  @override
+  List<Object?> get props => [itemId, otherUserId];
+}

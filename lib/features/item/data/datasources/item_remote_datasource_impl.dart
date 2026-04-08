@@ -349,4 +349,21 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
       throw Exception('Error al subir imagen: $e');
     }
   }
+
+  @override
+  Future<void> removeItemFromShared(
+    String itemId,
+    String ownerId,
+    String sharedWithUserId,
+  ) async {
+    try {
+      await Supabase.instance.client.from('item_access').delete().match({
+        'item_id': itemId,
+        'owner_id': ownerId,
+        'shared_with_user_id': sharedWithUserId,
+      });
+    } catch (e) {
+      throw Exception('Error al eliminar item de compartidos: $e');
+    }
+  }
 }

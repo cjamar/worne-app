@@ -13,4 +13,9 @@ abstract class ItemRepository {
   Future<void> shareItemByEmail(String itemId, String email);
   Future<List<SharedGroup>> getSharedGroups(String userId);
   Future<Map<String, SharedGroup>> groupSharedItemsByUser(String currentUserId);
+  Future<void> removeItemFromShared(
+    String itemId,
+    String ownerId,
+    String sharedWithUserId,
+  );
 }

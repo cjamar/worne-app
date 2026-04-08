@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/features/item/domain/usecases/remove_item_from_shared.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/item.dart';
 import '../../domain/entities/item_status.dart';
+import '../../domain/entities/shared_group.dart';
 import '../../domain/usecases/create_item.dart';
 import '../../domain/usecases/delete_item.dart';
 import '../../domain/usecases/get_items.dart';
@@ -24,6 +26,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
   final ShareItemByEmail shareItemByEmail;
   final GetSharedGroups getSharedGroups;
   final GroupSharedItemsByUser groupSharedItemsByUser;
+  final RemoveItemFromShared removeItemFromShared;
   List<Item> _allItems = [];
   ItemStatus? _activeFilter;
 
@@ -37,6 +40,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     required this.shareItemByEmail,
     required this.getSharedGroups,
     required this.groupSharedItemsByUser,
+    required this.removeItemFromShared,
   }) : super(ItemInitial()) {
     on<LoadItems>((event, emit) async {
       emit(ItemLoading());
@@ -164,6 +168,28 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
         add(LoadItems());
       } catch (e) {
         emit(ItemSharedError('Error al compartir, ${e.toString()}'));
+      }
+    });
+
+    // item_bloc.dart
+    on<RemoveSharedItemEvent>((event, emit) async {
+      if (state is ItemLoadedGrouped) {
+        emit(ItemLoading());
+        try {
+          await removeItemFromShared(
+            event.itemId,
+            event.ownerId,
+            event.otherUserId,
+          );
+          // 2️⃣ Volvemos a cargar los items del usuario (refresh)
+          final ownItems = await getItems(event.ownerId);
+          final groupedSharedItems = await groupSharedItemsByUser(
+            event.ownerId,
+          );
+          emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
+        } catch (e) {
+          emit(ItemError('No se pudo eliminar el item: $e'));
+        }
       }
     });
   }

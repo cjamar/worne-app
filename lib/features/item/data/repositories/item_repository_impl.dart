@@ -89,4 +89,11 @@ class ItemRepositoryImpl implements ItemRepository {
 
     return groupedSharedItems;
   }
+
+  @override
+  Future<void> removeItemFromShared(
+    String itemId,
+    String ownerId,
+    String sharedWithUserId,
+  ) async => datasource.removeItemFromShared(itemId, ownerId, sharedWithUserId);
 }
