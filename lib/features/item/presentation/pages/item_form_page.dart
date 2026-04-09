@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
+import '../../../../core/theme/app_styles.dart';
 import '../../../../core/utils/users_helper.dart';
 import '../../../shared/widgets/image_selector.dart';
 import '../../../shared/widgets/simple_widgets.dart';
@@ -121,9 +122,9 @@ class _ItemFormPageState extends State<ItemFormPage> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text(isEditing ? 'Editar item' : 'Nuevo item'),
-          backgroundColor: Colors.white,
+          backgroundColor: AppStyles.whiteColor,
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppStyles.whiteColor,
         body: _formPageBody(size),
       ),
     );
@@ -223,7 +224,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
         decoration: InputDecoration(
           hintText: 'Nombre',
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppStyles.whiteColor,
           border: SimpleWidgets.inputBorder(size, Colors.grey),
           enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
           focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
@@ -249,7 +250,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
         decoration: InputDecoration(
           hintText: 'Descripción',
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppStyles.whiteColor,
           border: SimpleWidgets.inputBorder(size, Colors.grey),
           enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
           focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
@@ -288,7 +289,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
     child: ElevatedButton(
       style: ElevatedButton.styleFrom(
         elevation: 0,
-        foregroundColor: _isOwner ? Colors.black : Colors.grey,
+        foregroundColor: _isOwner ? AppStyles.blackColor : Colors.grey,
         backgroundColor: Colors.grey.shade300,
       ),
       onPressed: () => _isOwner
@@ -366,13 +367,13 @@ class _ItemFormPageState extends State<ItemFormPage> {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               elevation: 0,
-              foregroundColor: Colors.white,
+              foregroundColor: AppStyles.whiteColor,
               disabledBackgroundColor: Colors.grey.shade300,
               // textStyle: TextStyle()
-              disabledForegroundColor: Colors.white,
+              disabledForegroundColor: AppStyles.whiteColor,
               backgroundColor: _isUploadingImage
                   ? Colors.grey.shade300
-                  : Colors.blue,
+                  : AppStyles.primaryColor,
             ),
             onPressed: (isValid && !_isUploadingImage && _isOwner)
                 ? _submit
@@ -400,7 +401,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
       bottom: MediaQuery.of(context).viewInsets.bottom,
     ),
     child: Container(
-      color: Colors.white,
+      color: AppStyles.whiteColor,
       height: size.height * 0.4,
       padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
       child: Form(
@@ -431,14 +432,14 @@ class _ItemFormPageState extends State<ItemFormPage> {
         size,
         'Cancelar',
         Colors.grey.shade200,
-        Colors.black,
+        AppStyles.blackColor,
         false,
       ),
       _userToShareButton(
         size,
         'Compartir',
         Colors.deepPurpleAccent,
-        Colors.white,
+        AppStyles.whiteColor,
         true,
       ),
     ],
@@ -459,7 +460,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
         decoration: InputDecoration(
           hintText: 'Email del usuario',
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppStyles.whiteColor,
           border: SimpleWidgets.inputBorder(size, Colors.grey),
           enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
           focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),

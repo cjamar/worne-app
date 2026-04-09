@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/core/theme/app_styles.dart';
 import '../../../../core/utils/items_helper.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/remove_item_modal.dart';
@@ -43,7 +44,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         actionsPadding: EdgeInsets.only(right: size.width * 0.025),
-        backgroundColor: Colors.white,
+        backgroundColor: AppStyles.whiteColor,
         scrolledUnderElevation: 0,
         toolbarHeight: size.height * 0.05,
         leading: Icon(Icons.logo_dev, size: size.width * 0.12),
@@ -54,7 +55,7 @@ class _HomePageState extends State<HomePage> {
         height: size.height,
         child: _homeBody(size),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppStyles.whiteColor,
       floatingActionButton: _fab(),
       drawer: AppDrawer(),
     );
@@ -69,7 +70,7 @@ class _HomePageState extends State<HomePage> {
         padding: EdgeInsets.all(size.width * 0.01),
         onPressed: () => Scaffold.of(context).openDrawer(),
         icon: CircleAvatar(
-          backgroundColor: Colors.grey.shade300,
+          backgroundColor: AppStyles.greyColor300,
           child: ClipOval(
             child: (avatar != null && avatar.isNotEmpty)
                 ? CachedNetworkImage(
@@ -95,14 +96,14 @@ class _HomePageState extends State<HomePage> {
   );
 
   _fab() => FloatingActionButton(
-    backgroundColor: Colors.yellow,
+    backgroundColor: AppStyles.primaryColor,
     shape: const CircleBorder(),
     elevation: 0,
     onPressed: () => Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ItemFormPage()),
     ),
-    child: Icon(Icons.add, color: Colors.black),
+    child: Icon(Icons.add, color: AppStyles.whiteColor),
   );
 
   _homeBody(Size size) => SizedBox(
@@ -139,7 +140,7 @@ class _HomePageState extends State<HomePage> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey.shade200,
+            color: AppStyles.greyColor200,
             borderRadius: BorderRadius.circular(size.width * 0.06),
           ),
           margin: EdgeInsets.symmetric(
@@ -149,10 +150,11 @@ class _HomePageState extends State<HomePage> {
           child: TabBar(
             tabs: [_tabTitle('Mis Items'), _tabTitle('Items Compartidos')],
             indicatorSize: TabBarIndicatorSize.tab,
-            labelColor: Colors.black,
+            labelColor: AppStyles.whiteColor,
+            unselectedLabelColor: AppStyles.blackColor,
             dividerColor: Colors.transparent,
             indicator: BoxDecoration(
-              color: const Color.fromARGB(255, 255, 204, 115),
+              color: AppStyles.primaryColor,
               borderRadius: BorderRadius.circular(size.width * 0.06),
             ),
           ),
@@ -234,12 +236,14 @@ class _HomePageState extends State<HomePage> {
         vertical: size.width * 0.015,
       ),
       decoration: BoxDecoration(
-        color: isActive ? Colors.black : Colors.grey.shade200,
+        color: isActive ? AppStyles.primaryLightColor : AppStyles.greyColor200,
         borderRadius: BorderRadius.circular(size.width * 0.05),
       ),
       child: Text(
         filter,
-        style: TextStyle(color: isActive ? Colors.white : Colors.black),
+        style: TextStyle(
+          color: isActive ? AppStyles.primaryDarkColor : AppStyles.blackColor,
+        ),
       ),
     ),
   );
