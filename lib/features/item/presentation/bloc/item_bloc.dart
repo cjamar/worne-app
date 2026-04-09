@@ -45,8 +45,10 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
         final uId =
             event.userId ?? Supabase.instance.client.auth.currentUser!.id;
         _allItems = await getItems(uId);
-        final ownItems = _allItems.where((i) => !i.isShared).toList();
+        final filteredItems = _applyFilter();
+        final ownItems = filteredItems.where((i) => !i.isShared).toList();
         final groupedSharedItems = await groupSharedItemsByUser(uId);
+
         emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
       } catch (e) {
         emit(ItemError(e.toString()));
@@ -59,7 +61,6 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
         await createItem(event.item);
         _allItems = [event.item, ..._allItems];
 
-        // Emitimos el estado correcto agrupado
         await _emitGroupedState(emit, _allItems, event.item.ownerId);
       } catch (e) {
         emit(ItemError(e.toString()));
@@ -109,15 +110,19 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     });
 
     on<FilterItems>((event, emit) async {
-      _activeFilter = event.status;
-      final filteredItems = _allItems
-          .where(
-            (item) => _activeFilter == null || item.status == _activeFilter,
-          )
-          .toList();
+      if (state is ItemLoadedGrouped) {
+        final currentState = state as ItemLoadedGrouped;
+        _activeFilter = event.status;
+        final filteredItems = _applyFilter();
 
-      final userId = Supabase.instance.client.auth.currentUser!.id;
-      await _emitGroupedState(emit, filteredItems, userId);
+        emit(
+          ItemLoadedGrouped(
+            filteredItems,
+            currentState.groupedSharedItems,
+            _activeFilter,
+          ),
+        );
+      }
     });
 
     on<ShareItemByEmailEvent>((event, emit) async {
@@ -170,7 +175,9 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     String userId,
   ) async {
     try {
-      final ownItems = allItems.where((i) => !i.isShared).toList();
+      final filteredItems = _applyFilter();
+
+      final ownItems = filteredItems.where((i) => !i.isShared).toList();
 
       final groupedSharedItems = await groupSharedItemsByUser(userId);
 
