@@ -75,7 +75,7 @@ class ItemCard extends StatelessWidget {
         vertical: size.width * 0.005,
       ),
       decoration: BoxDecoration(
-        color: color.withAlpha(40),
+        color: color.withAlpha(35),
         borderRadius: BorderRadius.circular(size.width * 0.05),
       ),
       child: Text(item.status.name, style: TextStyle(color: color)),

@@ -50,7 +50,7 @@ class ItemsCollage extends StatelessWidget {
               errorWidget: (context, url, error) =>
                   SimpleWidgets.placeholderImage(size, Icons.broken_image),
             )
-          : Container(color: Colors.grey.shade300),
+          : Container(color: Colors.grey.shade200),
     ),
   );
 }

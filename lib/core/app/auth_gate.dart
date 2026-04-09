@@ -57,7 +57,8 @@ class AuthGate extends StatelessWidget {
     );
   }
 
-  _loader() => Scaffold(body: SimpleWidgets.loader());
+  _loader() =>
+      Scaffold(backgroundColor: Colors.white, body: SimpleWidgets.loader());
 
   _errorScreen(String message) =>
       Scaffold(body: Center(child: Text('UserError, $message')));

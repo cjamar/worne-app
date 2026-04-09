@@ -95,17 +95,14 @@ class _HomePageState extends State<HomePage> {
   );
 
   _fab() => FloatingActionButton(
-    backgroundColor: Colors.black,
+    backgroundColor: Colors.yellow,
+    shape: const CircleBorder(),
     elevation: 0,
-    shape: BeveledRectangleBorder(
-      side: BorderSide(width: 0.5, color: Colors.white),
-    ),
-
     onPressed: () => Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ItemFormPage()),
     ),
-    child: Icon(Icons.add, color: Colors.white),
+    child: Icon(Icons.add, color: Colors.black),
   );
 
   _homeBody(Size size) => SizedBox(
@@ -140,18 +137,24 @@ class _HomePageState extends State<HomePage> {
     length: 2,
     child: Column(
       children: [
-        TabBar(
-          tabs: [_tabTitle('Mis items'), _tabTitle('Items compartidos')],
-          indicatorSize: TabBarIndicatorSize.tab,
-          labelColor: Colors.black,
-          unselectedLabelColor: Colors.grey,
-          dividerColor: Colors.transparent,
-          indicatorPadding: EdgeInsetsGeometry.symmetric(
-            horizontal: size.width * 0.02,
-          ),
-          indicator: BoxDecoration(
+        Container(
+          decoration: BoxDecoration(
             color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(size.width * 0.025),
+            borderRadius: BorderRadius.circular(size.width * 0.06),
+          ),
+          margin: EdgeInsets.symmetric(
+            horizontal: size.width * 0.02,
+            vertical: size.height * 0.02,
+          ),
+          child: TabBar(
+            tabs: [_tabTitle('Mis Items'), _tabTitle('Items Compartidos')],
+            indicatorSize: TabBarIndicatorSize.tab,
+            labelColor: Colors.black,
+            dividerColor: Colors.transparent,
+            indicator: BoxDecoration(
+              color: const Color.fromARGB(255, 255, 204, 115),
+              borderRadius: BorderRadius.circular(size.width * 0.06),
+            ),
           ),
         ),
         Expanded(
@@ -205,11 +208,11 @@ class _HomePageState extends State<HomePage> {
         },
       );
 
-  // PROXIMAMENTE SE USARÁ (NO BORRAR!!!)
   _filterItemListButton(Size size, ItemStatus? activeFilter) => Container(
-    margin: EdgeInsets.symmetric(
-      vertical: size.height * 0.01,
-      horizontal: size.width * 0.02,
+    margin: EdgeInsets.only(
+      left: size.width * 0.02,
+      right: size.width * 0.02,
+      bottom: size.height * 0.01,
     ),
     height: size.height * 0.04,
     child: ListView(
@@ -222,8 +225,7 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
-  _filterButton(Size size, String filter, bool isActive) => InkWell(
-    borderRadius: BorderRadius.circular(size.width * 0.05),
+  _filterButton(Size size, String filter, bool isActive) => GestureDetector(
     onTap: () => _filteringItems(filter),
     child: Container(
       margin: EdgeInsets.only(right: size.width * 0.02),
@@ -232,8 +234,7 @@ class _HomePageState extends State<HomePage> {
         vertical: size.width * 0.015,
       ),
       decoration: BoxDecoration(
-        color: isActive ? Colors.black : Colors.white,
-        border: Border.all(width: 0.5),
+        color: isActive ? Colors.black : Colors.grey.shade200,
         borderRadius: BorderRadius.circular(size.width * 0.05),
       ),
       child: Text(

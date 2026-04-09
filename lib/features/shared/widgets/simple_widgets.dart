@@ -23,7 +23,11 @@ class SimpleWidgets {
         children: [
           Icon(icon, size: size.width * 0.2, color: Colors.grey.shade300),
           SizedBox(height: size.height * 0.02),
-          Text(text, textAlign: TextAlign.center),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 15),
+          ),
         ],
       ),
     ),

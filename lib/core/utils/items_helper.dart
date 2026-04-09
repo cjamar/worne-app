@@ -11,8 +11,6 @@ class ItemsHelper {
         return ItemStatus.loaned;
       case 'Reservados':
         return ItemStatus.reserved;
-      case 'Perdidos':
-        return ItemStatus.lost;
       default:
         return null;
     }
@@ -20,7 +18,7 @@ class ItemsHelper {
 
   static Color colorStatus(Item item) {
     Color color;
-
+    // TODO: COLORES UN POCO MAS OSCUROS
     switch (item.status) {
       case ItemStatus.available:
         color = Colors.green;
@@ -30,9 +28,6 @@ class ItemsHelper {
         break;
       case ItemStatus.reserved:
         color = Colors.deepPurpleAccent;
-        break;
-      case ItemStatus.lost:
-        color = Colors.grey;
         break;
     }
     return color;
