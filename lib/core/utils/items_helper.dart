@@ -18,16 +18,15 @@ class ItemsHelper {
 
   static Color colorStatus(Item item) {
     Color color;
-    // TODO: COLORES UN POCO MAS OSCUROS
     switch (item.status) {
       case ItemStatus.available:
-        color = Colors.green;
+        color = const Color.fromARGB(255, 48, 135, 51);
         break;
       case ItemStatus.loaned:
-        color = Colors.blue;
+        color = const Color.fromARGB(255, 26, 121, 199);
         break;
       case ItemStatus.reserved:
-        color = Colors.deepPurpleAccent;
+        color = const Color.fromARGB(255, 103, 64, 211);
         break;
     }
     return color;

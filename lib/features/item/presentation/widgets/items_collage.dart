@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:prestar_ropa_app/core/theme/app_styles.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 import '../../domain/entities/item.dart';
 
@@ -50,7 +51,12 @@ class ItemsCollage extends StatelessWidget {
               errorWidget: (context, url, error) =>
                   SimpleWidgets.placeholderImage(size, Icons.broken_image),
             )
-          : Container(color: Colors.grey.shade200),
+          : Container(
+              color: Colors.grey.shade200,
+              child: Center(
+                child: Icon(Icons.auto_awesome, color: AppStyles.greyColor300),
+              ),
+            ),
     ),
   );
 }

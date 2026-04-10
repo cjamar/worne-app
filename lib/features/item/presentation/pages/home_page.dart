@@ -16,6 +16,7 @@ import '../bloc/item_event.dart';
 import '../bloc/item_state.dart';
 import '../widgets/grouped_items_by_user_card.dart';
 import '../widgets/item_card.dart';
+import 'item_detail_page.dart';
 import 'item_form_page.dart';
 import 'shared_items_page.dart';
 
@@ -155,7 +156,7 @@ class _HomePageState extends State<HomePage> {
             vertical: size.height * 0.01,
           ),
           child: TabBar(
-            tabs: [_tabTitle('Mis Items'), _tabTitle('Items Compartidos')],
+            tabs: [_tabTitle('Mis prendas'), _tabTitle('Prendas Compartidas')],
             indicatorSize: TabBarIndicatorSize.tab,
             labelColor: AppStyles.whiteColor,
             unselectedLabelColor: AppStyles.blackColor,
@@ -178,8 +179,7 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
-  _tabTitle(String text) =>
-      Tab(child: Text(text, style: TextStyle(fontSize: 15)));
+  _tabTitle(String text) => Tab(child: Text(text));
 
   _tabViewOwnItems(Size size, ItemLoadedGrouped state) => Column(
     children: [
@@ -269,20 +269,27 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
-  _goToDetail(Item item) => Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => ItemFormPage(item: item)),
-  );
-
   Future<void> _confirmDeleteDialog(Size size, Item item) async {
     final confirmed = await RemoveItemModal.showConfirmDialog(
       context: context,
-      title: 'Eliminar item',
+      title: 'Eliminar prenda',
       content: '¿Deseas eliminar "${item.name}"?',
       confirmText: 'Eliminar',
     );
     if (confirmed == true) _deleteItem(item);
   }
+
+  // VA AL FORM, NO AL DETALLE DE LECTURA
+  // _goToDetail(Item item) => Navigator.push(
+  //   context,
+  //   MaterialPageRoute(builder: (context) => ItemFormPage(item: item)),
+  // );
+
+  // VA A LA PAGINA DETALLE DE LECTURA
+  _goToDetail(Item item) => Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => ItemDetailPage(item: item)),
+  );
 
   _deleteItem(Item item) => context.read<ItemBloc>().add(DeleteEvent(item));
 

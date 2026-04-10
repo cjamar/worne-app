@@ -18,7 +18,7 @@ class LoginPage extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: AppStyles.secondaryColor,
+        backgroundColor: AppStyles.primaryColor,
         resizeToAvoidBottomInset: false,
         body: SizedBox(
           width: size.width,
@@ -35,7 +35,7 @@ class LoginPage extends StatelessWidget {
     padding: EdgeInsets.only(top: size.height * 0.05),
     child: Center(
       child: Image(
-        image: AssetImage('assets/images/logo2b.png'),
+        image: AssetImage('assets/images/logo2.png'),
         width: size.width * 0.4,
       ),
     ),
@@ -106,7 +106,7 @@ class LoginPage extends StatelessWidget {
       SizedBox(width: size.width * 0.03),
       TextButton(
         style: TextButton.styleFrom(
-          backgroundColor: AppStyles.greyColor200,
+          side: BorderSide(color: AppStyles.primaryColor, width: 0.5),
           foregroundColor: AppStyles.primaryColor,
           padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
         ),
