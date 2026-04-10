@@ -24,12 +24,12 @@ class ItemLoaded extends ItemState {
 }
 
 class ItemLoadedGrouped extends ItemState {
-  final List<Item> ownItems;
+  // final List<Item> ownItems;
   final Map<String, SharedGroup> groupedSharedItems;
   final ItemStatus? activeFilter;
   final List<Item> allItems;
   const ItemLoadedGrouped(
-    this.ownItems,
+    // this.ownItems,
     this.groupedSharedItems,
     this.activeFilter,
     this.allItems,
@@ -37,7 +37,7 @@ class ItemLoadedGrouped extends ItemState {
 
   @override
   List<Object?> get props => [
-    ownItems,
+    // ownItems,
     groupedSharedItems,
     activeFilter,
     allItems,

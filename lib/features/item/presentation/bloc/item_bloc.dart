@@ -110,17 +110,13 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       if (state is ItemLoadedGrouped) {
         final currentState = state as ItemLoadedGrouped;
         _activeFilter = event.status;
-        final filteredItems = _applyFilter(currentState.allItems);
-        final ownItems = filteredItems.where((i) => !i.isShared).toList();
-        // 👇 reutilizamos los grupos actuales SIN volver a calcular
-        final groupedSharedItems = currentState.groupedSharedItems;
+        final filteredItems = _applyFilter();
 
         emit(
           ItemLoadedGrouped(
-            ownItems,
-            groupedSharedItems,
+            currentState.groupedSharedItems,
             _activeFilter,
-            currentState.allItems,
+            filteredItems,
           ),
         );
       }
@@ -152,10 +148,6 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
             event.otherUserId,
           );
 
-          // final ownItems = await getItems(event.ownerId);
-          // final groupedSharedItems = await groupSharedItemsByUser(
-          //   event.ownerId,
-          // );
           final items = await getItems(event.ownerId);
           await _emitGroupedState(emit, items, event.ownerId);
         } catch (e) {
@@ -165,10 +157,10 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     });
   }
 
-  List<Item> _applyFilter(List<Item> items) {
-    if (_activeFilter == null) return items;
+  List<Item> _applyFilter() {
+    if (_activeFilter == null) return _allItems;
 
-    return items.where((item) => item.status == _activeFilter).toList();
+    return _allItems.where((item) => item.status == _activeFilter).toList();
   }
 
   Future<void> _emitGroupedState(
@@ -177,7 +169,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     String userId,
   ) async {
     try {
-      final filteredItems = _applyFilter(baseItems);
+      final filteredItems = _applyFilter();
 
       final ownItems = filteredItems.where((i) => !i.isShared).toList();
 
@@ -185,7 +177,8 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
 
       final allItems = {
         for (var item in [
-          ...baseItems,
+          // ...baseItems,
+          ...filteredItems,
           ...groupedSharedItems.values.expand((g) => g.items),
         ])
           item.id: item,
@@ -193,7 +186,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
 
       emit(
         ItemLoadedGrouped(
-          ownItems,
+          // ownItems,
           groupedSharedItems,
           _activeFilter,
           allItems,
