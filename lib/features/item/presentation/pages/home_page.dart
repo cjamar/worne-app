@@ -286,10 +286,12 @@ class _HomePageState extends State<HomePage> {
   // );
 
   // VA A LA PAGINA DETALLE DE LECTURA
-  _goToDetail(Item item) => Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => ItemDetailPage(item: item)),
-  );
+  _goToDetail(Item item) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ItemDetailPage(itemId: item.id!)),
+    );
+  }
 
   _deleteItem(Item item) => context.read<ItemBloc>().add(DeleteEvent(item));
 

@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
+import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
 import 'package:prestar_ropa_app/features/item/presentation/pages/item_form_page.dart';
 import '../../../../core/theme/app_styles.dart';
 import '../../../../core/utils/items_helper.dart';
@@ -8,8 +11,8 @@ import '../../../shared/widgets/simple_widgets.dart';
 import '../../domain/entities/item.dart';
 
 class ItemDetailPage extends StatelessWidget {
-  final Item item;
-  const ItemDetailPage({super.key, required this.item});
+  final String itemId;
+  const ItemDetailPage({super.key, required this.itemId});
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +28,31 @@ class ItemDetailPage extends StatelessWidget {
     );
   }
 
-  _itemDetailBody(Size size, BuildContext context) => CustomScrollView(
-    slivers: [_sliverAppBar(size, context), _sliverContent(size, context)],
-  );
+  _itemDetailBody(Size size, BuildContext context) =>
+      BlocBuilder<ItemBloc, ItemState>(
+        builder: (context, state) {
+          if (state is! ItemLoadedGrouped) return SimpleWidgets.loader();
 
-  _sliverAppBar(Size size, BuildContext context) => SliverAppBar(
+          final item = _findItem(state, itemId);
+          if (item == null) return SimpleWidgets.loader();
+
+          return CustomScrollView(
+            slivers: [
+              _sliverAppBar(size, context, item),
+              _sliverContent(size, context, item),
+            ],
+          );
+        },
+      );
+
+  Item? _findItem(ItemLoadedGrouped state, String itemId) {
+    for (final item in state.allItems) {
+      if (item.id == itemId) return item;
+    }
+    return null;
+  }
+
+  _sliverAppBar(Size size, BuildContext context, Item item) => SliverAppBar(
     expandedHeight: size.height * 0.5,
     pinned: true,
     backgroundColor: Colors.transparent,
@@ -54,7 +77,7 @@ class ItemDetailPage extends StatelessWidget {
           color: AppStyles.whiteColor,
           size: AppStyles.iconSize1(size),
         ),
-        onPressed: () => _goToEdit(context),
+        onPressed: () => _goToEdit(context, item),
       ),
     ],
     flexibleSpace: FlexibleSpaceBar(
@@ -87,39 +110,38 @@ class ItemDetailPage extends StatelessWidget {
     ),
   );
 
-  _sliverContent(Size size, BuildContext context) => SliverToBoxAdapter(
-    child: SizedBox(
-      width: size.width * 0.9,
-      child: Padding(
-        padding: EdgeInsets.all(size.width * 0.05),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _title(),
-            SizedBox(height: size.height * 0.01),
-            _categoryAndStatus(size),
-            SizedBox(height: size.height * 0.04),
-            _description(),
-            SizedBox(height: size.height * 0.1),
-            _deleteButton(size, context),
-          ],
+  _sliverContent(Size size, BuildContext context, Item item) =>
+      SliverToBoxAdapter(
+        child: SizedBox(
+          width: size.width * 0.9,
+          child: Padding(
+            padding: EdgeInsets.all(size.width * 0.05),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _title(item.name),
+                SizedBox(height: size.height * 0.01),
+                _categoryAndStatus(size, item),
+                SizedBox(height: size.height * 0.04),
+                _description(item.description),
+                SizedBox(height: size.height * 0.1),
+                _deleteButton(size, context),
+              ],
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 
-  _title() => Text(
-    item.name,
-    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-  );
+  _title(String name) =>
+      Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold));
 
-  _categoryAndStatus(Size size) => Row(
+  _categoryAndStatus(Size size, Item item) => Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [_category(), _statusChip(size)],
+    children: [_category(item.category), _statusChip(size, item)],
   );
 
-  _category() => Text(
-    item.category,
+  _category(String category) => Text(
+    category,
     style: TextStyle(
       fontSize: 18,
       fontWeight: FontWeight.bold,
@@ -127,7 +149,7 @@ class ItemDetailPage extends StatelessWidget {
     ),
   );
 
-  _statusChip(Size size) {
+  _statusChip(Size size, Item item) {
     Color color = ItemsHelper.colorStatus(item);
 
     return Container(
@@ -143,7 +165,8 @@ class ItemDetailPage extends StatelessWidget {
     );
   }
 
-  _description() => Text(item.description, style: TextStyle(fontSize: 14));
+  _description(String description) =>
+      Text(description, style: TextStyle(fontSize: 14));
 
   _deleteButton(Size size, BuildContext context) => Container(
     width: size.width * 0.9,
@@ -160,7 +183,7 @@ class ItemDetailPage extends StatelessWidget {
     ),
   );
 
-  void _goToEdit(BuildContext context) => Navigator.push(
+  void _goToEdit(BuildContext context, Item item) => Navigator.push(
     context,
     MaterialPageRoute(builder: (context) => ItemFormPage(item: item)),
   );

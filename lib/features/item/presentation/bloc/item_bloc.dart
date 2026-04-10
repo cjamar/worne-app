@@ -45,11 +45,20 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
         final uId =
             event.userId ?? Supabase.instance.client.auth.currentUser!.id;
         _allItems = await getItems(uId);
-        final filteredItems = _applyFilter();
-        final ownItems = filteredItems.where((i) => !i.isShared).toList();
-        final groupedSharedItems = await groupSharedItemsByUser(uId);
+        await _emitGroupedState(emit, _allItems, uId);
 
-        emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
+        // final filteredItems = _applyFilter();
+        // final ownItems = filteredItems.where((i) => !i.isShared).toList();
+        // final groupedSharedItems = await groupSharedItemsByUser(uId);
+
+        // emit(
+        //   ItemLoadedGrouped(
+        //     ownItems,
+        //     groupedSharedItems,
+        //     _activeFilter,
+        //     _allItems,
+        //   ),
+        // );
       } catch (e) {
         emit(ItemError(e.toString()));
       }
@@ -109,17 +118,21 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
       }
     });
 
-    on<FilterItems>((event, emit) async {
+    on<FilterItems>((event, emit) {
       if (state is ItemLoadedGrouped) {
         final currentState = state as ItemLoadedGrouped;
         _activeFilter = event.status;
-        final filteredItems = _applyFilter();
+        final filteredItems = _applyFilter(currentState.allItems);
+        final ownItems = filteredItems.where((i) => !i.isShared).toList();
+        // 👇 reutilizamos los grupos actuales SIN volver a calcular
+        final groupedSharedItems = currentState.groupedSharedItems;
 
         emit(
           ItemLoadedGrouped(
-            filteredItems,
-            currentState.groupedSharedItems,
+            ownItems,
+            groupedSharedItems,
             _activeFilter,
+            currentState.allItems, // 🔥 fuente de verdad intacta
           ),
         );
       }
@@ -151,11 +164,12 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
             event.otherUserId,
           );
 
-          final ownItems = await getItems(event.ownerId);
-          final groupedSharedItems = await groupSharedItemsByUser(
-            event.ownerId,
-          );
-          emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
+          // final ownItems = await getItems(event.ownerId);
+          // final groupedSharedItems = await groupSharedItemsByUser(
+          //   event.ownerId,
+          // );
+          final items = await getItems(event.ownerId);
+          await _emitGroupedState(emit, items, event.ownerId);
         } catch (e) {
           emit(ItemError('No se pudo eliminar el item: $e'));
         }
@@ -163,25 +177,40 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     });
   }
 
-  List<Item> _applyFilter() {
-    if (_activeFilter == null) return _allItems;
+  List<Item> _applyFilter(List<Item> items) {
+    if (_activeFilter == null) return items;
 
-    return _allItems.where((item) => item.status == _activeFilter).toList();
+    return items.where((item) => item.status == _activeFilter).toList();
   }
 
   Future<void> _emitGroupedState(
     Emitter<ItemState> emit,
-    List<Item> allItems,
+    List<Item> baseItems,
     String userId,
   ) async {
     try {
-      final filteredItems = _applyFilter();
+      final filteredItems = _applyFilter(baseItems);
 
       final ownItems = filteredItems.where((i) => !i.isShared).toList();
 
       final groupedSharedItems = await groupSharedItemsByUser(userId);
 
-      emit(ItemLoadedGrouped(ownItems, groupedSharedItems, _activeFilter));
+      final allItems = {
+        for (var item in [
+          ...baseItems,
+          ...groupedSharedItems.values.expand((g) => g.items),
+        ])
+          item.id: item,
+      }.values.toList();
+
+      emit(
+        ItemLoadedGrouped(
+          ownItems,
+          groupedSharedItems,
+          _activeFilter,
+          allItems,
+        ),
+      );
     } catch (e) {
       emit(ItemError(e.toString()));
     }

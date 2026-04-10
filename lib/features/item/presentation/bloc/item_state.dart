@@ -27,14 +27,21 @@ class ItemLoadedGrouped extends ItemState {
   final List<Item> ownItems;
   final Map<String, SharedGroup> groupedSharedItems;
   final ItemStatus? activeFilter;
+  final List<Item> allItems;
   const ItemLoadedGrouped(
     this.ownItems,
     this.groupedSharedItems,
     this.activeFilter,
+    this.allItems,
   );
 
   @override
-  List<Object?> get props => [ownItems, groupedSharedItems, activeFilter];
+  List<Object?> get props => [
+    ownItems,
+    groupedSharedItems,
+    activeFilter,
+    allItems,
+  ];
 }
 
 class ItemError extends ItemState {
