@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
+import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_state.dart';
 import 'package:prestar_ropa_app/features/item/presentation/pages/item_form_page.dart';
 import '../../../../core/theme/app_styles.dart';
 import '../../../../core/utils/items_helper.dart';
+import '../../../shared/widgets/remove_item_modal.dart';
 import '../../../shared/widgets/simple_widgets.dart';
 import '../../domain/entities/item.dart';
 
@@ -34,7 +36,15 @@ class ItemDetailPage extends StatelessWidget {
           if (state is! ItemLoadedGrouped) return SimpleWidgets.loader();
 
           final item = _findItem(state, itemId);
-          if (item == null) return SimpleWidgets.loader();
+          if (item == null) {
+            Future.microtask(() {
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            });
+
+            return const SizedBox();
+          }
 
           return CustomScrollView(
             slivers: [
@@ -125,7 +135,7 @@ class ItemDetailPage extends StatelessWidget {
                 SizedBox(height: size.height * 0.04),
                 _description(item.description),
                 SizedBox(height: size.height * 0.1),
-                _deleteButton(size, context),
+                _deleteButton(size, context, item),
               ],
             ),
           ),
@@ -168,7 +178,7 @@ class ItemDetailPage extends StatelessWidget {
   _description(String description) =>
       Text(description, style: TextStyle(fontSize: 14));
 
-  _deleteButton(Size size, BuildContext context) => Container(
+  _deleteButton(Size size, BuildContext context, Item item) => Container(
     width: size.width * 0.9,
     margin: EdgeInsets.symmetric(horizontal: size.width * 0.05),
     child: TextButton(
@@ -177,16 +187,31 @@ class ItemDetailPage extends StatelessWidget {
         foregroundColor: AppStyles.alertColor,
         padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
       ),
-      onPressed: () => _deleteItem(),
+      onPressed: () => _confirmDeleteDialog(size, context, item),
 
       child: const Text('Eliminar producto'),
     ),
   );
 
-  void _goToEdit(BuildContext context, Item item) => Navigator.push(
+  Future<void> _confirmDeleteDialog(
+    Size size,
+    BuildContext context,
+    Item item,
+  ) async {
+    final confirmed = await RemoveItemModal.showConfirmDialog(
+      context: context,
+      title: 'Eliminar prenda',
+      content: '¿Deseas eliminar "${item.name}"?',
+      confirmText: 'Eliminar',
+    );
+    if (confirmed == true && context.mounted) _deleteItem(context, item);
+  }
+
+  _goToEdit(BuildContext context, Item item) => Navigator.push(
     context,
     MaterialPageRoute(builder: (context) => ItemFormPage(item: item)),
   );
 
-  void _deleteItem() {}
+  _deleteItem(BuildContext context, Item item) =>
+      context.read<ItemBloc>().add(DeleteEvent(item));
 }

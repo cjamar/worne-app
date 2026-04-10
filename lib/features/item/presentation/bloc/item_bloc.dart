@@ -46,19 +46,6 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
             event.userId ?? Supabase.instance.client.auth.currentUser!.id;
         _allItems = await getItems(uId);
         await _emitGroupedState(emit, _allItems, uId);
-
-        // final filteredItems = _applyFilter();
-        // final ownItems = filteredItems.where((i) => !i.isShared).toList();
-        // final groupedSharedItems = await groupSharedItemsByUser(uId);
-
-        // emit(
-        //   ItemLoadedGrouped(
-        //     ownItems,
-        //     groupedSharedItems,
-        //     _activeFilter,
-        //     _allItems,
-        //   ),
-        // );
       } catch (e) {
         emit(ItemError(e.toString()));
       }
@@ -92,10 +79,11 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
 
     on<DeleteEvent>((event, emit) async {
       emit(ItemLoading());
+
       try {
         await deleteItem(event.item.id!);
 
-        _allItems.removeWhere((i) => i.id == event.item.id);
+        _allItems = _allItems.where((i) => i.id != event.item.id).toList();
 
         await _emitGroupedState(emit, _allItems, event.item.ownerId);
       } catch (e) {
@@ -132,7 +120,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
             ownItems,
             groupedSharedItems,
             _activeFilter,
-            currentState.allItems, // 🔥 fuente de verdad intacta
+            currentState.allItems,
           ),
         );
       }

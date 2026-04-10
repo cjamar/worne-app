@@ -279,13 +279,6 @@ class _HomePageState extends State<HomePage> {
     if (confirmed == true) _deleteItem(item);
   }
 
-  // VA AL FORM, NO AL DETALLE DE LECTURA
-  // _goToDetail(Item item) => Navigator.push(
-  //   context,
-  //   MaterialPageRoute(builder: (context) => ItemFormPage(item: item)),
-  // );
-
-  // VA A LA PAGINA DETALLE DE LECTURA
   _goToDetail(Item item) {
     Navigator.push(
       context,
