@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/app/auth_gate.dart';
 import 'features/auth/data/datasources/auth_remote_datasource_impl.dart';
@@ -35,11 +36,10 @@ import 'features/user/presentation/bloc/user_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await dotenv.load(fileName: ".env");
   await Supabase.initialize(
-    url: 'https://hppldmbiocpnvkpguwbz.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcGxkbWJpb2NwbnZrcGd1d2J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMzI0NTgsImV4cCI6MjA4ODkwODQ1OH0.RUuO-UT17E_VPinqUJ5Z8goedwgTsmILcorFYzKUo8E',
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
 
   runApp(MyApp());
