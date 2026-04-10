@@ -19,9 +19,12 @@ class ItemDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: AppStyles.whiteColor,
-      body: _itemDetailBody(size, context),
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: AppStyles.whiteColor,
+        body: _itemDetailBody(size, context),
+      ),
     );
   }
 
@@ -124,7 +127,7 @@ class ItemDetailPage extends StatelessWidget {
                 _categoryAndStatus(size, item),
                 SizedBox(height: size.height * 0.04),
                 _description(item.description),
-                SizedBox(height: size.height * 0.1),
+                SizedBox(height: size.height * 0.15),
                 _deleteButton(size, context, item),
               ],
             ),
