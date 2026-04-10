@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_bloc.dart';
 import 'package:prestar_ropa_app/features/item/presentation/bloc/item_event.dart';
@@ -22,10 +21,6 @@ class ItemDetailPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppStyles.whiteColor,
-      appBar: AppBar(
-        toolbarHeight: size.height * 0.0,
-        backgroundColor: AppStyles.primaryColor,
-      ),
       body: _itemDetailBody(size, context),
     );
   }
@@ -67,11 +62,6 @@ class ItemDetailPage extends StatelessWidget {
     pinned: true,
     backgroundColor: Colors.transparent,
     elevation: 0,
-
-    systemOverlayStyle: const SystemUiOverlayStyle(
-      statusBarBrightness: Brightness.light, // iOS (fondo claro)
-      statusBarIconBrightness: Brightness.dark, // Android
-    ),
     leading: IconButton(
       icon: Icon(
         Icons.arrow_back,
@@ -109,7 +99,7 @@ class ItemDetailPage extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.center,
                 colors: [
-                  Colors.black.withValues(alpha: 0.5),
+                  Colors.black.withValues(alpha: 0.6),
                   Colors.transparent,
                 ],
               ),
@@ -147,15 +137,25 @@ class ItemDetailPage extends StatelessWidget {
 
   _categoryAndStatus(Size size, Item item) => Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [_category(item.category), _statusChip(size, item)],
+    children: [_category(item.category, size), _statusChip(size, item)],
   );
 
-  _category(String category) => Text(
-    category,
-    style: TextStyle(
-      fontSize: 18,
-      fontWeight: FontWeight.bold,
-      color: AppStyles.primaryColor,
+  _category(String category, Size size) => Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(size.width * 0.05),
+      border: Border.all(color: AppStyles.secondaryColor, width: 2),
+    ),
+    padding: EdgeInsets.symmetric(
+      vertical: size.width * 0.01,
+      horizontal: size.width * 0.03,
+    ),
+    child: Text(
+      category,
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: AppStyles.primaryColor,
+      ),
     ),
   );
 
