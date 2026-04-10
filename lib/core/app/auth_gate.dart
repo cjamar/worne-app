@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/core/theme/app_styles.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -57,8 +58,10 @@ class AuthGate extends StatelessWidget {
     );
   }
 
-  _loader() =>
-      Scaffold(backgroundColor: Colors.white, body: SimpleWidgets.loader());
+  _loader() => Scaffold(
+    backgroundColor: AppStyles.secondaryColor,
+    body: SimpleWidgets.loader(),
+  );
 
   _errorScreen(String message) =>
       Scaffold(body: Center(child: Text('UserError, $message')));

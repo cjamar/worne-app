@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:prestar_ropa_app/core/theme/app_styles.dart';
 
 class SimpleWidgets {
-  static loader() => const Center(child: CircularProgressIndicator());
+  static loader() =>
+      Center(child: CircularProgressIndicator(color: AppStyles.primaryColor));
 
   static snackbar(BuildContext context, String message, Color color) =>
       ScaffoldMessenger.of(

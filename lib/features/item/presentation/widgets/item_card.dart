@@ -66,6 +66,7 @@ class ItemCard extends StatelessWidget {
     child: Text(item.name, overflow: TextOverflow.ellipsis, maxLines: 1),
   );
 
+  // TODO: RECUPERAR STATUS BADGE
   _statusBadgeCard(Size size) {
     Color color = ItemsHelper.colorStatus(item);
 

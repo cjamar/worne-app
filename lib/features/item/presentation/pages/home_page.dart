@@ -47,7 +47,12 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: AppStyles.whiteColor,
         scrolledUnderElevation: 0,
         toolbarHeight: size.height * 0.05,
-        leading: Icon(Icons.logo_dev, size: size.width * 0.12),
+        // leading: Icon(Icons.logo_dev, size: size.width * 0.12),
+        centerTitle: false,
+        title: Image(
+          image: AssetImage('assets/images/logo1.png'),
+          width: size.width * 0.25,
+        ),
         actions: [_userArea(size)],
       ),
       body: SizedBox(
@@ -97,7 +102,9 @@ class _HomePageState extends State<HomePage> {
 
   _fab() => FloatingActionButton(
     backgroundColor: AppStyles.primaryColor,
-    shape: const CircleBorder(),
+    shape: CircleBorder(
+      side: BorderSide(color: AppStyles.whiteColor, width: 1.6),
+    ),
     elevation: 0,
     onPressed: () => Navigator.push(
       context,
@@ -145,7 +152,7 @@ class _HomePageState extends State<HomePage> {
           ),
           margin: EdgeInsets.symmetric(
             horizontal: size.width * 0.02,
-            vertical: size.height * 0.02,
+            vertical: size.height * 0.01,
           ),
           child: TabBar(
             tabs: [_tabTitle('Mis Items'), _tabTitle('Items Compartidos')],
@@ -211,10 +218,9 @@ class _HomePageState extends State<HomePage> {
       );
 
   _filterItemListButton(Size size, ItemStatus? activeFilter) => Container(
-    margin: EdgeInsets.only(
-      left: size.width * 0.02,
-      right: size.width * 0.02,
-      bottom: size.height * 0.01,
+    margin: EdgeInsets.symmetric(
+      vertical: size.height * 0.01,
+      horizontal: size.width * 0.02,
     ),
     height: size.height * 0.04,
     child: ListView(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/core/theme/app_styles.dart';
 import 'package:prestar_ropa_app/features/shared/widgets/simple_widgets.dart';
 
 import '../../../../core/utils/users_helper.dart';
@@ -111,10 +112,13 @@ class _AuthFormState extends State<AuthForm> {
         decoration: InputDecoration(
           hintText: 'Email',
           filled: true,
-          fillColor: Colors.white,
-          border: SimpleWidgets.inputBorder(size, Colors.grey),
-          enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
-          focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          fillColor: AppStyles.greyColor100,
+          border: SimpleWidgets.inputBorder(size, Colors.transparent),
+          enabledBorder: SimpleWidgets.inputBorder(size, Colors.transparent),
+          focusedBorder: SimpleWidgets.inputBorder(
+            size,
+            AppStyles.primaryColor,
+          ),
           suffixIcon: value.text.isNotEmpty && _emailFocus.hasFocus
               ? _clearTextField(_emailController)
               : null,
@@ -136,10 +140,13 @@ class _AuthFormState extends State<AuthForm> {
         decoration: InputDecoration(
           hintText: 'Contraseña',
           filled: true,
-          fillColor: Colors.white,
-          border: SimpleWidgets.inputBorder(size, Colors.grey),
-          enabledBorder: SimpleWidgets.inputBorder(size, Colors.grey),
-          focusedBorder: SimpleWidgets.inputBorder(size, Colors.grey),
+          fillColor: AppStyles.greyColor100,
+          border: SimpleWidgets.inputBorder(size, Colors.transparent),
+          enabledBorder: SimpleWidgets.inputBorder(size, Colors.transparent),
+          focusedBorder: SimpleWidgets.inputBorder(
+            size,
+            AppStyles.primaryColor,
+          ),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -199,14 +206,14 @@ class _AuthFormState extends State<AuthForm> {
 
           return SizedBox(
             width: size.width * 0.8,
-            height: size.height * 0.05,
+            height: AppStyles.buttonHeight(size),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: Colors.grey.shade300,
+                disabledBackgroundColor: AppStyles.greyColor300,
                 disabledForegroundColor: Colors.white,
-                backgroundColor: Colors.blue,
+                backgroundColor: AppStyles.primaryColor,
               ),
               onPressed: (isValid && !isLoading) ? _onSubmit : null,
               child: isLoading
@@ -221,7 +228,13 @@ class _AuthFormState extends State<AuthForm> {
 
   _rememberAndForgotPassword() => Row(
     mainAxisAlignment: MainAxisAlignment.spaceAround,
-    children: [_rememberMeCheck(), Text('¿Olvidaste la contraseña?')],
+    children: [
+      _rememberMeCheck(),
+      Text(
+        '¿Olvidaste la contraseña?',
+        style: TextStyle(color: AppStyles.primaryColor),
+      ),
+    ],
   );
 
   _rememberMeCheck() => Row(
@@ -232,6 +245,7 @@ class _AuthFormState extends State<AuthForm> {
           rememberMe = value!;
         }),
         shape: RoundedRectangleBorder(),
+        activeColor: AppStyles.primaryColor,
       ),
       Text('Recordarme'),
     ],
@@ -261,7 +275,10 @@ class _AuthFormState extends State<AuthForm> {
   }
 
   _togglePasswordVisibility() => IconButton(
-    icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+    icon: Icon(
+      _obscurePassword ? Icons.visibility : Icons.visibility_off,
+      color: AppStyles.greyColor600,
+    ),
     onPressed: () {
       setState(() {
         _obscurePassword = !_obscurePassword;

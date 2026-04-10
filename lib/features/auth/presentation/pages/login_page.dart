@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prestar_ropa_app/core/theme/app_styles.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -17,6 +18,7 @@ class LoginPage extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
+        backgroundColor: AppStyles.secondaryColor,
         resizeToAvoidBottomInset: false,
         body: SizedBox(
           width: size.width,
@@ -29,35 +31,34 @@ class LoginPage extends StatelessWidget {
 
   Widget _logoArea(Size size) => Container(
     width: size.width,
-    height: size.height * 0.4,
-    color: Colors.white,
+    height: size.height * 0.35,
+    padding: EdgeInsets.only(top: size.height * 0.05),
     child: Center(
-      child: Container(
-        width: size.width * 0.45,
-        height: size.height * 0.08,
-        color: Colors.white54,
-        child: Center(
-          child: Icon(
-            Icons.logo_dev,
-            size: size.width * 0.25,
-            color: Colors.grey.shade300,
-          ),
-        ),
+      child: Image(
+        image: AssetImage('assets/images/logo2b.png'),
+        width: size.width * 0.4,
       ),
     ),
   );
 
   Widget _formArea(BuildContext context, Size size) => Container(
     width: size.width,
-    height: size.height * 0.6,
-    color: Colors.white,
+    height: size.height * 0.65,
+    padding: EdgeInsets.only(top: size.height * 0.05),
+    decoration: BoxDecoration(
+      color: AppStyles.whiteColor,
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(size.width * 0.08),
+        topRight: Radius.circular(size.width * 0.08),
+      ),
+    ),
+
     child: Column(
       children: [_formBody(context, size), _formButtons(context, size)],
     ),
   );
 
-  Widget _formBody(BuildContext context, Size size) => Container(
-    color: Colors.white24,
+  Widget _formBody(BuildContext context, Size size) => SizedBox(
     width: size.width * 0.9,
     height: size.height * 0.35,
     child: AuthForm(
@@ -85,7 +86,7 @@ class LoginPage extends StatelessWidget {
       border: Border.all(color: Colors.grey),
       borderRadius: BorderRadius.circular(size.width * 0.07),
     ),
-    height: 50,
+    height: AppStyles.buttonHeight(size),
     width: size.width * 0.8,
     child: SignInButton(
       elevation: 0,
@@ -99,13 +100,14 @@ class LoginPage extends StatelessWidget {
   );
 
   Widget _registerButton(BuildContext context, Size size) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    mainAxisAlignment: MainAxisAlignment.center,
     children: [
       const Text('¿No tienes una cuenta?'),
+      SizedBox(width: size.width * 0.03),
       TextButton(
         style: TextButton.styleFrom(
-          backgroundColor: Colors.grey.shade200,
-          foregroundColor: Colors.blueAccent,
+          backgroundColor: AppStyles.greyColor200,
+          foregroundColor: AppStyles.primaryColor,
           padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
         ),
         onPressed: () {

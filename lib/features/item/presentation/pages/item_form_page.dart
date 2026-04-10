@@ -362,8 +362,8 @@ class _ItemFormPageState extends State<ItemFormPage> {
           return SimpleWidgets.loader();
         }
         return SizedBox(
-          width: size.width * 0.8,
-          height: size.height * 0.06,
+          width: AppStyles.buttonWidth(size),
+          height: AppStyles.buttonHeight(size),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               elevation: 0,
