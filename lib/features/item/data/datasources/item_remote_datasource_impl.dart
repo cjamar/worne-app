@@ -55,7 +55,6 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
     try {
       final currentUserId = Supabase.instance.client.auth.currentUser!.id;
 
-      // 1️⃣ Traemos todos los accesos donde el usuario está involucrado
       final allAccess = await supabase
           .from('item_access')
           .select('item_id, shared_with_user_id, owner_id')
@@ -65,7 +64,6 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
 
       if (allAccess.isEmpty) return {};
 
-      // 2️⃣ Detectamos todos los usuarios con los que tenemos relación
       final relations = <String>{};
       for (var access in allAccess) {
         final ownerId = access['owner_id'] as String;
@@ -75,10 +73,8 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
         if (otherUserId != currentUserId) relations.add(otherUserId);
       }
 
-      // 3️⃣ Construimos los espacios compartidos por usuario
       final Map<String, SharedGroup> grouped = {};
       for (var otherUserId in relations) {
-        // 🔹 Traemos todos los items compartidos entre currentUserId y otherUserId
         final sharedAccess = await supabase
             .from('item_access')
             .select('item_id, owner_id, shared_with_user_id')
@@ -89,10 +85,8 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
 
         if (sharedAccess.isEmpty) continue;
 
-        // 🔹 Sacamos los itemIds únicos
         final itemIds = sharedAccess.map((e) => e['item_id'] as String).toSet();
 
-        // 🔹 Traemos los items
         final itemsRaw = <Map<String, dynamic>>[];
         for (var itemId in itemIds) {
           final res = await supabase.from('items').select().eq('id', itemId);
@@ -103,7 +97,6 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
             .map((e) => ItemModel.fromJson(e).copyWith(isShared: true))
             .toList();
 
-        // 🔹 Obtenemos usernames de ambos usuarios
         final userARes = await supabase
             .from('users')
             .select('username')
@@ -116,12 +109,12 @@ class ItemRemoteDatasourceImpl implements ItemRemoteDatasource {
             .maybeSingle();
 
         grouped[otherUserId] = SharedGroup(
-          id: otherUserId, // puedes cambiar a un id de grupo si lo defines en Supabase
+          id: otherUserId,
           userAId: currentUserId,
           userBId: otherUserId,
           nameUserA: userARes?['username'] ?? currentUserId,
           nameUserB: userBRes?['username'] ?? otherUserId,
-          items: items, // añadimos los items para la UI y acciones
+          items: items,
         );
       }
 

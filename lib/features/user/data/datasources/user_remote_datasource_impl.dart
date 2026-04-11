@@ -12,9 +12,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDatasource {
     try {
       final response = await supabase
           .from('users')
-          .upsert(
-            user.toJson(),
-          ) // en lugar de .insert, significa que si no existe, lo crea
+          .upsert(user.toJson())
           .select()
           .single();
       return UserModel.fromJson(response);

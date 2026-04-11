@@ -1,5 +1,3 @@
-import 'package:prestar_ropa_app/features/user/domain/entities/user.dart';
-
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
 

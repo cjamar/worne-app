@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prestar_ropa_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:prestar_ropa_app/features/auth/presentation/bloc/auth_event.dart';
-import 'package:prestar_ropa_app/features/user/presentation/bloc/user_bloc.dart';
-import 'package:prestar_ropa_app/features/user/presentation/bloc/user_state.dart';
+import '../../auth/presentation/bloc/auth_bloc.dart';
+import '../../auth/presentation/bloc/auth_event.dart';
+import '../../user/presentation/bloc/user_bloc.dart';
+import '../../user/presentation/bloc/user_state.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});

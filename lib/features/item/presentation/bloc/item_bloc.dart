@@ -171,27 +171,17 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     try {
       final filteredItems = _applyFilter();
 
-      final ownItems = filteredItems.where((i) => !i.isShared).toList();
-
       final groupedSharedItems = await groupSharedItemsByUser(userId);
 
       final allItems = {
         for (var item in [
-          // ...baseItems,
           ...filteredItems,
           ...groupedSharedItems.values.expand((g) => g.items),
         ])
           item.id: item,
       }.values.toList();
 
-      emit(
-        ItemLoadedGrouped(
-          // ownItems,
-          groupedSharedItems,
-          _activeFilter,
-          allItems,
-        ),
-      );
+      emit(ItemLoadedGrouped(groupedSharedItems, _activeFilter, allItems));
     } catch (e) {
       emit(ItemError(e.toString()));
     }

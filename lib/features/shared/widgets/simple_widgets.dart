@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prestar_ropa_app/core/theme/app_styles.dart';
+import '../../../core/theme/app_styles.dart';
 
 class SimpleWidgets {
   static loader() =>
