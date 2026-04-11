@@ -1,6 +1,6 @@
-#worn-e 👕🔄
+# worn-e 👕🔄
 
-###Give your clothes a second life — without losing track of them.
+### Give your clothes a second life — without losing track of them.
 
 Worn-e is a minimalist app designed to share, manage and recover your personal items with people you trust.
 Instead of letting clothes sit unused in your wardrobe, worn-e helps you circulate them between friends, family or close contacts, 
@@ -8,7 +8,7 @@ while always knowing where everything is and who has it. Because sharing should 
 
 ⸻
 
-##✨ Features
+## ✨ Features
 
 👕 Create and manage your items
 🤝 Share items with other users
@@ -22,7 +22,7 @@ while always knowing where everything is and who has it. Because sharing should 
 
 ⸻
 
-##🧠 Concept
+## 🧠 Concept
 
 ### Name Origin
 *Worn-e is inspired by the word “worn”, meaning something that has been used or worn over time.
@@ -39,7 +39,7 @@ you’re sharing them, knowing they’ll come back.
 
 ⸻
 
-##🛠 Tech Stack
+## 🛠 Tech Stack
 
 Frontend → 📱 Flutter
 Backend / Database → ⚡️ Supabase
@@ -62,7 +62,7 @@ State management is handled using:
 
 ⸻
 
-##🚀 Roadmap
+## 🚀 Roadmap
 
 worn-e is currently evolving. Upcoming features include:
 
@@ -77,7 +77,7 @@ worn-e is currently evolving. Upcoming features include:
 
 ⸻
 
-##📌 Project Status
+## 📌 Project Status
 
 This project is currently in active development.
 
