@@ -1,4 +1,4 @@
-# worn-e 👕🔄
+# Worn-e 👕🔄
 
 ### Give your clothes a second life — without losing track of them.
 
@@ -10,15 +10,16 @@ while always knowing where everything is and who has it. Because sharing should 
 
 ## ✨ Features
 
-👕 Create and manage your items
-🤝 Share items with other users
-📍 Track who has each item
-🔄 Item status control (Available / Loaned / Reserved)
-🔐 Authentication system (Sign up / Sign in / Sign out / Sign in with Google)
-⚡️ Real-time-ready backend with Supabase
-🧠 Clean state management with BLoC
-🛢️ Repository pattern implementation
-🎨 Minimalist and intuitive UI
+- 👕 Create and manage your items (CRUD
+- 🤝 Share items with other users
+- 📍 Track who has each item
+- 🔄 Item status control (Available / Loaned / Reserved)
+- 🔍 Filtering by status
+- 🔐 Authentication system (Sign up / Sign in / Sign out / Sign in with Google)
+- ⚡️ Real-time-ready backend with Supabase
+- 🧠 Clean state management with BLoC
+- 🛢️ Repository pattern implementation
+- 🎨 Minimalist and intuitive UI
 
 ⸻
 
@@ -49,7 +50,19 @@ Backend / Database → ⚡️ Supabase
 ##🧱 Architecture
 
 Feature-based Clean Architecture with BLoC
-
+```
+🫀 core
+⚙️ features 
+    ├──  🔐 auth
+    ├── 👥 user
+    └── 👕 item
+	
+🖥 Presentation (UI + BLoC)
+↓
+🧮 Domain (UseCases + Entities)
+↓
+🛢️ Data (API / DB / Models)
+```
 The project follows a scalable and maintainable structure:
 	•	Separation of concerns
 	•	Domain-driven structure (Data / Domain / Presentation)
@@ -66,14 +79,14 @@ State management is handled using:
 
 worn-e is currently evolving. Upcoming features include:
 
-🔄 Real-time updates (live item status changes)
-🔔 Push notifications
-🖼 Multiple image uploads per item
-🤖 AI-generated item descriptions
-👥 Improved multi-user sharing experience
-📱 Offline-first capabilities
-🔍 Search & advanced filtering
-🎨 Customization & theming
+- 🔄 Real-time updates (live item status changes)
+- 🔔 Push notifications
+- 🖼 Multiple image uploads per item
+- 🤖 AI-generated item descriptions
+- 👥 Improved multi-user sharing experience
+- 📱 Offline-first capabilities
+- 🔍 Search & advanced filtering by categories
+- 🎨 Customization & theming
 
 ⸻
 
@@ -88,18 +101,23 @@ The current focus has been:
 
 Future iterations will focus on real-time interaction, smarter UX and automation.
 
-⚙️ Getting Started
+⸻
+
+## ⚙️ Getting Started
 
 Clone the repository:
+
 ```git clone https://github.com/your-username/worn-e.git```
 
 Install dependencies:
+
 ```flutter pub get```
 
 Run the app:
+
 ```flutter run```
 
-🔐 Environment Variables
+### 🔐 Environment Variables
 
 Create a .env file in the root directory:
 ```
