@@ -185,9 +185,9 @@ class _HomePageState extends State<HomePage> {
     children: [
       _filterItemListButton(size, state.activeFilter),
       Expanded(
-        child: state.allItems.isEmpty
+        child: state.ownItems.isEmpty
             ? _emptyOwnListContainer(size)
-            : _ownItemsList(size, state.allItems),
+            : _ownItemsList(size, state.ownItems),
       ),
     ],
   );
