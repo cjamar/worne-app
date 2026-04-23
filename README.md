@@ -21,7 +21,7 @@ while always knowing where everything is and who has it. Because sharing should 
 - 🛢️ Repository pattern implementation
 - 🎨 Minimalist and intuitive UI
 
-⸻
+![image app](./assets/screenshots/screenshot1.png)
 
 ## 🧠 Concept
 
